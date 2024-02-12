@@ -1,0 +1,165 @@
+body {
+    font-family: courier, serif;
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+#header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+
+    height: 25px;
+}
+
+#main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 1;
+}
+
+#left {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    justify-self: stretch;
+    align-items: flex-start;
+    padding: 0px;
+}
+
+
+#middle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 1;
+}
+
+
+#middleTop {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 1;
+}
+
+
+#middleBottom {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    
+    flex: none;
+    order: 0;
+    align-self: stretch;
+}
+
+
+#right {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0px;
+}
+
+li {
+    margin: 0;
+    margin-top: 5px;
+}
+
+p {
+    margin-top: 0px;
+}
+
+#RenderCanvas:focus {
+    outline: none;
+}
+
+/* 
+#RenderCanvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+} */
+
+#toolsbar {
+    position: absolute;
+    z-index: 100;
+    list-style-type: none;
+    top: 25px;
+    left: 25px;
+    padding: 3px;
+    border: 2px solid white;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    margin: 0;
+}
+
+#toolsbar-title {
+    font-size: xx-large;
+    margin: 15px;
+    margin-bottom: 7px;
+}
+
+#toolsbar-section {
+    width: fit-content;
+    margin-right: 15px;
+    margin-top: 0px;
+    margin-left: 15px;
+    margin-bottom: 20px;
+}
+
+#toolsbar-header {
+    font-size: x-large;
+    margin: auto;
+}
+
+#console-window {
+    position: absolute;
+    z-index: 100;
+    top: 25px;
+    left: 25px;
+    padding: 15px;
+    border: 1px solid white;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3px);
+
+    width: 215px;
+    height: 512px;
+}
+
+.container-text-variables {
+    color: black;
+}
