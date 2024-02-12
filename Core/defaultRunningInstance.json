@@ -162,7 +162,7 @@
                     {
                         "id": "joe0",
                         "modelId": "default_cube.model",
-                        "name": "Joe",
+                        "name": "Cube 1",
                         "transform": {
                             "position": {
                                 "x": -2,
@@ -184,7 +184,7 @@
                     {
                         "id": "mama",
                         "modelId": "default_cube.model",
-                        "name": "Mama",
+                        "name": "Cube 2",
                         "transform": {
                             "parentId": "joe0",
                             "position": {
@@ -207,7 +207,7 @@
                     {
                         "id": "hll0",
                         "modelId": "default_cube.model",
-                        "name": "Hello",
+                        "name": "Cube 3",
                         "transform": {
                             "position": {
                                 "x": 2,
@@ -229,7 +229,7 @@
                     {
                         "id": "wrld",
                         "modelId": "default_sphere.model",
-                        "name": "World",
+                        "name": "Sphere",
                         "transform": {
                             "position": {
                                 "x": 0,
@@ -251,7 +251,7 @@
                     {
                         "id": "sw1m",
                         "modelId": "default_plane.model",
-                        "name": "Swimmer",
+                        "name": "Plane",
                         "transform": {
                             "position": {
                                 "x": 0,
@@ -273,7 +273,7 @@
                     {
                         "id": "p4nz",
                         "modelId": "jet.model",
-                        "name": "I was a Jet",
+                        "name": "Jet",
                         "transform": {
                             "position": {
                                 "x": -7,
