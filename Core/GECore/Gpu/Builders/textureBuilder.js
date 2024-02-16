@@ -2,15 +2,17 @@ import { Webgl } from "../../../../settings.js";
 import Gpu from "../gpu.js";
 import { WebGLConstants } from "../webGLConstants.js";
 
+// https://www.khronos.org/files/webgl20-reference-guide.pdf
+
 export class TextureBuilder {
     /** @param {Gpu} gpu */
     static with(gpu) {
-        if (gpu.api == "webgl") return new GlTextureBuilder(gpu);
+        if (gpu.api == "webgl") return new WebGlTextureBuilder(gpu);
         // else return new WebGpuTextureBuilder(gpu);
     }
 }
 
-export class GlTextureBuilder {
+export class WebGlTextureBuilder {
     /** @type {Gpu} */
     #gpu;
 
