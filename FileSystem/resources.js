@@ -167,7 +167,7 @@ export default class Resources {
         return this.#disk.loadFileFromDisk(fileRelativePath)
             .catch(() => this.#web.loadFileFromWeb(fileRelativePath))
             .catch(() => {
-                if (fileRelativePath.endsWith(".jpg")) return this.#fetchRawImpl(Stash.resource_root + "Textures/error_cors.png")
+                if (fileRelativePath.endsWith(".jpg")) return this.#fetchRawImpl("Textures/error_cors.png")
             })
             .then((file) => {
                 file = new File([file], fileName);
