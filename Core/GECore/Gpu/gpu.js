@@ -164,6 +164,7 @@ export default class Gpu {
     useDepthShader(depthProgram, vertexBuffer, viewMatrix, objectMatrix) {
         const attrLoc = this.gl.getAttribLocation(depthProgram, "a_position");
 
+        this.gl.cullFace(this.gl.FRONT);
         this.gl.useProgram(depthProgram);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBuffer);
         this.gl.enableVertexAttribArray(attrLoc);
@@ -174,6 +175,8 @@ export default class Gpu {
     }
 
     useShader(shader, bufferMap, uniformValueMap, viewMatrix, objectMatrix, lightObject) {
+        this.gl.cullFace(this.gl.BACK);
+
         const program = shader.program;
         this.gl.useProgram(program);
         this.#enableShaderDefaultAttributes(shader, bufferMap);
@@ -185,7 +188,6 @@ export default class Gpu {
 
         this.gl.uniform1i(this.gl.getUniformLocation(program, Webgl.uniform.depthTexture), Webgl.engineTexture.depthTexture);
         this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.timeSinceStart), ScriptGlobals.timeSinceStartup.value);
-        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.shadowBias), AppSettings.shadow_bias);
         this.gl.uniform1f(shader.uniforms.get("u_intensity")?.location, lightObject.intensity);
         this.gl.uniform3fv(shader.uniforms.get("u_reverseLightDirection")?.location, lightObject.transform.back.values());
     }
