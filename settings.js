@@ -23,6 +23,7 @@ export const AppSettings = {
     maximum_index_buffer_allocation_per_draw_call: 160 * KB,
     vertex_buffer_size: 2 * MB,
     shadow_map_resolution: 2 * KB,
+    shadow_bias: 0.001
 };
 
 export const System = Object.freeze({
