@@ -1,6 +1,5 @@
-import { Stash } from "../settings.js";
+import { DataBaseSchema, Stash } from "../settings.js";
 import GEInstanceDB from "./geInstanceDB.js";
-import DataBaseSchema from "./geInstanceDBSchema.js";
 import Loader from "./loader.js";
 import { NavFS } from "./Navigator/navigatorFileSystem.js";
 
@@ -46,33 +45,11 @@ class WebResources {
         this.#error_cors_texture = baseURL + "Textures/error_cors.png";
     }
 
-    readChunk(readableStream) {
-        const reader = readableStream.getReader();
-        return reader.read().then(({ value }) => {
-            reader.releaseLock();
-            return value;
-        })
-    }
-
-    readFullStream(readableStream) {
-        const reader = readableStream.getReader();
-        const result = [];
-        let totalLength = 0;
-        function recur() {
-            return reader.read().then(({ done, value }) => {      // 'value' is guaranteed to be a byte array (Uint8Array)
-                if (done) return result;
-                totalLength += value.length;
-                result.push(value);
-                return recur();
-            })
-        }
-        return recur();
-    }
-
     #getFileData(fileRelativePath) {
         const address = (fileRelativePath.startsWith("http")) ? fileRelativePath : this.#root + fileRelativePath;
         return fetch(address)
             .catch((e) => {
+                console.warn(e);
                 console.log("Fetch failed. Using CORS proxy for resource:", address);
                 return fetch("http://api.allorigins.win/raw?url=" + encodeURIComponent(address));
             })
@@ -88,11 +65,24 @@ class WebResources {
                     "application/octet-stream": "glsl"
                 }
                 const mimeType = response.headers.get("Content-Type");
-                if (!fileTypeConverter[mimeType]) throw new Error("Unknow MIME type (" + fileRelativePath + "): " + mimeType);
-                const fileType = fileTypeConverter[response.headers.get("Content-Type")];
+                const fileType = fileTypeConverter[mimeType];
+                if (fileType == null) throw new Error("Unknow MIME type (" + fileRelativePath + "): " + mimeType);
                 return this.readFullStream(response.body)
                     .then((data) => { return { fileType, fileData: data } })
             })
+    }
+
+    /**
+     * @param {ReadableStream} readableStream 
+     */
+    readFullStream(readableStream) {
+        const reader = readableStream.getReader();
+        const result = [];
+        return reader.read().then(function pump({done, value}) {      // 'value' is guaranteed to be a byte array (Uint8Array)
+            if (done) { reader.releaseLock(); return result; }
+            result.push(value);
+            return reader.read().then(pump);
+        });
     }
 
     /**
@@ -181,7 +171,7 @@ export default class Resources {
             .then((file) => {
                 const fileReader = new FileReader();
                 return new Promise((resolve, reject) => {
-                    fileReader.onloadend = (e) => { console.log(file.name, e); resolve(e.target.result); }
+                    fileReader.onloadend = (e) => { resolve(e.target.result); }
                     fileReader.onerror = (e) => { console.log("Rejected:", file.name, e); reject(e.target); }
                     fileReader.readAsText(file);
                 });
