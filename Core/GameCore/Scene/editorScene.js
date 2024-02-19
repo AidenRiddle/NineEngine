@@ -84,7 +84,7 @@ export default class EditorScene {
 
     #cleanDirtySceneObjects = () => {
         Camera.activeCamera.transform.updateWorldMatrix();
-        LightDirectional.activeLight.transform.updateWorldMatrix();
+        LightDirectional.activeLight.updateLightInformation();
         while (this.#dirtySceneObjects.length > 0) {
             const so = this.#dirtySceneObjects.pop();
             so.transform.updateWorldMatrix();

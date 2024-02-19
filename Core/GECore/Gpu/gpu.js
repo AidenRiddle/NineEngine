@@ -186,7 +186,9 @@ export default class Gpu {
 
         this.gl.uniform1i(this.gl.getUniformLocation(program, Webgl.uniform.depthTexture), Webgl.engineTexture.depthTexture);
         this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.timeSinceStart), ScriptGlobals.timeSinceStartup.value);
-        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.shadowBias), AppSettings.shadow_bias);
+        this.gl.uniform1i(this.gl.getUniformLocation(program, Webgl.uniform.shadowHalfSamples), AppSettings.shadow_halfSamples);
+        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.shadowBiasMin), AppSettings.shadow_biasMin);
+        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.shadowBiasMax), AppSettings.shadow_biasMax);
         this.gl.uniform1f(shader.uniforms.get("u_intensity")?.location, lightObject.intensity);
         this.gl.uniform3fv(shader.uniforms.get("u_reverseLightDirection")?.location, lightObject.transform.back.values());
     }
