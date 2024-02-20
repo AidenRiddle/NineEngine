@@ -10,11 +10,11 @@ import { $SceneObjectDescriptor } from "./Components/sceneObjectDescriptor.js";
 
 export class $Inspector extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        const cargo = frag.state("cargo");
+    static builder(gui, root) {
+        const cargo = gui.state("cargo");
         if (cargo == null) return;
 
         root.style.padding = "10px";
@@ -22,41 +22,41 @@ export class $Inspector extends GuiHandle {
         root.style.flexDirection = "column";
         root.style.alignSelf = "stretch";
 
-        if (cargo.assetName?.endsWith("mat")) this.assetBrowserSelectMaterial(frag, root, cargo);
-        else if (cargo.assetName?.endsWith("model")) this.assetBrowserSelectModel(frag, root, cargo);
-        else this.hierarchySelect(frag, root, cargo);
+        if (cargo.assetName?.endsWith("mat")) this.assetBrowserSelectMaterial(gui, root, cargo);
+        else if (cargo.assetName?.endsWith("model")) this.assetBrowserSelectModel(gui, root, cargo);
+        else this.hierarchySelect(gui, root, cargo);
     }
 
-    static assetBrowserSelectMaterial(frag, root, cargo) {
-        frag.bake(root, new $Card({
+    static assetBrowserSelectMaterial(gui, root, cargo) {
+        gui.bake(root, new $Card({
             title: "Material",
             isEnableable: false,
             content: new $Material({ assetName: cargo.assetName, materialParams: JSON.parse(cargo.content) }).getNode()
         }));
     }
 
-    static assetBrowserSelectModel(frag, root, cargo) {
-        frag.bake(root, new $Card({
+    static assetBrowserSelectModel(gui, root, cargo) {
+        gui.bake(root, new $Card({
             title: "Model",
             isEnableable: false,
             content: new $Model({ assetName: cargo.assetName, modelParams: JSON.parse(cargo.content) }).getNode()
         }))
     }
 
-    static hierarchySelect(frag, root, cargo) {
-        frag.bake(root, new $SceneObjectDescriptor({ soName: cargo.so.name }));
-        frag.bake(root, new $Card({
+    static hierarchySelect(gui, root, cargo) {
+        gui.bake(root, new $SceneObjectDescriptor({ soName: cargo.so.name }));
+        gui.bake(root, new $Card({
             title: "Transform",
             isEnableable: false,
             content: new $Transform({ transformParams: cargo.transform }).getNode()
         }))
-        frag.bake(root, new $Card({
+        gui.bake(root, new $Card({
             title: "Model",
             isEnableable: false,
             content: new $Model({ assetName: cargo.model.id, modelParams: cargo.model }).getNode()
         }))
         cargo.components.forEach((com) => {
-            frag.bake(root, new $Card({
+            gui.bake(root, new $Card({
                 title: com.module,
                 isEnableable: false,
                 content: new $Script({ com }).getNode()

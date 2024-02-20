@@ -21,18 +21,18 @@ const primitiveTypeToHandler = {
 
 export class $ScriptInput extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        const initialValue = frag.state("initialValue");
-        const onInputHandler = frag.state("onInput");
+    static builder(gui, root) {
+        const initialValue = gui.state("initialValue");
+        const onInputHandler = gui.state("onInput");
 
         const type = typeof initialValue;
         const handler = primitiveTypeToHandler[type];
 
         root.append(
-            frag.node("input", input => {
+            gui.node("input", input => {
                 input.id = "script-parameter-value-input";
                 input.type = primitiveTypeToInputType[type] ?? "text";
                 input.pattern = primitiveTypeToPatternMatch[type] ?? "[^]*";
@@ -59,13 +59,13 @@ export class $ScriptInput extends GuiHandle {
 
 export class $ScriptParameter extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      * @param {GuiHandle} handle
      */
-    static builder(frag, root, handle) {
-        const name = frag.state("name");
-        const onInputHandler = frag.state("onInputHandler");
+    static builder(gui, root, handle) {
+        const name = gui.state("name");
+        const onInputHandler = gui.state("onInputHandler");
 
         handle.set("onInput", (value) => onInputHandler(name, value));
 
@@ -76,20 +76,20 @@ export class $ScriptParameter extends GuiHandle {
         root.style.alignItems = "center";
         root.style.width = "100%";
 
-        const label = frag.node("p", p => { p.textContent = name; });
+        const label = gui.node("p", p => { p.textContent = name; });
         root.append(label);
 
-        $ScriptInput.builder(frag, root);
+        $ScriptInput.builder(gui, root);
     }
 }
 
 export class $Script extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        const com = frag.state("com");
+    static builder(gui, root) {
+        const com = gui.state("com");
 
         function saveParam(paramName, value) {
             console.log("Tweaked:", paramName, value);
@@ -106,6 +106,6 @@ export class $Script extends GuiHandle {
         root.style.alignItems = "center";
         root.style.alignSelf = "stretch";
 
-        Object.entries(com.imports).forEach(([k, v]) => frag.bake(root, new $ScriptParameter({ name: k, initialValue: v, onInputHandler: saveParam })));
+        Object.entries(com.imports).forEach(([k, v]) => gui.bake(root, new $ScriptParameter({ name: k, initialValue: v, onInputHandler: saveParam })));
     }
 }
