@@ -2,16 +2,16 @@ import { GuiHandle, GuiContext } from "../../gui.js";
 
 export class $Button extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        const name = frag.state("name");
-        const handler = frag.state("handler");
+    static builder(gui, root) {
+        const name = gui.state("name");
+        const handler = gui.state("handler");
 
         root.onclick = handler;
         root.append(
-            frag.node("p", p => { p.innerText = name })
+            gui.node("p", p => { p.innerText = name })
         )
     }
 }

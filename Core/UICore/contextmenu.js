@@ -65,16 +65,16 @@ const contextMenuTester = {
 
 export class $ContextMenuItem extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        const title = frag.state("title");
-        const handler = frag.state("handler");
+    static builder(gui, root) {
+        const title = gui.state("title");
+        const handler = gui.state("handler");
         root.onmouseover = function (e) { e.target.style.background = "blue"; };
         root.onmouseout = function (e) { e.target.style.background = "none"; };
         root.onclick = function (e) { hideContextMenu(); handler(); };
-        root.append(frag.node("p", p => {
+        root.append(gui.node("p", p => {
             p.innerText = title;
             Object.assign(p.style, pStyle);
         }))
@@ -83,19 +83,19 @@ export class $ContextMenuItem extends GuiHandle {
 
 export class $ContextMenuParentItem extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        const showSubMenu = frag.state("showSubMenu");
-        const title = frag.state("title");
-        const subMenu = frag.state("subMenu");
+    static builder(gui, root) {
+        const showSubMenu = gui.state("showSubMenu");
+        const title = gui.state("title");
+        const subMenu = gui.state("subMenu");
 
-        root.id = frag.state("id");
+        root.id = gui.state("id");
         root.style.display = "flex";
         root.onmouseover = function (e) { e.target.style.background = "blue"; };
         root.onmouseout = function (e) { e.target.style.background = "none"; };
-        const item = frag.node("p", p => {
+        const item = gui.node("p", p => {
             p.innerText = title;
             p.style.width = "100%";
             Object.assign(p.style, pStyle);
@@ -116,19 +116,19 @@ export class $ContextMenuParentItem extends GuiHandle {
 
 export class $ContextMenu extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
-        if (!frag.state("visible")) {
+    static builder(gui, root) {
+        if (!gui.state("visible")) {
             root.style.display = "none";
             return;
         }
 
         Object.assign(root.style, divStyle);
         root.style.display = "flex";
-        root.style.left = frag.state("x");
-        root.style.top = frag.state("y");
+        root.style.left = gui.state("x");
+        root.style.top = gui.state("y");
 
         /** @type {GuiHandle} */
         let activeParentItem = null;
@@ -149,7 +149,7 @@ export class $ContextMenu extends GuiHandle {
             }
         }
 
-        const itemMap = frag.state("itemMap");
+        const itemMap = gui.state("itemMap");
         for (const [title, value] of Object.entries(itemMap)) {
             let node;
             if (typeof value == 'function') node = new $ContextMenuItem({ title, handler: value });

@@ -6,14 +6,14 @@ const showSubfolderByDefault = true;
 
 class $SubfolderArrowIndicator extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
+    static builder(gui, root) {
         const defaultRotation = "rotate(0deg)";
         const enabledRotation = "rotate(-90deg)";
         root.append(
-            frag.node("img", img => {
+            gui.node("img", img => {
                 img.style.width = "15px";
                 img.style.height = "15px";
                 img.style.transition = "all 0.15s ease-out";
@@ -32,30 +32,30 @@ class $SubfolderArrowIndicator extends GuiHandle {
 
 export class $Folder extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(frag, root) {
+    static builder(gui, root) {
         tabIndexCounter++;
-        const value = frag.state("value");
-        const subfolders = frag.state("subfolders");
-        const callback = frag.state("callback");
+        const value = gui.state("value");
+        const subfolders = gui.state("subfolders");
+        const callback = gui.state("callback");
 
         root.style.display = "flex";
         root.style.flexDirection = "column";
         root.style.alignItems = "flex-start";
         root.style.width = "100%";
 
-        const subfolderContainer = frag.node("div", div => {
+        const subfolderContainer = gui.node("div", div => {
             div.id = "folder-subfolder-container";
             div.style.display = (showSubfolderByDefault) ? "block" : "none";
             div.style.padding = "0px 0px 0px 10px";
             if (subfolders != null && subfolders.length > 0) {
-                frag.bake(div, subfolders);
+                gui.bake(div, subfolders);
             }
         });
 
-        const displayCard = frag.node("div", div => {
+        const displayCard = gui.node("div", div => {
             div.tabIndex = tabIndexCounter.toString();
 
             div.style.display = "flex";
@@ -67,8 +67,8 @@ export class $Folder extends GuiHandle {
             div.onfocus = function (e) { e.target.style.background = "blue"; };
             div.onblur = function (e) { e.target.style.background = "none"; };
             div.append(
-                frag.node("div", div => {
-                    $SubfolderArrowIndicator.builder(frag, div);
+                gui.node("div", div => {
+                    $SubfolderArrowIndicator.builder(gui, div);
                     div.onclick = () => {
                         if (subfolderContainer.style.display === "none") {
                             subfolderContainer.style.display = "block";
@@ -81,10 +81,10 @@ export class $Folder extends GuiHandle {
                         div.style.visibility = "hidden";
                     }
                 }),
-                frag.node("div", div => {
+                gui.node("div", div => {
                     div.onclick = callback;
                     div.append(
-                        frag.node("p", p => { p.textContent = value; })
+                        gui.node("p", p => { p.textContent = value; })
                     )
                 }),
             );
