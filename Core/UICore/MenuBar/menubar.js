@@ -1,5 +1,5 @@
-import { NavFS } from "../../../FileSystem/Navigator/navigatorFileSystem.js";
-import { Canvas, GuiHandle, GuiNodeBuilder } from "../gui.js";
+import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
+import { Canvas, GuiHandle, GuiContext } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { notImplemented } from "../uiUtil.js";
@@ -19,7 +19,7 @@ export class $MenuBar extends GuiHandle {
     }
 
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

@@ -1,6 +1,6 @@
 import { _div_, _input_, _p_ } from "../../uiUtil.js";
 import { UiEvent } from "../../uiConfiguration.js";
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 
 const primitiveTypeToInputType = {
     "string": "text",
@@ -22,7 +22,7 @@ const primitiveTypeToHandler = {
 
 export class $ScriptInput extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -60,7 +60,7 @@ export class $ScriptInput extends GuiHandle {
 
 export class $ScriptParameter extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      * @param {GuiHandle} handle
      */
@@ -86,7 +86,7 @@ export class $ScriptParameter extends GuiHandle {
 
 export class $Script extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

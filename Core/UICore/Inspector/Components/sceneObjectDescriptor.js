@@ -1,9 +1,9 @@
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 import { _b_, _div_, _h2_, _p_ } from "../../uiUtil.js";
 
 export class $SceneObjectDescriptor extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

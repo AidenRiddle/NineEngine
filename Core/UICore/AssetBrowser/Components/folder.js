@@ -1,4 +1,4 @@
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 import { _div_, _img_, _p_, makeDraggable, makeDraggableReciever } from "../../uiUtil.js";
 
 const showSubfolderByDefault = true;
@@ -174,7 +174,7 @@ function $file(value, thumbnailUrl, onclick, deleteHandler, dragData) {
 
 export class $Folder extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -261,7 +261,7 @@ export class $Folder extends GuiHandle {
 
 export class $File extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

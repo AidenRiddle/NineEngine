@@ -1,4 +1,4 @@
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 import { _div_, _img_, _p_ } from "../../uiUtil.js";
 
 const downArrow = "/Core/UICore/AssetBrowser/Icons/211687_down_arrow_icon.png";
@@ -20,7 +20,7 @@ function toggleFolderListView(arrowImg, node) {
 
 export class $Card extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

@@ -1,9 +1,9 @@
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 import { UiEvent } from "../../uiConfiguration.js";
 
 export class $TransformInput extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -25,7 +25,7 @@ export class $TransformInput extends GuiHandle {
 
 export class $TransformParameter extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -73,7 +73,7 @@ export class $TransformParameter extends GuiHandle {
 
 export class $Transform extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
