@@ -1,6 +1,5 @@
-import { _div_, _input_, _p_ } from "../../uiUtil.js";
+import { GuiContext, GuiHandle } from "../../gui.js";
 import { UiEvent } from "../../uiConfiguration.js";
-import { GuiHandle, GuiContext } from "../../gui.js";
 
 const primitiveTypeToInputType = {
     "string": "text",

@@ -1,5 +1,4 @@
-import { GuiHandle, GuiContext } from "../../gui.js";
-import { _div_, _img_, _p_ } from "../../uiUtil.js";
+import { GuiContext, GuiHandle } from "../../gui.js";
 
 const downArrow = "/Core/UICore/AssetBrowser/Icons/211687_down_arrow_icon.png";
 const checkboxFilled = "/Core/UICore/Inspector/Icons/8679969_checkbox_line_icon.png";
@@ -82,77 +81,4 @@ export class $Card extends GuiHandle {
 
         root.append(wrapper, content);
     }
-}
-
-export function $card(title, isEnableable, content){
-    const arrowImg = _img_({
-        style: {
-            width: "15px",
-            height: "15px",
-            transition: "all 0.15s ease-out",
-            filter: "invert(100%)",
-        },
-        src: downArrow,
-    });
-
-    const children = [
-        arrowImg,
-        _img_({
-            style: {
-                width: "25px",
-                height: "25px",
-                filter: "invert(100%)",
-            },
-            src: componentIcon,
-        }),
-        _p_({
-            textContent: title
-        }),
-    ];
-
-    if(isEnableable){
-        children.push(
-            _img_({
-                style: {
-                    width: "15px",
-                    height: "15px",
-                    filter: "invert(100%)",
-                },
-                src: checkboxFilled,
-                onclick: function(e) {
-                    e.target.src = (e.target.src.endsWith(checkboxEmpty)) ? checkboxFilled : checkboxEmpty
-                }
-            })
-        )
-    }
-
-    const container = _div_({
-        id: "card",
-        children: [
-            _div_({
-                id: "card-header",
-                children: children,
-                style: {
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center"
-                },
-                onclick: function(e) {
-                    if(toggleFolderListView(arrowImg, content)) container.style.marginBottom = "30px";
-                    else container.style.marginBottom = "0px";
-                },
-            }),
-            content
-        ],
-        style: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            alignSelf: "stretch",
-
-            marginBottom: "30px"
-        }
-    })
-
-    return container;
 }
