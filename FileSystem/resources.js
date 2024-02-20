@@ -1,7 +1,7 @@
 import { DataBaseSchema, Stash } from "../settings.js";
 import GEInstanceDB from "./geInstanceDB.js";
 import Loader from "./loader.js";
-import { NavFS } from "./Navigator/navigatorFileSystem.js";
+import { NavFS } from "./FileNavigator/navigatorFileSystem.js";
 
 class DiskResources {
     /** @param {string} fileRelativePath */
