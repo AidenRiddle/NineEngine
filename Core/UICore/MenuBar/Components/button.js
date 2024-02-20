@@ -1,8 +1,8 @@
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 
 export class $Button extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

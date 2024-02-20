@@ -2,13 +2,13 @@ import { UiEvent } from "../uiConfiguration.js";
 import { notImplemented } from "../uiUtil.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { $Folder } from "./Components/item.js";
-import { Canvas, GuiHandle, GuiNodeBuilder } from "../gui.js";
+import { Canvas, GuiHandle, GuiContext } from "../gui.js";
 
 function clickHandler(so) { eventHandler.sendMessageToParent(UiEvent.hierarchy_select, so); }
 
 export class $Hierarchy extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

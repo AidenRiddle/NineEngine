@@ -1,4 +1,4 @@
-import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
 
 let tabIndexCounter = -1;
 const downArrow = "/Core/UICore/AssetBrowser/Icons/211687_down_arrow_icon.png";
@@ -6,7 +6,7 @@ const showSubfolderByDefault = true;
 
 class $SubfolderArrowIndicator extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -32,7 +32,7 @@ class $SubfolderArrowIndicator extends GuiHandle {
 
 export class $Folder extends GuiHandle {
     /**
-     * @param {GuiNodeBuilder} frag 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
