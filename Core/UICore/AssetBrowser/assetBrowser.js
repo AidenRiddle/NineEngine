@@ -1,9 +1,9 @@
 import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
 import { AssetType } from "../../../settings.js";
-import { Canvas, GuiHandle, GuiContext } from "../gui.js";
+import { Canvas, GuiContext, GuiHandle } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
-import { _button_, _div_, _p_, notImplemented } from "../uiUtil.js";
+import { notImplemented } from "../uiUtil.js";
 import { $File, $Folder } from "./Components/folder.js";
 
 let wdPath;
