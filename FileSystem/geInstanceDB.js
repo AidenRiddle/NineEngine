@@ -26,50 +26,62 @@ export default class GEInstanceDB {
 
     store(objStore, data) {
         return new Promise((resolve, reject) => {
-            const store = this.#database.transaction(objStore, "readwrite").objectStore(objStore);
-            store.put(data).onsuccess = (event) => {
-                //console.log("PUT", objStore, event.target.result);
+            const request = this.#database.transaction(objStore, "readwrite")
+                .objectStore(objStore)
+                .put(data);
+
+            request.onsuccess = (event) => {
                 (event.target.result) ?
                     resolve(event.target.result) :
                     reject(`Unable to write (${data}) to store (${objStore}).`);
             };
+            request.onerror = (e) => { console.error(e); throw new Error(e.target.result); }
         });
     }
 
     get(objStore, keyValue) {
         return new Promise((resolve, reject) => {
-            const store = this.#database.transaction(objStore, "readonly").objectStore(objStore);
-            store.get(keyValue).onsuccess = (event) => {
-                //console.log("GET", keyValue, event.target.result);
+            const request = this.#database.transaction(objStore, "readonly")
+                .objectStore(objStore)
+                .get(keyValue);
+
+            request.onsuccess = (event) => {
                 (event.target.result) ?
                     resolve(event.target.result) :
                     reject(`Key (${keyValue}) not found in store (${objStore}).`);
             };
+            request.onerror = (e) => { console.error(e); throw new Error(e.target.result); }
         });
     }
 
     getKeys(objStore) {
         return new Promise((resolve, reject) => {
-            const store = this.#database.transaction(objStore, "readonly").objectStore(objStore);
-            store.getAllKeys().onsuccess = (event) => {
+            const request = this.#database.transaction(objStore, "readonly")
+                .objectStore(objStore)
+                .getAllKeys();
+
+            request.onsuccess = (event) => {
                 (event.target.result.length > 0) ?
                     resolve(event.target.result) :
                     reject(`No cached Resources found.`);
             };
+            request.onerror = (e) => { console.error(e); throw new Error(e.target.result); }
         });
     }
 
     delete(objStore, keyValue) {
         return new Promise((resolve, reject) => {
-            this.#database.transaction(objStore, "readwrite")
+            const request = this.#database.transaction(objStore, "readwrite")
                 .objectStore(objStore)
-                .delete(keyValue)
-                .onsuccess = (event) => {
-                    //console.log("DELETE", keyValue, event.target.result);
-                    (event.target.result) ?
-                        resolve(event.target.result) :
-                        reject(`Key (${keyValue}) not found in store (${objStore}).`);
-                };
+                .delete(keyValue);
+
+            request.onsuccess = (event) => {
+                //console.log("DELETE", keyValue, event.target.result);
+                (event.target.result) ?
+                    resolve(event.target.result) :
+                    reject(`Key (${keyValue}) not found in store (${objStore}).`);
+            };
+            request.onerror = (e) => { console.error(e); throw new Error(e.target.result); }
         });
     }
 }
