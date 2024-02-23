@@ -7,6 +7,7 @@ import { SceneStorage } from "../DataStores/sceneStore.js";
 import { ScriptStorage } from "../DataStores/scriptStore.js";
 import { ShaderStorage } from "../DataStores/shaderStore.js";
 import { ShaderGenerator } from "../GECore/shader.js";
+import SceneUtils from "./Scene/sceneUtils.js";
 
 export class RunningInstance {
     static #name;
@@ -110,7 +111,12 @@ export class RunningInstance {
                 () => {             // else
                     console.groupCollapsed("No running instance found. Cloning the default one ...");
                     return Resources.fetchAsText(Stash.default_running_instance, { cacheResult: false, hardFetch: true })
-                        .then((jsonString) => this.#from(jsonString));
+                        .then((jsonString) => {
+                            this.#from(jsonString);
+
+                            this.#name = "The one running instance to rule them all";
+                            this.saveAssets();
+                        });
                 }
             )
             .then(() => Resources.loadAll(this.#getListOfDependencies(this.#activeScene)))
@@ -188,7 +194,7 @@ export class RunningInstance {
                 this.#materials[materialName].shaderId = mat.shaderId;
                 this.#materials[materialName].uniformValueMap = mat.uniformValueMap;
                 this.#materials[materialName].textures = mat.textures;
-                return this.quietSave().then(() => this.#materials[materialName]);
+                return this.saveAssets().then(() => this.#materials[materialName]);
             });
     }
 
@@ -209,7 +215,7 @@ export class RunningInstance {
                 this.#models[modelName].vertexShaderId = model.vertexShaderId;
                 this.#models[modelName].meshId = model.meshId;
                 this.#models[modelName].materials = model.materials;
-                return this.quietSave().then(() => this.#models[modelName]);
+                return this.saveAssets().then(() => this.#models[modelName]);
             });
     }
 
@@ -278,8 +284,6 @@ export class RunningInstance {
         scale.x = scaleX;
         scale.y = scaleY;
         scale.z = scaleZ;
-
-        console.log(this.pack());
     }
 
     static pack() {
@@ -294,11 +298,10 @@ export class RunningInstance {
         }
     }
 
-    static quietSave = () => {
+    static saveAssets = () => {
         const pack = this.pack();
         const data = new File([JSON.stringify(pack)], this.#name);
-        return Promise.resolve();
-        // return this.#saveInDB(data);
+        return this.#saveInDB(data);
     }
 
     static updateVersioning() {         // For dev work only.
@@ -308,18 +311,18 @@ export class RunningInstance {
         Object.assign(this.#materials, materialStoragePack);
         Object.assign(this.#models, modelStoragePack);
 
-        this.quietSave();
+        this.saveAssets();
     }
 
-    static save() {
+    static saveProject() {
         this.#scenes[this.#activeScene] = {
-            assets: SceneStorage.Get(this.#activeScene).pack(),
+            assets: SceneUtils.pack(SceneStorage.Get(this.#activeScene)),
             dependencies: {
                 materials: Object.keys(MaterialStorage.pack()),
                 models: Object.keys(ModelStorage.pack()),
                 scripts: ScriptStorage.pack()
             }
         }
-        return this.quietSave();
+        return this.saveAssets();
     }
 }

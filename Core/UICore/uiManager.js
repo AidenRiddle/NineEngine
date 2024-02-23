@@ -124,6 +124,7 @@ export default class UiManager {
             Resources.load(cargo.url, { newFileName: "Textures/eh1.jpg", hardFetch: true });
             // location.reload();
         },
+        [UiEvent.menuBar_saveProject]: (cargo) => { RunningInstance.saveProject(); alert("Project saved!"); },
 
     }
 
