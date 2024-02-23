@@ -44,10 +44,11 @@ export class $Folder extends GuiHandle {
         root.style.display = "flex";
         root.style.flexDirection = "column";
         root.style.alignItems = "flex-start";
-        root.style.width = "100%";
+        root.onclick = callback;
+        root.onfocus = function (e) { e.target.style.background = "blue"; };
+        root.onblur = function (e) { e.target.style.background = "none"; };
 
         const subfolderContainer = gui.node("div", div => {
-            div.id = "folder-subfolder-container";
             div.style.display = (showSubfolderByDefault) ? "block" : "none";
             div.style.padding = "0px 0px 0px 10px";
             if (subfolders != null && subfolders.length > 0) {
@@ -56,16 +57,16 @@ export class $Folder extends GuiHandle {
         });
 
         const displayCard = gui.node("div", div => {
-            div.tabIndex = tabIndexCounter.toString();
-
+            div.tabIndex = tabIndexCounter;
             div.style.display = "flex";
             div.style.flexDirection = "row";
             div.style.alignItems = "center";
             div.style.padding = "0px";
-            div.style.width = "200px";
+            div.style.width = "100%";
+            div.onclick = callback;
+            div.onfocus = function (e) { div.style.background = "blue"; };
+            div.onblur = function (e) { div.style.background = "none"; };
 
-            div.onfocus = function (e) { e.target.style.background = "blue"; };
-            div.onblur = function (e) { e.target.style.background = "none"; };
             div.append(
                 gui.node("div", div => {
                     $SubfolderArrowIndicator.builder(gui, div);
@@ -82,7 +83,6 @@ export class $Folder extends GuiHandle {
                     }
                 }),
                 gui.node("div", div => {
-                    div.onclick = callback;
                     div.append(
                         gui.node("p", p => { p.textContent = value; })
                     )

@@ -36,6 +36,9 @@ export class $Hierarchy extends GuiHandle {
         for (const [id, childFolders] of parents.entries()) {
             soMap.get(id).set("subfolders", childFolders);
         }
+
+        root.style.width = "100%"
+
         gui.bake(root, orphans);
     }
 }
