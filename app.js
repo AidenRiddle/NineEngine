@@ -106,7 +106,7 @@ class Main {
 
     saveRunningInstance = () => {
         console.log("Saving...");
-        return RunningInstance.save();
+        return RunningInstance.saveProject();
     }
 
     defineEngineCycle(eventController) {
