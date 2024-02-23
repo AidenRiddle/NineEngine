@@ -101,7 +101,7 @@ export class ScriptManager {
     }
 
     static #createBuildPackage() {
-        const pathMap = Object.fromEntries(RunningInstance.getScriptDependencies());
+        const pathMap = RunningInstance.getScriptDependencies();
         console.log("Script sources:", pathMap);
         return Resources.loadAll(pathMap, { hardFetch: true }).then((arrOfExtractedFiles) => {
             const buildPackage = {};
