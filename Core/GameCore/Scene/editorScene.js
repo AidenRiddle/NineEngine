@@ -52,11 +52,7 @@ export default class EditorScene {
         this.#objectsInScene.push(so);
         this.#dirtySceneObjects.push(so);
 
-        const pack = SceneUtils.pack(
-            [this.camera],
-            [LightDirectional.activeLight],
-            this.#objectsInScene
-        );
+        const pack = SceneUtils.pack(this);
         RunningInstance.updateScene(Scene.activeSceneName, pack);
 
         return so;
@@ -120,11 +116,7 @@ export default class EditorScene {
     }
 
     PackAndPlay() {
-        const pack = SceneUtils.pack(
-            [this.camera],
-            [LightDirectional.activeLight],
-            this.#objectsInScene
-        );
+        const pack = SceneUtils.pack(this);
         Camera.activeCamera = this.camera;
         const assets = SceneUtils.unpack(pack);
         return ScriptManager.Build(pack.components)
