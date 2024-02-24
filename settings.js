@@ -63,10 +63,10 @@ export const DebugToggle = Object.freeze({
 })
 
 export const Stash = Object.freeze({
-    resource_root: location.href + "Resources/",
-    worker_script_root: location.href,
-    default_running_instance: location.href + "Core/defaultRunningInstance.json",
-    fixtures: location.href + "FileSystem/Navigator/fixtures.json"
+    resource_root: location.origin + "/Resources/",
+    worker_script_root: location.origin,
+    default_running_instance: location.origin + "/Core/defaultRunningInstance.json",
+    fixtures: location.origin + "/FileSystem/FileNavigator/fixtures.json"
 })
 
 export const DataBaseSchema = Object.freeze({
