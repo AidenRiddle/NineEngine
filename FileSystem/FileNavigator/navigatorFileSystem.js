@@ -101,17 +101,13 @@ export class NavFS {
 
     static async bootFromDirectory(dirHandle) {
         const originalDirectory = await idb.get("userConfiguration", "projectRoot").catch(() => null);
-        if (originalDirectory == null) {
-            idb.store("userConfiguration", { name: "projectRoot", dirHandle });
-            this.#root = dirHandle;
-        } else if (originalDirectory.dirHandle.name != dirHandle.name) {
+        if (originalDirectory != null && originalDirectory.dirHandle.name != dirHandle.name) {
             const decision = confirm("The directory you have chosen is different from the one previously associated to your project. "
                 + "Changing directories could be fatal to your project. Do you wish to continue ?");
-            if (decision) {
-                idb.store("userConfiguration", { name: "projectRoot", dirHandle });
-                this.#root = dirHandle;
-            }
+            if (!decision) return;
         }
+        idb.store("userConfiguration", { name: "projectRoot", dirHandle });
+        this.#root = dirHandle;
     }
 
     static async #verifyFolderAccess(handle) {
