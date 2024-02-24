@@ -11,8 +11,9 @@ const contextMenu = {
     "Save Project": () => { eventHandler.sendMessageToParent(UiEvent.menuBar_saveProject); },
     "Set root folder": async function () {
         const dir = await window.showDirectoryPicker({ id: "NineProject", mode: "readwrite" });
-        console.log(dir);
-        NavFS.bootFromDirectory(dir);
+        NavFS.bootFromDirectory(dir)
+        .then(() => NavFS.getDirectoryAccess())
+        .then(() => eventHandler.sendMessageToParent(UiEvent.assetBrowser_refresh));
     },
     "Upload Image": async function () {
         const [fileHandle] = await window.showOpenFilePicker();
