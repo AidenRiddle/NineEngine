@@ -70,17 +70,17 @@ export const Stash = Object.freeze({
 })
 
 export const DataBaseSchema = Object.freeze({
-    resources : Object.freeze({
-        storeName : "resources",
-        key : "name",
+    resources: Object.freeze({
+        storeName: "resources",
+        key: "name",
     }),
-    runningInstances : Object.freeze({
-        storeName : "runningInstances",
-        key : "name",
+    runningInstances: Object.freeze({
+        storeName: "runningInstances",
+        key: "name",
     }),
-    userConfiguration : Object.freeze({
-        storeName : "userConfiguration",
-        key : "name",
+    userConfiguration: Object.freeze({
+        storeName: "userConfiguration",
+        key: "name",
     })
 });
 
