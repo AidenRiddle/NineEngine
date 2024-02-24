@@ -77,13 +77,11 @@ export class GuiContext {
         return el;
     }
 
-    getNode(guiHandle) { return GuiStorage.Get(guiHandle); }
-
     /**
      * @param {GuiHandle} guiHandle 
      * @returns {HTMLElement}
      */
-    #cleanSingle(guiHandle) {
+    getNode(guiHandle) {
         if (guiHandle instanceof Node) return guiHandle;
 
         GuiNodeBuilder.refreshNode(guiHandle);
@@ -96,9 +94,9 @@ export class GuiContext {
      */
     bake(target, any) {
         if (Array.isArray(any)) {
-            any.map(this.#cleanSingle).forEach(el => target.appendChild(el));
+            any.map(this.getNode).forEach(el => target.appendChild(el));
         } else {
-            target.appendChild(this.#cleanSingle(any));
+            target.appendChild(this.getNode(any));
         }
 
     }
