@@ -106,7 +106,7 @@ export class ScriptManager {
         return Resources.loadAll(pathMap, { hardFetch: true }).then((arrOfExtractedFiles) => {
             const buildPackage = {};
             let i = 0;
-            for (const path in pathMap) {
+            for (const path of pathMap.keys()) {
                 buildPackage[path] = arrOfExtractedFiles[i];
                 i++;
             }
