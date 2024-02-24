@@ -159,7 +159,7 @@ class $Block extends GuiHandle {
         if (block.children.length == 0) {
             block.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
         }
-            }
+    }
 }
 
 const guiTree = new $Tree({ fsReady: false });
