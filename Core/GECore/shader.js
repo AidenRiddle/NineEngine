@@ -1,4 +1,4 @@
-import { ScriptUtil } from "./Util/scriptUtil.js";
+import { AscScriptUtil } from "./Util/ascScriptUtil.js";
 import { FRAG_LIGHTDIRECTIONAL,
     FRAG_SHADOWLIGHT,
     VERT_ARMATURE_OUTPUT,

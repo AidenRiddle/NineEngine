@@ -1,5 +1,5 @@
 import { ScriptStorage } from "../../DataStores/scriptStore.js";
-import { ScriptUtil } from "../../GECore/Util/scriptUtil.js";
+import { AscScriptUtil } from "../../GECore/Util/ascScriptUtil.js";
 
 export class RuntimeGenerator {
     static #runtimeScript = "";
@@ -109,7 +109,7 @@ export class RuntimeGenerator {
 
     static generateWithLog() {
         const gen = this.generate();
-        console.log(...ScriptUtil.formatCode(gen).stylized);
+        console.log(...AscScriptUtil.formatCode(gen).stylized);
         return gen;
     }
 
@@ -118,7 +118,7 @@ export class RuntimeGenerator {
 
         const preImports = new Map();
         for (const [normalizedPath, sourceText] of Object.entries(buildPackage)) {
-            const className = ScriptUtil.getClassName(sourceText);
+            const className = AscScriptUtil.getClassName(sourceText);
             preImports.set(className, normalizedPath);
         }
 
@@ -134,7 +134,7 @@ export class RuntimeGenerator {
             i++;
         }
 
-        console.log(...ScriptUtil.formatCode(preRuntimeScript).stylized);
+        console.log(...AscScriptUtil.formatCode(preRuntimeScript).stylized);
         return preRuntimeScript;
     }
 }
