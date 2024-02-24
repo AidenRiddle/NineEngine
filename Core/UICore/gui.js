@@ -24,6 +24,9 @@ export class Canvas {
     static #activeHandles = new Set();
     static #dirtyHandles = new Set();
 
+    static get active() { return this.#activeHandles; }
+    static get dirty() { return this.#dirtyHandles; }
+
     /** @param {GuiHandle} guiHandle */
     static addToHUD(guiHandle) {
         if (this.#activeHandles.has(guiHandle)) { console.log("HUD element already added"); return; }
@@ -48,7 +51,7 @@ export class Canvas {
     static createContextFrom(guiHandle, options = {}) {
         const context = window.open("", "_blank");
         context.document.title = guiHandle.constructor.name;
-        const liveElement = guiHandle.getNode();
+        const liveElement = GuiStorage.Get(guiHandle);
         const importedElement = context.document.adoptNode(liveElement);
         GuiStorage.Add(guiHandle, importedElement);
 
@@ -94,8 +97,7 @@ export class GuiContext {
     bake(target, any) {
         if (Array.isArray(any)) {
             any.map(this.#cleanSingle).forEach(el => target.appendChild(el));
-        }
-        else {
+        } else {
             target.appendChild(this.#cleanSingle(any));
         }
 
@@ -115,14 +117,12 @@ export class GuiHandle {
         GuiNodeBuilder.buildNode(this);
     }
 
-    set(stateName, value) {
+    set = (stateName, value) => {
         GuiStateStorage.Get(this).set(stateName, value);
         this.rebuild();
     }
 
-    rebuild() {
+    rebuild = () => {
         Canvas.queueRepaint(this);
     }
-
-    getNode() { return GuiStorage.Get(this); }
 }
