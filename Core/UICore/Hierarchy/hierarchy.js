@@ -51,10 +51,10 @@ const handler = {
 const contextMenu = {
     "New SceneObject": {
         "Empty": function () { notImplemented(); },
-        "Cube": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_Cube.model" }); },
-        "Sphere": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_Sphere.model" }); },
-        "Plane": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_Plane.model" }); },
-        "Jet": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_Jet.model" }); },
+        "Cube": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_cube.model" }); },
+        "Sphere": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_sphere.model" }); },
+        "Plane": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "default_plane.model" }); },
+        "Jet": function () { eventHandler.sendMessageToParent(UiEvent.hierarchy_new_sceneobject, { modelId: "jet.model" }); },
     }
 }
 
