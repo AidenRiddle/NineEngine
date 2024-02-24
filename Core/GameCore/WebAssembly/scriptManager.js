@@ -9,6 +9,13 @@ import { RuntimeMemory } from "./runtimeMemory.js";
 import { ScriptGlobals } from "./scriptGlobals.js";
 import { ScriptUtil } from "./scriptUtil.js";
 
+const waPrimitives = new Set([
+    "f32", "f64",
+    "i8", "i16", "i32", "i64", "isize",
+    "u8", "u16", "u32", "u64", "usize",
+    "bool"
+])
+
 export class ScriptManager {
     static #runtime;
     static #memory = new RuntimeMemory();
@@ -131,7 +138,7 @@ export class ScriptManager {
             .then((wa) => {
                 this.#waModule = wa.module;
 
-                console.log("Compiler Transform result:", ScriptStorage.pack());
+                console.log("Package serialized properties:", ScriptStorage.pack());
                 console.log("Compilation result:", wa);
                 console.groupEnd();
                 console.log("Compiled successfully. Finished in " + (~~performance.now() - startTime) + "ms.");
@@ -142,33 +149,32 @@ export class ScriptManager {
         console.log("Script Imports:", componentImports);
         return WebAssembly.instantiate(this.#waModule, this.#importMap)
             .then((instance) => {
-                console.log(instance.exports);
+                console.log("Runtime:", instance.exports);
                 this.#runtime = instance.exports;
                 this.#runtime._start();
                 for (const comPackage of componentImports) {
+                    const soid = comPackage.soid;
                     for (const com of comPackage.soComponents) {
-                        if (!Object.hasOwn(this.#componentMaps, comPackage.soid)) this.#componentMaps[comPackage.soid] = {};
-                        const sceneObjectPtr = this.#runtime[comPackage.soid];
+                        if (this.#componentMaps[soid] == null) this.#componentMaps[soid] = {};
+                        const sceneObjectPtr = this.#runtime[soid];
                         const className = ScriptStorage.Get(com.module).className;
-                        this.#componentMaps[comPackage.soid][com.module] = this.#runtime["add_component_" + className](sceneObjectPtr);
+                        this.#componentMaps[soid][com.module] = this.#runtime["add_component_" + className](sceneObjectPtr);
                     }
                     for (const com of comPackage.soComponents) {
-                        for (const field in com.imports) {
-                            const rawValue = com.imports[field];
-                            console.log(field, rawValue);
-                            const rawValueType = typeof rawValue;
-                            const requiredType = ScriptStorage.Get(com.module).declarations[field].type;
+                        const script = ScriptStorage.Get(com.module);
+                        const className = script.className;
+
+                        for (const [field, rawValue] of Object.entries(com.imports)) {
+                            const requiredType = script.declarations[field].type;
+
                             let interpretedValue;
-                            if (rawValueType == 'number') interpretedValue = rawValue;
-                            else if (rawValueType == 'boolean') interpretedValue = (rawValue) ? 1 : 0;
-                            else if (rawValueType == 'string') {
-                                if (requiredType == "string") interpretedValue = this.#writeStringToRuntime(rawValue);
-                                else if (requiredType == "SceneObject") interpretedValue = this.#runtime[rawValue];
-                                else interpretedValue = this.#componentMaps[rawValue][requiredType];
-                            }
-                            const className = ScriptStorage.Get(com.module).className;
-                            if (field == "ufo") console.log(rawValue, rawValueType, requiredType, className);
-                            this.publishValue(comPackage.soid, com.module, className, field, requiredType, interpretedValue);
+                            if (requiredType == 'bool') interpretedValue = (rawValue) ? 1 : 0;
+                            else if (waPrimitives.has(requiredType)) interpretedValue = rawValue;
+                            else if (requiredType == "string") interpretedValue = this.#writeStringToRuntime(rawValue);
+                            else if (requiredType == "SceneObject") interpretedValue = this.#runtime[rawValue];
+                            else interpretedValue = this.#componentMaps[rawValue][requiredType];
+
+                            this.publishValue(soid, com.module, className, field, requiredType, interpretedValue);
                         }
                     }
                 }
@@ -234,10 +240,8 @@ export class ScriptManager {
             "bool": () => this.#dataView.setUint8(addr, fieldValue),
         }
 
-        if (Object.hasOwn(delegate, fieldType)) delegate[fieldType]();
+        if (delegate[fieldType] != null) delegate[fieldType]();
         else delegate["usize"]();
-
-        console.log("- Success:", addr);
     }
 
     static start() {
