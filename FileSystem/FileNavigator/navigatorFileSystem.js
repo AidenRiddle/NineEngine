@@ -8,7 +8,11 @@ const idb = new GEInstanceDB();
 await idb.getInstance("geInstanceDB");
 
 async function runFixtures() {
-    const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false });
+    const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false })
+        .catch((e) => {
+            console.error(e);
+            return fetch(Stash.fixtures).then((response) => response.text());
+        });
     const fixtures = JSON.parse(json);
 
     function recur(path, dir) {
@@ -100,8 +104,8 @@ export class NavFS {
         if (originalDirectory == null) {
             idb.store("userConfiguration", { name: "projectRoot", dirHandle });
             this.#root = dirHandle;
-        } else if (originalDirectory.dir.name != dirHandle.name) {
-            const decision = confirm("The directory you have chosen is different from the one previously associated to your project."
+        } else if (originalDirectory.dirHandle.name != dirHandle.name) {
+            const decision = confirm("The directory you have chosen is different from the one previously associated to your project. "
                 + "Changing directories could be fatal to your project. Do you wish to continue ?");
             if (decision) {
                 idb.store("userConfiguration", { name: "projectRoot", dirHandle });
@@ -126,9 +130,9 @@ export class NavFS {
                 return fetch(Stash.fixtures).then((response) => response.text());
             });
         const fixtures = JSON.parse(json);
-        
+
         const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
-        
+
         const directories = await this.lsdir('.');
         for (const dirName of Object.keys(fixtures)) {
             const result = directories.find(dir => dir.name == dirName);
