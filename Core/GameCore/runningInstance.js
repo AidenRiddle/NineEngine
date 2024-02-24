@@ -315,12 +315,15 @@ export class RunningInstance {
     }
 
     static saveProject() {
+        const scripts = Object.keys(ScriptStorage.pack());
+        if (scripts.length == 0) this.#scenes[this.#activeScene].dependencies.scripts;
+
         this.#scenes[this.#activeScene] = {
             assets: SceneUtils.pack(SceneStorage.Get(this.#activeScene)),
             dependencies: {
                 materials: Object.keys(MaterialStorage.pack()),
                 models: Object.keys(ModelStorage.pack()),
-                scripts: ScriptStorage.pack()
+                scripts: Object.keys(ScriptStorage.pack())
             }
         }
         return this.saveAssets();
