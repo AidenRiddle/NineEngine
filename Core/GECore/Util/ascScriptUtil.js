@@ -213,7 +213,7 @@ export class AscScriptUtil {
 
     /** @param {string} text */
     static textToTokenStream(text) {
-        if (text == null) throw new Error("No text ?");
+        if (text == null || text == "") throw new Error("No text ?");
         return text
             .split(Regex.token_separator)
             .filter(e => e)
@@ -222,7 +222,11 @@ export class AscScriptUtil {
 
     static getClassName(text) {
         const tokenStream = this.textToTokenStream(text);
-        while (tokenStream.next().value != "class") { }
+        let token = tokenStream.next();
+        while (token.value != "class") {
+            if(token.done) return null;
+            token = tokenStream.next();
+        }
         return tokenStream.next().value;
     }
 
