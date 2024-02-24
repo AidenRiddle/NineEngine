@@ -105,13 +105,13 @@ export class ScriptManager {
         const pathMap = RunningInstance.getScriptDependencies();
         console.log("Script sources:", pathMap);
         return Resources.loadAll(pathMap, { hardFetch: true }).then((arrOfExtractedFiles) => {
-            const buildPackage = {};
+            const buildPackage = new Map();
             let i = 0;
             for (const path of pathMap.keys()) {
-                buildPackage[path] = arrOfExtractedFiles[i];
+                buildPackage.set(path, arrOfExtractedFiles[i]);
                 i++;
             }
-            console.log("Script definitions:", buildPackage);
+            console.log("Script definitions:", Object.fromEntries(buildPackage));
             return buildPackage;
         })
     }

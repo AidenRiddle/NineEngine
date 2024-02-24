@@ -7,13 +7,13 @@ const runtimeFileName = "__Runtime.ts";
 
 export function preCompile(compilerArgs, buildPackage) {
     console.groupCollapsed("Pre-compile generated file");
-    buildPackage[runtimeFileName] = RuntimeGenerator.generatePreRuntime(buildPackage);
+    buildPackage.set(runtimeFileName, RuntimeGenerator.generatePreRuntime(buildPackage));
     console.groupEnd();
     return asc.main(
         compilerArgs,
         {
-            readFile(name, baseDir) { return buildPackage[name] ?? null; },
-            writeFile(name, data, baseDir) { buildPackage[name] = data; },
+            readFile(name, baseDir) { return buildPackage.get(name) ?? null; },
+            writeFile(name, data, baseDir) { buildPackage.get(name) = data; },
             listFiles(dirname, baseDir) { console.log("Compiler ListFiles:", dirname); },
             transforms: [new MyTransform()],
         }
@@ -27,13 +27,13 @@ export function preCompile(compilerArgs, buildPackage) {
 
 function compileToWebAssemblyModule(compilerArgs, buildPackage) {
     console.groupCollapsed("Runtime generated file");
-    buildPackage[runtimeFileName] = RuntimeGenerator.generateWithLog();
+    buildPackage.set(runtimeFileName, RuntimeGenerator.generateWithLog());
     console.groupEnd();
     return asc.main(
         compilerArgs,
         {
-            readFile(name, baseDir) { return buildPackage[name] ?? null; },
-            writeFile(name, data, baseDir) { buildPackage[name] = data; },
+            readFile(name, baseDir) { return buildPackage.get(name) ?? null; },
+            writeFile(name, data, baseDir) { buildPackage.get(name) = data; },
             listFiles(dirname, baseDir) { console.log("Compiler ListFiles:", dirname); }
         }
     )
