@@ -3,6 +3,7 @@ import { notImplemented } from "../uiUtil.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { $Folder } from "./Components/item.js";
 import { Canvas, GuiHandle, GuiContext } from "../gui.js";
+import Payload from "../payload.js";
 
 function clickHandler(so) { eventHandler.sendMessageToParent(UiEvent.hierarchy_select, so); }
 
@@ -20,7 +21,13 @@ export class $Hierarchy extends GuiHandle {
             const folder = new $Folder({
                 value: so.name,
                 subfolders: [],
-                callback: () => { clickHandler(id); }
+                callback: () => { clickHandler(id); },
+                dblClick: () => {
+                    const name = prompt("Rename SceneObject:");
+                    const cargo = { soid: so.id, newName: name };
+                    const payload = new Payload(UiEvent.hierarchy_rename_sceneobject, cargo);
+                    parent.postMessage(payload);
+                }
             });
             soMap.set(id, folder);
 
