@@ -4,7 +4,7 @@ const divStyle = {
     display: "flex",
     flexDirection: "column",
     position: "absolute",
-    backgroundColor: '#676767',
+    backgroundColor: "dimgrey",
     width: "150px",
 }
 
@@ -71,7 +71,7 @@ export class $ContextMenuItem extends GuiHandle {
     static builder(gui, root) {
         const title = gui.state("title");
         const handler = gui.state("handler");
-        root.onmouseover = function (e) { e.target.style.background = "blue"; };
+        root.onmouseover = function (e) { e.target.style.background = "darkgrey"; };
         root.onmouseout = function (e) { e.target.style.background = "none"; };
         root.onclick = function (e) { hideContextMenu(); handler(); };
         root.append(gui.node("p", p => {
@@ -93,7 +93,7 @@ export class $ContextMenuParentItem extends GuiHandle {
 
         root.id = gui.state("id");
         root.style.display = "flex";
-        root.onmouseover = function (e) { e.target.style.background = "blue"; };
+        root.onmouseover = function (e) { e.target.style.background = "darkgrey"; };
         root.onmouseout = function (e) { e.target.style.background = "none"; };
         const item = gui.node("p", p => {
             p.innerText = title;
