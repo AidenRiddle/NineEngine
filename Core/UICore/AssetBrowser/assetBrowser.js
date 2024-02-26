@@ -140,7 +140,7 @@ class $Block extends GuiHandle {
                 click = () => clickHandler(filePath);
                 thumbnail = thumbnailCache._default.default_material;
             } else if (NavFS.getFileExtension(file) == AssetType.model.extension) {
-                click = () => parent.postMessage({ uiEventCode: UiEvent.assetBrowser_select_assetFile, cargo: filePath });
+                click = () => clickHandler(filePath);
                 thumbnail = thumbnailCache._default.default_model;
             } else if (thumbnail == null) {
                 thumbnailCache[filePath] = URL.createObjectURL(file);
