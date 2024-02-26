@@ -133,7 +133,6 @@ export default class Resources {
                 this.loadAll = this.#loadAllImpl;
                 this.plant = this.#plantImpl;
                 this.uncache = this.#uncacheImpl;
-                this.rename = this.#renameImpl;
 
                 this.#disk = new DiskResources();
                 this.#cache = new CachedResources(geInstanceDB, DataBaseSchema);
@@ -152,7 +151,6 @@ export default class Resources {
     static loadAll(arrayOfFileRelativePaths, options = { cacheResult: true, hardFetch: false }) { this.#notInitialized(); }
     static plant(file, pathWithName) { this.#notInitialized(); }
     static uncache(pathWithName) { this.#notInitialized(); }
-    static rename(oldPathWithName, newPathWithName) { this.#notInitialized(); }
     // -----------------------------------------------------------------------
 
     static #stash(file) {
@@ -214,11 +212,6 @@ export default class Resources {
 
         return this.#cache.deleteFromCache(pathWithName)
             .then(() => this.#tracker.delete(pathWithName));
-    }
-
-    static #renameImpl = (oldPathWithName, newPathWithName) => {
-        return this.fetchRaw(oldPathWithName, { newFileName: newPathWithName, cacheResult: true })
-            .then(() => this.uncache(oldPathWithName));
     }
 
 }
