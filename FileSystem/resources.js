@@ -143,16 +143,16 @@ export default class Resources {
             });
     }
 
-    static #notInitialized() { return Promise.reject("Module (Resources) must be started before this function can be called."); }
+    static #notInitialized() { throw new Error("Module (Resources) must be started before this function can be called.") }
 
     // --- Function definitions updated after the 'Start' method is called ---
-    static fetchRaw(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static fetchAsText(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static load(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static loadAll(arrayOfFileRelativePaths, options = { cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static plant(file, pathWithName) { return this.#notInitialized(); }
-    static uncache(pathWithName) { return this.#notInitialized(); }
-    static rename(oldPathWithName, newPathWithName) { return this.#notInitialized(); }
+    static fetchRaw(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { this.#notInitialized(); }
+    static fetchAsText(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { this.#notInitialized(); }
+    static load(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { this.#notInitialized(); }
+    static loadAll(arrayOfFileRelativePaths, options = { cacheResult: true, hardFetch: false }) { this.#notInitialized(); }
+    static plant(file, pathWithName) { this.#notInitialized(); }
+    static uncache(pathWithName) { this.#notInitialized(); }
+    static rename(oldPathWithName, newPathWithName) { this.#notInitialized(); }
     // -----------------------------------------------------------------------
 
     static #stash(file) {

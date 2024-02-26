@@ -120,21 +120,30 @@ export class NavFS {
     }
 
     static async validateRootFolder() {
-        const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false })
-            .catch((e) => {
-                console.error(e);
-                return fetch(Stash.fixtures).then((response) => response.text());
-            });
+        const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false });
         const fixtures = JSON.parse(json);
-        
-        const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
-        
-        const directories = await this.lsdir('.');
-        for (const dirName of Object.keys(fixtures)) {
-            const result = directories.find(dir => dir.name == dirName);
-            if (result == null) return Promise.reject(invalidDirectory + path);
+
+        function validateImmediateSubDirectories(directories, fixtureMap) {
+            for (const dir of directories) {
+                if (fixtureMap[dir.name] == null) return false;
+            }
+            return true;
         }
-        return Promise.resolve();
+
+        const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
+        async function validateSubDirectories(path, fixtureMap) {
+            const directories = await this.lsdir(path);
+            if (await validateImmediateSubDirectories(directories, fixtureMap)) {
+                for (const dir of directories) {
+                    const isValid = await validateSubDirectories(path + '/' + dir.name, fixtureMap[dir.name]);
+                    if (!isValid) return Promise.reject(invalidDirectory + path);
+                }
+                return Promise.resolve();
+            }
+            return Promise.reject(invalidDirectory + path);
+        }
+
+        return await validateSubDirectories('.', fixtures);
     }
 
     static async getDirectoryAccess() {
