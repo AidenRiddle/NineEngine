@@ -10,7 +10,7 @@ export class $TransformInput extends GuiHandle {
         const initialValue = gui.state("initialValue");
         const onInputHandler = gui.state("onInput");
 
-        gui.makeRoot(
+        root.append(
             gui.node("input", input => {
                 input.id = "transform-parameter-value-input";
                 input.type = "number";
