@@ -74,7 +74,7 @@ export default class UiManager {
                     );
                     this.sendMessage(UiWindow.Inspector, payload);
                 })
-                .catch((e) => console.error("Failed to update asset (", cargo.assetName, ").", e));
+                // .catch((e) => console.error("Failed to update asset (", cargo.assetName, ").", e));
         },
         [UiEvent.inspector_transform_change]: (cargo) => {
             const newPos = cargo.pos;
