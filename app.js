@@ -24,7 +24,7 @@ import UiManager from "./Core/UICore/uiManager.js";
 import { UiEvent, UiWindow } from "./Core/UICore/uiConfiguration.js";
 import { EventController } from "./eventController.js";
 import { AppSettings, Stash, System } from "./settings.js";
-import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
+import { NavFS } from "./FileSystem/Navigator/navigatorFileSystem.js";
 import Gpu from "./Core/GECore/Gpu/gpu.js";
 import { WorkerManager } from "./Core/Worker/workerManager.js";
 import { Canvas } from "./Core/UICore/gui.js";
