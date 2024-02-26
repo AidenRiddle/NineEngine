@@ -34,8 +34,19 @@ export class ModelStorage extends DataStorage {
     static storage = new Map();
 
     static Add(name, meshId, vertexShaderId, listOfMaterials) {
-        if (listOfMaterials.length == 0) return;
-        super.Add(name, new Model(meshId, vertexShaderId, listOfMaterials));
+        if (this.storage.has(name)) {
+            const model = this.storage.get(name);
+            super.Add(name, new Model(
+                meshId ?? model.meshId,
+                vertexShaderId ?? model.vertexShaderId,
+                listOfMaterials ?? model.listOfMaterials
+            ));
+        } else {
+            if (meshId == null) { console.warn(`Model (${name}) declared without mesh. Aborting.`); return; }
+            if (vertexShaderId == null) { console.warn(`Model (${name}) declared without vertex shader. Aborting.`); return; }
+            if (listOfMaterials.length == 0) { console.warn(`Model (${name}) declared without materials. Aborting.`); return; }
+            super.Add(name, new Model(meshId, vertexShaderId, listOfMaterials));
+        }
     }
 
     static pack() {
