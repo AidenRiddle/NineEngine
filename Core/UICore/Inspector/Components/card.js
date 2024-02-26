@@ -28,7 +28,13 @@ export class $Card extends GuiHandle {
         const isEnableable = gui.state("isEnableable");
         const content = gui.getNode(gui.state("content"));
 
-        const arrowImg = gui.getNode(new $ArrowExpand());
+        const arrowImg = gui.node("img", img => {
+            img.src = downArrow;
+            img.style.width = "15px";
+            img.style.height = "15px";
+            img.style.transition = "all 0.15s ease-out";
+            img.style.filter = "invert(100%)";
+        });
 
         const icon = gui.node("img", img => {
             img.src = componentIcon;
