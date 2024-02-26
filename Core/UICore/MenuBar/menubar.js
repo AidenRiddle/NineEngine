@@ -96,7 +96,7 @@ Canvas.addToHUD(new $MenuBar({
             }
             fileReader.readAsDataURL(file);
         },
-        "Save Project": async () => { eventHandler.sendMessageToParent(UiEvent.menuBar_saveProject); },
+        "Edit": async () => { notImplemented(); }
     },
 
     middleButtons: {
