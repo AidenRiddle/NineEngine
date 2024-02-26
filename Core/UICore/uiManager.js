@@ -5,14 +5,12 @@ import { ModelStorage } from "../DataStores/modelStore.js";
 import { Scene } from "../GameCore/Scene/scene.js";
 import { ScriptManager } from "../GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "../GameCore/runningInstance.js";
-import SceneObject from "../GameCore/sceneObject.js";
 import { showContextMenu } from "./contextmenu.js";
 import Payload from "./payload.js";
 import { UiEvent, UiGroup, UiWindow } from "./uiConfiguration.js";
 
 export default class UiManager {
     static #windows = new Map();
-    /** @type {SceneObject} */
     static #activeSceneObject;
     static #handler = {
         [UiEvent.global_visibility_change]: (cargo) => {
@@ -50,11 +48,6 @@ export default class UiManager {
         [UiEvent.hierarchy_new_sceneobject]: (cargo) => {
             const so = Scene.Instantiate(cargo.modelId);
             this.#activeSceneObject = so;
-        },
-        [UiEvent.hierarchy_rename_sceneobject]: (cargo) => {            
-            this.#activeSceneObject.name = cargo.newName;
-            this.syncSceneObjects(Scene.objectsInScene);
-            this.#handler[UiEvent.hierarchy_select](this.#activeSceneObject.id);
         },
         [UiEvent.inspector_assetFile_update]: (cargo) => {
             const data = JSON.parse(cargo.content);

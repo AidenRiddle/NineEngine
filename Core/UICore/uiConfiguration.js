@@ -19,7 +19,6 @@ export const UiEvent = {
     hierarchy_refresh: 0,
     hierarchy_select: 0,
     hierarchy_new_sceneobject: 0,
-    hierarchy_rename_sceneobject: 0,
 
     inspector_assetFile_update: 0,
     inspector_transform_change: 0,

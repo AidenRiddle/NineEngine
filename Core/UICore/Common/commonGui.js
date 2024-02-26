@@ -39,7 +39,6 @@ export class $ExpandableCard extends GuiHandle {
         const titleCard = gui.getNode(gui.state("titleCard"));
         const subCard = gui.getNode(gui.state("subCard"));
         const onselect = gui.state("onselect");
-        const ondblclick = gui.state("ondblclick");
         const onexpand = gui.state("onexpand");
         const oncollapse = gui.state("oncollapse");
         const highlightOnSelect = gui.state("highlightOnSelect");
@@ -72,7 +71,6 @@ export class $ExpandableCard extends GuiHandle {
             div.style.width = "100%";
 
             if (onselect != null) div.addEventListener("click", onselect);
-            if (ondblclick != null) div.addEventListener("dblclick", ondblclick);
             if (highlightOnSelect) {
                 div.onfocus = function (e) { div.style.background = "blue"; };
                 div.onblur = function (e) { div.style.background = "none"; };

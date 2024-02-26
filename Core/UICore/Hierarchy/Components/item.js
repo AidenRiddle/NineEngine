@@ -30,7 +30,6 @@ export class $Folder extends GuiHandle {
 
         handle.set("titleCard", titleCard);
         handle.set("onselect", gui.state("callback"));
-        handle.set("ondblclick", gui.state("dblClick"));
         handle.set("highlightOnSelect", true);
 
         $ExpandableCard.builder(gui, root, handle);
