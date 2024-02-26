@@ -1,4 +1,3 @@
-import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "./Core/GameCore/runningInstance.js";
 import Resources from "./FileSystem/resources.js";
 import { AppSettings } from "./settings.js";
@@ -7,7 +6,6 @@ class NineEngineConsole {
 
     Resources = Resources;
     ri = RunningInstance;
-    scriptManager = ScriptManager;
 
     async assetToValidJsonString(path) {
         const file = await Resources.fetchRaw(path, { hardFetch: true, cacheResult: false });
