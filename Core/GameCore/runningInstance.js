@@ -214,10 +214,17 @@ export class RunningInstance {
         return this.#solveModelDependencies(modelProperties)
             .then(() => {
                 ModelStorage.Add(modelName, modelProperties.meshId, modelProperties.vertexShaderId, modelProperties.materials);
+
                 const model = ModelStorage.Get(modelName);
+                const vsId = model.vertexShaderId;
+
+                for (const materialName of model.materials) {
+                    const material = MaterialStorage.Get(materialName);
+                    ProgramStorage.Add(vsId, material.shaderId);
+                }
 
                 if (this.#models[modelName] == null) this.#models[modelName] = {};
-                this.#models[modelName].vertexShaderId = model.vertexShaderId;
+                this.#models[modelName].vertexShaderId = vsId;
                 this.#models[modelName].meshId = model.meshId;
                 this.#models[modelName].materials = model.materials;
                 return this.saveAssets().then(() => this.#models[modelName]);
