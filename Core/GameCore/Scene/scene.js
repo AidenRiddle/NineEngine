@@ -23,7 +23,7 @@ export class Scene {
     }
 
     static createNewScene(sceneName) {
-        return Resources.fetchAsJson(Stash.default_running_instance)
+        return Resources.fetchAsJson(Stash.default_running_instance, { hardFetch: true, cacheResult: false })
             .then((ri) => {
                 ri[sceneName] = ri["defaultScene"];
                 delete ri["defaultScene"];
