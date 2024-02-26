@@ -91,12 +91,9 @@ export default class PlayScene {
     Start = () => {
         this.#objectsInScene.forEach(so => this.Bind(so));
         Camera.activeCamera = this.camera;
-        const cameraTarget = this.getObject("cam1");
-        if (cameraTarget != null) {
-            this.camera.transform.parent = cameraTarget.transform;
-            this.camera.transform.setPosition(0, 0, 0);
-            this.camera.transform.setRotation(0, 0, 0);
-        }
+        this.camera.transform.parent = this.getObject("cam1").transform;
+        this.camera.transform.setPosition(0, 0, 0);
+        this.camera.transform.setRotation(0, 0, 0);
         ScriptManager.start();
     }
 
