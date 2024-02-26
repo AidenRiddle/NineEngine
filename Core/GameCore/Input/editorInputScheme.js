@@ -5,7 +5,6 @@ import Camera from "../Components/camera.js";
 import { LightDirectional } from "../Components/lightDirectional.js";
 import { ScriptGlobals } from "../WebAssembly/scriptGlobals.js";
 import { InputManager, InputModifier } from "./input.js";
-import { Scene } from "../Scene/scene.js";
 
 // Try incorporating e.preventDefault();
 document.body.onmousedown = function () { return false };  //Disables the scroll 'compass' when clicking with middle mouse
