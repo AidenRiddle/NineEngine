@@ -1,4 +1,4 @@
-import { Canvas, GuiContext, GuiHandle } from "../gui.js";
+import { Canvas, GuiHandle, GuiNodeBuilder } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { notImplemented } from "../uiUtil.js";
@@ -10,7 +10,7 @@ import { $SceneObjectDescriptor } from "./Components/sceneObjectDescriptor.js";
 
 export class $Inspector extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

@@ -1,4 +1,5 @@
-import { GuiContext, GuiHandle } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
+import { _div_, _img_, _p_, makeDraggable, makeDraggableReciever } from "../../uiUtil.js";
 
 const showSubfolderByDefault = true;
 const downArrow = "/Core/UICore/AssetBrowser/Icons/211687_down_arrow_icon.png";
@@ -16,6 +17,159 @@ function toggleFolderListView(arrowImg, node) {
         node.style.display = "none";
         arrowImg.style.transform = "rotate(-90deg)";
     }
+}
+
+function $folder(value, subfolders, callback, adderCallback, moveFileCallBack) {
+    tabIndexCounter++;
+    const subfolderContainer = _div_({
+        id: "folder-subfolder-container",
+        children: subfolders,
+        style: {
+            display: (showSubfolderByDefault) ? "block" : "none",
+            padding: "0px 0px 0px 10px",
+        },
+    });
+
+    const arrowImg = _img_({
+        style: {
+            width: "15px",
+            height: "15px",
+            transition: "all 0.15s ease-out",
+            transform: (showSubfolderByDefault) ? "rotate(0)" : "rotate(-90deg)",
+            opacity: (subfolders.length > 0) ? "1" : "0",
+            filter: "invert(100%)",
+        },
+        src: downArrow,
+        onclick: () => {
+            toggleFolderListView(arrowImg, subfolderContainer);
+        }
+    });
+
+    const addFolderButton = _div_({
+        id: "folder-add",
+        children: [
+            _p_({
+                textContent: "+"
+            }),
+        ],
+        style: {
+            display: "none"
+        },
+        onclick: adderCallback
+    })
+
+    return _div_({
+        id: "folder",
+        children: [
+            makeDraggableReciever(_div_({
+                id: "folder-header",
+                tabIndex: tabIndexCounter.toString(),
+                children: [
+                    _div_({
+                        id: "folder-arrow",
+                        children: [
+                            arrowImg,
+                        ]
+                    }),
+                    _div_({
+                        id: "folder-name",
+                        children: [
+                            _p_({
+                                textContent: value
+                            }),
+                        ]
+                    }),
+                    addFolderButton,
+                ],
+                style: {
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    padding: "0px",
+                    width: "200px",
+                },
+                onclick: function (e) {
+                    callback();
+                },
+                onfocus: function (e) {
+                    e.target.style.background = "blue";
+                    addFolderButton.style.display = "block";
+                },
+                onblur: function (e) {
+                    e.target.style.background = "none";
+                    addFolderButton.style.display = "none";
+                }
+            }), moveFileCallBack),
+            subfolderContainer,
+        ],
+        style: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            width: "100%",
+        }
+    })
+}
+
+function $file(value, thumbnailUrl, onclick, deleteHandler, dragData) {
+    tabIndexCounter++;
+
+    const childrenMaxWidth = "100px";
+
+    const label = _p_({
+        style: {
+            maxWidth: childrenMaxWidth,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            wordBreak: "break-word",
+            textAlign: "center",
+        },
+        textContent: value,
+    });
+
+    return makeDraggable(_div_({
+        tabIndex: tabIndexCounter.toString(),
+        style: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "10px",
+            gap: "5px",
+            width: "95px",
+            height: "fit-content",
+        },
+        children: [
+            _img_({
+                style: {
+                    maxWidth: childrenMaxWidth,
+                    maxHeight: "75px",
+                },
+                src: thumbnailUrl ?? imgThumbnail,
+                ondblclick: (e) => {
+                    window.open(thumbnailUrl ?? imgThumbnail, '_blank');
+                },
+            }),
+            label,
+        ],
+        onfocus: function (e) {
+            e.target.style.background = "blue";
+            label.style.maxWidth = "100px";
+            label.style.whiteSpace = "initial";
+            // label.style.overflow = "initial";
+
+            this.onmouseup = (e) => { onclick(); }
+        },
+        onblur: function (e) {
+            e.target.style.background = "none";
+            label.style.maxWidth = childrenMaxWidth;
+            label.style.whiteSpace = "nowrap";
+            label.style.overflow = "hidden";
+
+            this.onmouseup = (e) => { }
+        },
+        oncontextmenu: deleteHandler,
+    }), dragData);
 }
 
 export class $Folder extends GuiHandle {

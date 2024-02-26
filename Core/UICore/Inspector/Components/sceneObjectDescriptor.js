@@ -1,4 +1,5 @@
-import { GuiContext, GuiHandle } from "../../gui.js";
+import { GuiHandle, GuiContext } from "../../gui.js";
+import { _b_, _div_, _h2_, _p_ } from "../../uiUtil.js";
 
 export class $SceneObjectDescriptor extends GuiHandle {
     /**
@@ -24,4 +25,23 @@ export class $SceneObjectDescriptor extends GuiHandle {
             })
         )
     }
+}
+
+export function $sceneObjectDescriptor(soName) {
+    return _div_({
+        id: "sodescriptor",
+        children: [
+            _h2_({
+                children: [
+                    _b_({
+                        id: "so-descriptor-name",
+                        textContent: soName
+                    })
+                ],
+                style: {
+                    margin: "0px"
+                }
+            })
+        ]
+    })
 }

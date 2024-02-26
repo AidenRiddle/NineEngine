@@ -1,7 +1,7 @@
 import { DataStorage } from "./Base/baseStore.js";
 
 export class GuiStorage extends DataStorage {
-    /** @type {Map<GuiHandle, HTMLElement>} */
+    /** @type {Map<GuiHandle, HTMLElement} */
     static storage = new Map();
 
     static Add(guiHandle, htmlNode) {
