@@ -43,9 +43,9 @@ const contextMenu = {
 const eventHandler = new UiEventHandler(handler, contextMenu);
 
 export class $MenuBar extends GuiHandle {
-    static objectToButton(gui, obj, target) {
+    static objectToButton(obj, target) {
         for (const [name, handler] of Object.entries(obj)) {
-            target.appendChild(gui.getNode(new $Button({ name, handler })));
+            target.appendChild(new $Button({ name, handler }).getNode());
         }
     }
 
@@ -81,9 +81,9 @@ export class $MenuBar extends GuiHandle {
         const middleButtons = gui.state("middleButtons");
         const rightButtons = gui.state("rightButtons");
 
-        this.objectToButton(gui, leftButtons, leftDiv);
-        this.objectToButton(gui, middleButtons, middleDiv);
-        this.objectToButton(gui, rightButtons, rightDiv);
+        this.objectToButton(leftButtons, leftDiv);
+        this.objectToButton(middleButtons, middleDiv);
+        this.objectToButton(rightButtons, rightDiv);
 
         root.style.overflow = "hidden";
         root.style.margin = "0";

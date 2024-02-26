@@ -109,7 +109,7 @@ export class $ContextMenuParentItem extends GuiHandle {
                 y: "initial",
                 itemMap: subMenu
             })
-            root.append(gui.getNode(subContextMenu));
+            root.append(subContextMenu.getNode());
         }
     }
 }
@@ -151,14 +151,14 @@ export class $ContextMenu extends GuiHandle {
 
         const itemMap = gui.state("itemMap");
         for (const [title, value] of Object.entries(itemMap)) {
-            let handle;
-            if (typeof value == 'function') handle = new $ContextMenuItem({ title, handler: value });
+            let node;
+            if (typeof value == 'function') node = new $ContextMenuItem({ title, handler: value });
             else {
-                handle = new $ContextMenuParentItem({ id: parentId, showSubMenu: false, title, subMenu: value });
-                listOfParentItems.set(title, handle);
+                node = new $ContextMenuParentItem({ id: parentId, showSubMenu: false, title, subMenu: value });
+                listOfParentItems.set(title, node);
             }
 
-            root.append(gui.getNode(handle));
+            root.append(node.getNode());
         }
     }
 }

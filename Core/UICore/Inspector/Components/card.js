@@ -1,4 +1,3 @@
-import { $ArrowExpand } from "../../Common/commonGui.js";
 import { GuiContext, GuiHandle } from "../../gui.js";
 
 const downArrow = "/Core/UICore/AssetBrowser/Icons/211687_down_arrow_icon.png";
@@ -26,7 +25,7 @@ export class $Card extends GuiHandle {
     static builder(gui, root) {
         const title = gui.state("title");
         const isEnableable = gui.state("isEnableable");
-        const content = gui.getNode(gui.state("content"));
+        const content = gui.state("content");
 
         const arrowImg = gui.node("img", img => {
             img.src = downArrow;

@@ -31,7 +31,7 @@ export class $Inspector extends GuiHandle {
         gui.bake(root, new $Card({
             title: "Material",
             isEnableable: false,
-            content: new $Material({ assetName: cargo.assetName, materialParams: JSON.parse(cargo.content) })
+            content: new $Material({ assetName: cargo.assetName, materialParams: JSON.parse(cargo.content) }).getNode()
         }));
     }
 
@@ -39,7 +39,7 @@ export class $Inspector extends GuiHandle {
         gui.bake(root, new $Card({
             title: "Model",
             isEnableable: false,
-            content: new $Model({ assetName: cargo.assetName, modelParams: JSON.parse(cargo.content) })
+            content: new $Model({ assetName: cargo.assetName, modelParams: JSON.parse(cargo.content) }).getNode()
         }))
     }
 
@@ -48,18 +48,18 @@ export class $Inspector extends GuiHandle {
         gui.bake(root, new $Card({
             title: "Transform",
             isEnableable: false,
-            content: new $Transform({ transformParams: cargo.transform })
+            content: new $Transform({ transformParams: cargo.transform }).getNode()
         }))
         gui.bake(root, new $Card({
             title: "Model",
             isEnableable: false,
-            content: new $Model({ assetName: cargo.model.id, modelParams: cargo.model })
+            content: new $Model({ assetName: cargo.model.id, modelParams: cargo.model }).getNode()
         }))
         cargo.components.forEach((com) => {
             gui.bake(root, new $Card({
                 title: com.module,
                 isEnableable: false,
-                content: new $Script({ com })
+                content: new $Script({ com }).getNode()
             }));
         })
     }
