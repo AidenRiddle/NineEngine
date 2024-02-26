@@ -1,5 +1,4 @@
 import Resources from "./FileSystem/resources.js";
-import { AppSettings } from "./settings.js";
 
 class NineEngineConsole {
     async assetToValidJsonString(path) {
@@ -12,15 +11,6 @@ class NineEngineConsole {
             }
             fileReader.readAsDataURL(file);
         })
-    }
-
-    shadowBias(min, max) {
-        AppSettings.shadow_biasMin = min;
-        AppSettings.shadow_biasMax = max;
-    }
-
-    shadowHalfSamples(n) {
-        AppSettings.shadow_halfSamples = n;
     }
 }
 globalThis.nine = new NineEngineConsole();
