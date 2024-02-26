@@ -8,7 +8,8 @@ class DiskResources {
     loadFileFromDisk(fileRelativePath) {
         return NavFS.getFile(fileRelativePath)
             .then((file) => {
-                console.log("Loading from disk!!!"); return file;
+                console.log("Loading from disk:", fileRelativePath);
+                return file;
             });
     }
 }
