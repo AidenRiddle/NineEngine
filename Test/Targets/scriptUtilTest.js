@@ -1,4 +1,4 @@
-import { AscScriptUtil } from "../../Core/GECore/Util/ascScriptUtil.js";
+import { ScriptUtil } from "../../Core/GECore/Util/scriptUtil.js";
 
 export class ScriptUtilTest {
     formatted = `import { BoundingBox } from "./Core/Physics/Colliders/boundingBox";
@@ -39,26 +39,26 @@ export class IfSpinner extends Component implements A, B, C {
 
     testTokenStream() {
         const res = [];
-        for (const t of AscScriptUtil.textToTokenStream(this.formatted)) { res.push(t); }
+        for (const t of ScriptUtil.textToTokenStream(this.formatted)) { res.push(t); }
         assertEquals(res.length, 154);
     }
 
     testFlatten() {
-        assertEquals(this.flat, AscScriptUtil.flattenCode(this.formatted));
+        assertEquals(this.flat, ScriptUtil.flattenCode(this.formatted));
     }
 
     testFormat() {
         // Self Verified
-        const formatted = AscScriptUtil.formatCode(this.formatted).formattedText;
+        const formatted = ScriptUtil.formatCode(this.formatted).formattedText;
         assertTrue(true);
     }
 
     testClassName() {
-        assertEquals("IfSpinner", AscScriptUtil.getClassName(this.formatted));
+        assertEquals("IfSpinner", ScriptUtil.getClassName(this.formatted));
     }
 
     testInheritance() {
-        const inheritance = AscScriptUtil.getInheritance(this.formatted, "IfSpinner");
+        const inheritance = ScriptUtil.getInheritance(this.formatted, "IfSpinner");
         const parent = inheritance.parent;
         const interfaces = inheritance.interfaces;
         assertEquals(parent, "Component");
@@ -69,7 +69,7 @@ export class IfSpinner extends Component implements A, B, C {
     }
 
     testUserDeclarations() {
-        const serializedMembers = AscScriptUtil.getSerializedMembers(this.formatted, "IfSpinner");
+        const serializedMembers = ScriptUtil.getSerializedMembers(this.formatted, "IfSpinner");
         assertEquals(serializedMembers.length, 4);
         assertEquals(serializedMembers[0], "angleToRad");
         assertEquals(serializedMembers[1], "xrot");

@@ -36,7 +36,7 @@ const tokenStyle = {
     "!": "color:white",
 }
 
-export class AscScriptUtil {
+export class ScriptUtil {
     static formatCode(text) {
         const charactersWithNoSpaceBefore = ['\n', '.', '/', ',', '<', '>', '(', ')', ';'];
         const charactersWithNoSpaceAfter = ['\t', '\n', '.', '<', '>', '/', '(', "\"", "\'"];

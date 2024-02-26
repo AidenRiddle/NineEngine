@@ -1,5 +1,5 @@
 import { Webgl } from "../../settings.js";
-import { AscScriptUtil } from "../GECore/Util/ascScriptUtil.js";
+import { ScriptUtil } from "../GECore/Util/scriptUtil.js";
 import Gpu from "../GECore/Gpu/gpu.js";
 import { DataStorage } from "./Base/baseStore.js";
 
@@ -17,7 +17,7 @@ export class ShaderStorage extends DataStorage {
 
     static #getUniforms(shaderAsString) {
         const result = new Map();
-        const iterable = AscScriptUtil.textToTokenStream(shaderAsString);
+        const iterable = ScriptUtil.textToTokenStream(shaderAsString);
         for (const token of iterable) {
             if (token == "uniform") {
                 const type = iterable.next().value;
