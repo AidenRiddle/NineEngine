@@ -95,7 +95,7 @@ export class $File extends GuiHandle {
             label.style.whiteSpace = "initial";
             // label.style.overflow = "initial";
         }
-        root.ondblclick = (e) => { onclick(); }
+        root.onclick = (e) => { onclick(); }
         root.onblur = function (e) {
             e.target.style.background = "none";
             label.style.maxWidth = childrenMaxWidth;
