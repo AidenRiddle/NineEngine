@@ -45,39 +45,31 @@ class WebResources {
         this.#error_cors_texture = baseURL + "Textures/error_cors.png";
     }
 
-    #processFetchResponse(response) {
-        const fileTypeConverter = {
-            "application/json; charset=UTF-8": "json",
-            "model/gltf-binary": "glb",
-            "image/jpeg": "jpg",
-            "image/png": "png",
-            "image/webp": "webp",
-            "video/mp2t": "ts",
-            "application/octet-stream": "glsl"
-        }
-        const mimeType = response.headers.get("Content-Type");
-        const fileType = fileTypeConverter[mimeType];
-        if (fileType == null) throw new Error("Unknow MIME type (" + fileRelativePath + "): " + mimeType);
-
-        return this.readFullStream(response.body)
-            .then((data) => { return { fileType, fileData: data } })
-    }
-
-    async #fetchFileData(fileRelativePath) {
+    #getFileData(fileRelativePath) {
         const address = (fileRelativePath.startsWith("http")) ? fileRelativePath : this.#root + fileRelativePath;
-        const response = await fetch(address, { mode: 'no-cors' });
-
-        if (!response.ok) {
-            if (response.type == "cors") {
-                console.log("Fetch failed with CORS error. Using proxy for resource:", address);
-                return this.#fetchFileData("http://api.allorigins.win/raw?url=" + encodeURIComponent(address));
-            } else {
-                console.log(response);
-                throw new Error("Bad response (" + fileRelativePath + ")");
-            }
-        }
-
-        return this.#processFetchResponse(response);
+        return fetch(address)
+            .catch((e) => {
+                console.warn(e);
+                console.log("Fetch failed. Using CORS proxy for resource:", address);
+                return fetch("http://api.allorigins.win/raw?url=" + encodeURIComponent(address));
+            })
+            .then((response) => {
+                if (!response.ok) { console.error(response); throw new Error("Bad response (" + fileRelativePath + ")") };
+                const fileTypeConverter = {
+                    "application/json; charset=UTF-8": "json",
+                    "model/gltf-binary": "glb",
+                    "image/jpeg": "jpg",
+                    "image/png": "png",
+                    "image/webp": "webp",
+                    "video/mp2t": "ts",
+                    "application/octet-stream": "glsl"
+                }
+                const mimeType = response.headers.get("Content-Type");
+                const fileType = fileTypeConverter[mimeType];
+                if (fileType == null) throw new Error("Unknow MIME type (" + fileRelativePath + "): " + mimeType);
+                return this.readFullStream(response.body)
+                    .then((data) => { return { fileType, fileData: data } })
+            })
     }
 
     /**
@@ -97,7 +89,7 @@ class WebResources {
      * @param {string} fileRelativePath 
      */
     loadFileFromWeb(fileRelativePath) {
-        return this.#fetchFileData(fileRelativePath)
+        return this.#getFileData(fileRelativePath)
             .then((payload) => new File(payload.fileData, fileRelativePath, { type: payload.fileType }))
     }
 }
@@ -166,14 +158,12 @@ export default class Resources {
         }
         return this.#disk.loadFileFromDisk(fileRelativePath)
             .catch(() => this.#web.loadFileFromWeb(fileRelativePath))
-            .catch(() => {
-                if (fileRelativePath.endsWith(".jpg")) return this.#fetchRawImpl(Stash.resource_root + "Textures/error_cors.png")
-            })
             .then((file) => {
                 file = new File([file], fileName);
                 if (options.cacheResult) this.#stash(file);
                 return file;
             })
+            .catch((e) => console.error(e, fileRelativePath, fileName))
     }
 
     static #fetchAsTextImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
