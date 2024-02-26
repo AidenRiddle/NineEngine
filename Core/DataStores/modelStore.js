@@ -41,7 +41,7 @@ export class ModelStorage extends DataStorage {
     static pack() {
         const payload = {}
         for (const key of super.keys()) {
-            const model = this.storage.get(key)
+            const model = this.storage[key]
             payload[key] = {
                 meshId: model.meshId,
                 materials: model.materials
