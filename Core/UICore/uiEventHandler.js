@@ -18,12 +18,10 @@ export class UiEventHandler {
 
         document.addEventListener("contextmenu", (e) => {
             e.preventDefault();
-            const screenX = e.screenX - window.top.outerWidth + window.top.innerWidth;
-            const screenY = e.screenY - window.top.outerHeight + window.top.innerHeight;
             this.sendMessageToParent(UiEvent.global_context_menu, {
                 target: e.view.name,
-                screenX,
-                screenY,
+                screenX: e.screenX,
+                screenY: e.screenY,
                 items: this.contextMenuKeys,
             })
         });

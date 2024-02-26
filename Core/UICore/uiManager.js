@@ -18,8 +18,12 @@ export default class UiManager {
             this.sendMessage(UiWindow.AssetBrowser, payload);
         },
         [UiEvent.global_context_menu]: (cargo) => {
+            const offsetX = window.screenX != 0 ? window.screenX - 8 : window.screenX;  // If you're wondering why magic number 8 ... idk Lule
+            const offsetY = window.screenY != 0 ? window.screenY - 9 : window.screenY;  // If you're wondering why magic number 9 ... idk Lule
+            const x = cargo.screenX - offsetX - window.outerWidth + window.innerWidth;
+            const y = cargo.screenY - offsetY - window.outerHeight + window.innerHeight;
             this.#assignHandlers(cargo.target, cargo.items);
-            showContextMenu(cargo.screenX, cargo.screenY, cargo.items);
+            showContextMenu(x, y, cargo.items);
         },
         [UiEvent.hierarchy_select]: (cargo) => {
             const so = Scene.getObject(cargo);
