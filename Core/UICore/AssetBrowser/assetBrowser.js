@@ -142,7 +142,7 @@ class $Block extends GuiHandle {
             } else if (NavFS.getFileExtension(file) == AssetType.model.extension) {
                 click = () => parent.postMessage({ uiEventCode: UiEvent.assetBrowser_select_assetFile, cargo: filePath });
                 thumbnail = thumbnailCache._default.default_model;
-            } else if (thumbnail == null) {
+            } else {
                 thumbnailCache[filePath] = URL.createObjectURL(file);
                 thumbnail = thumbnailCache[filePath];
             }
@@ -159,7 +159,7 @@ class $Block extends GuiHandle {
         if (block.children.length == 0) {
             block.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
         }
-            }
+    }
 }
 
 const guiTree = new $Tree({ fsReady: false });
