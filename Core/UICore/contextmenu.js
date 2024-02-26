@@ -1,4 +1,4 @@
-import { Canvas, GuiHandle, GuiContext } from "./gui.js";
+import { Canvas, GuiHandle, GuiNodeBuilder } from "./gui.js";
 
 const divStyle = {
     display: "flex",
@@ -65,7 +65,7 @@ const contextMenuTester = {
 
 export class $ContextMenuItem extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -83,7 +83,7 @@ export class $ContextMenuItem extends GuiHandle {
 
 export class $ContextMenuParentItem extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -116,7 +116,7 @@ export class $ContextMenuParentItem extends GuiHandle {
 
 export class $ContextMenu extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

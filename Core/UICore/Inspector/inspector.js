@@ -67,7 +67,6 @@ export class $Inspector extends GuiHandle {
 
 const inspector = new $Inspector();
 Canvas.addToHUD(inspector);
-// Canvas.createContextFrom(inspector);
 Canvas.repaint();
 
 const handler = {

@@ -1,25 +1,5 @@
 import { GuiStateStorage, GuiStorage } from "../DataStores/guiStore.js";
 
-class GuiNodeBuilder {
-
-    static buildNode(guiHandle) {
-        const root = document.createElement("div");
-        GuiStorage.Add(guiHandle, root);
-
-        this.refreshNode(guiHandle);
-    }
-
-    static refreshNode(guiHandle) {
-        const frag = new GuiContext(guiHandle);
-        const root = GuiStorage.Get(guiHandle);
-
-        // Delete all the children first
-        root.replaceChildren();
-
-        guiHandle.constructor.builder(frag, root, guiHandle);
-    }
-}
-
 export class Canvas {
     static #activeHandles = new Set();
     static #dirtyHandles = new Set();
@@ -39,25 +19,35 @@ export class Canvas {
 
     static repaint() {
         for (const guiHandle of this.#dirtyHandles.values()) {
-            GuiNodeBuilder.refreshNode(guiHandle);
+            const liveElement = GuiStorage.Get(guiHandle);
+            GuiNodeBuilder.buildNode(guiHandle);
+            const newElement = GuiStorage.Get(guiHandle);
+            liveElement.parentElement.replaceChild(newElement, liveElement);
         }
         this.#dirtyHandles.clear();
     }
 
-    /** @param {GuiHandle} guiHandle */
-    static createContextFrom(guiHandle, options = {}) {
-        const context = window.open("", "_blank");
-        context.document.title = guiHandle.constructor.name;
-        const liveElement = guiHandle.getNode();
-        const importedElement = context.document.adoptNode(liveElement);
-        GuiStorage.Add(guiHandle, importedElement);
+    static createContext(srcMainUrl, options = {}) {
+        const iframe = document.createElement("iframe");
+        const iframeDoc = iframe.contentDocument;
+        const mainScript = iframeDoc.createElement("script");
+        mainScript.src = srcMainUrl;
 
-        if (options.useEventController) {}
+        if (options?.useEventController)
+
+        document.body.appendChild(iframe);
     }
 }
 
-export class GuiContext {
+export class GuiNodeBuilder {
     #guiHandle;
+
+    static buildNode(guiHandle) {
+        const frag = new GuiNodeBuilder(guiHandle);
+        const root = document.createElement("div");
+        guiHandle.constructor.builder(frag, root, guiHandle);
+        GuiStorage.Add(guiHandle, root);
+    }
 
     constructor(guiHandle) {
         this.#guiHandle = guiHandle;
@@ -83,7 +73,7 @@ export class GuiContext {
     #cleanSingle(guiHandle) {
         if (guiHandle instanceof Node) return guiHandle;
 
-        GuiNodeBuilder.refreshNode(guiHandle);
+        GuiNodeBuilder.buildNode(guiHandle);
         return GuiStorage.Get(guiHandle);
     }
 
@@ -104,7 +94,7 @@ export class GuiContext {
 
 export class GuiHandle {
 
-    /** @param {GuiContext} frag  */
+    /** @param {GuiNodeBuilder} frag  */
     static builder(frag, root) { throw new Error("No builder defined"); }
 
     constructor(states = {}) {

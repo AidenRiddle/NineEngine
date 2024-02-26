@@ -1,4 +1,4 @@
-import { NavFS } from "../../FileSystem/FileNavigator/navigatorFileSystem.js";
+import { NavFS } from "../../FileSystem/Navigator/navigatorFileSystem.js";
 import Resources from "../../FileSystem/resources.js";
 import { AssetType, DebugToggle, System } from "../../settings.js";
 import { ModelStorage } from "../DataStores/modelStore.js";

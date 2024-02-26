@@ -1,9 +1,9 @@
-import { GuiHandle, GuiContext } from "../../gui.js";
+import { GuiHandle, GuiNodeBuilder } from "../../gui.js";
 import { UiEvent } from "../../uiConfiguration.js";
 
 export class $DropReceiver extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -25,7 +25,7 @@ export class $DropReceiver extends GuiHandle {
 
 export class $Receiver extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -49,7 +49,7 @@ export class $Receiver extends GuiHandle {
 
 export class $Material extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {
@@ -107,7 +107,7 @@ export class $Material extends GuiHandle {
 
 export class $Model extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static builder(frag, root) {

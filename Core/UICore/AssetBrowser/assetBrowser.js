@@ -1,6 +1,6 @@
-import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
+import { NavFS } from "../../../FileSystem/Navigator/navigatorFileSystem.js";
 import { AssetType } from "../../../settings.js";
-import { Canvas, GuiHandle, GuiContext } from "../gui.js";
+import { Canvas, GuiHandle, GuiNodeBuilder } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { _button_, _div_, _p_, notImplemented } from "../uiUtil.js";
@@ -10,7 +10,7 @@ let wdPath;
 
 class $Tree extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      * @param {GuiHandle} handle
      */
@@ -96,7 +96,7 @@ const dropHandler = (ev) => {
 
 class $Block extends GuiHandle {
     /**
-     * @param {GuiContext} frag 
+     * @param {GuiNodeBuilder} frag 
      * @param {HTMLElement} root
      */
     static async builder(frag, root, handle) {
