@@ -28,6 +28,8 @@ export class $Card extends GuiHandle {
         const isEnableable = gui.state("isEnableable");
         const content = gui.getNode(gui.state("content"));
 
+        const arrowImg = gui.getNode(new $ArrowExpand());
+
         const icon = gui.node("img", img => {
             img.src = componentIcon;
             img.style.width = "25px";
@@ -44,20 +46,12 @@ export class $Card extends GuiHandle {
             div.style.display = "flex";
             div.style.flexDirection = "row";
             div.style.alignItems = "center";
-
-            $ArrowExpand.builder(gui, div);
-
             div.onclick = function(e) {
-                if (content.style.display === "none") {
-                    content.style.display = "block";
-                    root.style.marginBottom = "30px";
-                } else {
-                    content.style.display = "none";
-                    root.style.marginBottom = "5px";
-                }
+                if(toggleFolderListView(arrowImg, content)) root.style.marginBottom = "30px";
+                else root.style.marginBottom = "0px";
             };
 
-            div.append(icon, label);
+            div.append(arrowImg, icon, label);
         });
 
         if(isEnableable){
