@@ -138,7 +138,7 @@ export class NavFS {
     }
 
     static async getDirectoryAccess() {
-        const { dirHandle } = await idb.get("userConfiguration", "projectRoot").catch(e => { alert("You have not specified a project folder."); return Promise.reject(e); });
+        const { dirHandle } = await idb.get("userConfiguration", "projectRoot");
         this.#root = dirHandle;
         return this.#root.requestPermission({ mode: "readwrite" })
             .then((response) => {
