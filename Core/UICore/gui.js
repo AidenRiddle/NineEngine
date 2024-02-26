@@ -66,11 +66,6 @@ export class GuiContext {
         this.#guiHandle = guiHandle;
     }
 
-    makeRoot(guiHandle) {
-        const node = this.getNode(guiHandle);
-        GuiStorage.Add(this.#guiHandle, node);
-    }
-
     state(key) { return GuiStateStorage.Get(this.#guiHandle).get(key); }
 
     /** 
@@ -87,7 +82,6 @@ export class GuiContext {
      * @returns {HTMLElement}
      */
     getNode(guiHandle) {
-        if (guiHandle == null) return;
         if (guiHandle instanceof Node) return guiHandle;
 
         GuiNodeBuilder.refreshNode(guiHandle);
