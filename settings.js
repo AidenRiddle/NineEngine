@@ -101,7 +101,7 @@ export const Webgl = {
         alpha: true,
         antialias: true,
         depth: true,
-        desynchronized: true,
+        desynchronized: false,
         failIfMajorPerformanceCaveat: false,
         powerPreference: "default",         // "low-power" - "default" - "high-performance"
         premultipliedAlpha: true,
