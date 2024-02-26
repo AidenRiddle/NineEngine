@@ -84,10 +84,12 @@ export class RunningInstance {
 
     static #solveModelDependencies(modelPackage) {
         const promises = [];
-        promises.push(
-            Resources.load(modelPackage.meshId)
-                .then(() => this.addResource(modelPackage.meshId, modelPackage.meshId))
-        );
+        if (!MeshStorage.Exists(modelPackage.meshId)) {
+            promises.push(
+                Resources.load(modelPackage.meshId)
+                    .then(() => this.addResource(modelPackage.meshId, modelPackage.meshId))
+            );
+        }
         if (Array.isArray(modelPackage.materials)) {
             for (const matName of modelPackage.materials) {
                 if (this.#materials[matName]) continue;
