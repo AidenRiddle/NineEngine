@@ -78,7 +78,7 @@ export class RunningInstance {
 
     static #solveModelDependencies(modelPackage) {
         const promises = [];
-                promises.push(
+        promises.push(
             Resources.load(modelPackage.meshId)
                 .then(() => this.addResource(modelPackage.meshId, modelPackage.meshId))
         );
@@ -86,7 +86,7 @@ export class RunningInstance {
             for (const matName of modelPackage.materials) {
                 if (this.#materials[matName]) continue;
                 let promise = Resources.fetchAsJson(matName, { hardFetch: true })
-                                        .then((json) => this.putMaterial(matName, json));
+                    .then((json) => this.putMaterial(matName, json));
                 promises.push(promise);
             }
         }
@@ -114,7 +114,7 @@ export class RunningInstance {
                         });
                 }
             )
-            .then(() => Resources.loadAll(this.#getListOfDependencies(this.#activeScene)))
+            .then(() => Resources.loadAll(this.#getListOfDependencies(this.#activeScene), { hardFetch: true }))
             .then(() => {
                 console.groupEnd();
 
