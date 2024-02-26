@@ -176,8 +176,7 @@ class Main {
     async runFixtures() {
         const projectFolderFound = await NavFS.isReady();
         if (projectFolderFound) {
-            const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false });
-            const fixtures = JSON.parse(json);
+            const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false });
     
             function recur(path, dir) {
                 const promises = [];

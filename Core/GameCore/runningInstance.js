@@ -24,8 +24,7 @@ export class RunningInstance {
 
     static get activeScene() { return this.#activeScene; }
 
-    static #from(jsonString) {
-        const savedRunningInstance = JSON.parse(jsonString);
+    static #from(savedRunningInstance) {
         console.log(savedRunningInstance);
 
         this.#name = savedRunningInstance.name;
@@ -86,8 +85,8 @@ export class RunningInstance {
         if (Array.isArray(modelPackage.materials)) {
             for (const matName of modelPackage.materials) {
                 if (this.#materials[matName]) continue;
-                let promise = Resources.fetchAsText(matName, { hardFetch: true })
-                                        .then((jsonString) => this.putMaterial(matName, JSON.parse(jsonString)));
+                let promise = Resources.fetchAsJson(matName, { hardFetch: true })
+                                        .then((json) => this.putMaterial(matName, json));
                 promises.push(promise);
             }
         }
@@ -102,17 +101,13 @@ export class RunningInstance {
             .then(
                 (jsonFile) => {     // If a running instance is found
                     console.groupCollapsed("Found a running instance. Unpacking ...");
-                    return new Promise((resolve) => {
-                        const fileReader = new FileReader();
-                        fileReader.onloadend = (e) => { resolve(e.target.result); }
-                        fileReader.readAsText(jsonFile);
-                    }).then((jsonString) => this.#from(jsonString));
+                    return jsonFile.text().then((jsonString) => this.#from(JSON.parse(jsonString)));
                 },
                 () => {             // else
                     console.groupCollapsed("No running instance found. Cloning the default one ...");
-                    return Resources.fetchAsText(Stash.default_running_instance, { cacheResult: false, hardFetch: true })
-                        .then((jsonString) => {
-                            this.#from(jsonString);
+                    return Resources.fetchAsJson(Stash.default_running_instance, { cacheResult: false, hardFetch: true })
+                        .then((json) => {
+                            this.#from(json);
 
                             this.#name = "The one running instance to rule them all";
                             this.saveAssets();

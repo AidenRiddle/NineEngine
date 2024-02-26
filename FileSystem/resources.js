@@ -129,6 +129,7 @@ export default class Resources {
             .then(() => {
                 this.fetchRaw = this.#fetchRawImpl;
                 this.fetchAsText = this.#fetchAsTextImpl;
+                this.fetchAsJson = this.#fetchAsJsonImpl;
                 this.load = this.#loadImpl;
                 this.loadAll = this.#loadAllImpl;
                 this.plant = this.#plantImpl;
@@ -148,6 +149,7 @@ export default class Resources {
     // --- Function definitions updated after the 'Start' method is called ---
     static fetchRaw(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
     static fetchAsText(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
+    static fetchAsJson(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
     static load(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
     static loadAll(arrayOfFileRelativePaths, options = { cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
     static plant(file, pathWithName) { return this.#notInitialized(); }
@@ -164,7 +166,7 @@ export default class Resources {
         options = Object.assign({}, this.#defaultFetchOptions, options);
         const fileName = options.newFileName ?? fileRelativePath;
         if (!options.hardFetch && this.#tracker.has(fileName)) {
-            return this.#cache.loadFileFromCache(fileName)
+            return this.#cache.loadFileFromCache(fileName);
         }
         return this.#disk.loadFileFromDisk(fileRelativePath)
             .catch(() => this.#web.loadFileFromWeb(fileRelativePath))
@@ -172,22 +174,20 @@ export default class Resources {
                 if (fileRelativePath.endsWith(".jpg")) return this.#fetchRawImpl("Textures/error_cors.png")
             })
             .then((file) => {
-                file = new File([file], fileName);
-                if (options.cacheResult) this.#stash(file);
-                return file;
+                const renamedFile = new File([file], fileName);
+                if (options.cacheResult) this.#stash(renamedFile);
+                return renamedFile;
             })
     }
 
     static #fetchAsTextImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
         return this.fetchRaw(fileRelativePath, options)
-            .then((file) => {
-                const fileReader = new FileReader();
-                return new Promise((resolve, reject) => {
-                    fileReader.onloadend = (e) => { resolve(e.target.result); }
-                    fileReader.onerror = (e) => { console.log("Rejected:", file.name, e); reject(e.target); }
-                    fileReader.readAsText(file);
-                });
-            })
+            .then((file) => file.text())
+    }
+
+    static #fetchAsJsonImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
+        return this.fetchAsText(fileRelativePath, options)
+            .then((jsonText) => JSON.parse(jsonText))
     }
 
     static #loadImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {

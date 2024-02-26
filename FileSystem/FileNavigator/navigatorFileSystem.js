@@ -8,12 +8,11 @@ const idb = new GEInstanceDB();
 await idb.getInstance("geInstanceDB");
 
 async function runFixtures() {
-    const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false })
+    const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false })
         .catch((e) => {
             console.error(e);
-            return fetch(Stash.fixtures).then((response) => response.text());
+            return fetch(Stash.fixtures).then((response) => response.json());
         });
-    const fixtures = JSON.parse(json);
 
     function recur(path, dir) {
         const promises = [];
@@ -120,12 +119,11 @@ export class NavFS {
     }
 
     static async validateRootFolder() {
-        const json = await Resources.fetchAsText(Stash.fixtures, { hardFetch: true, cacheResult: false })
+        const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false })
             .catch((e) => {
                 console.error(e);
-                return fetch(Stash.fixtures).then((response) => response.text());
+                return fetch(Stash.fixtures).then((response) => response.json());
             });
-        const fixtures = JSON.parse(json);
 
         const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
 

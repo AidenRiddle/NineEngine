@@ -23,12 +23,7 @@ export class Scene {
     }
 
     static createNewScene(sceneName) {
-        return Resources.fetchRaw(Stash.default_running_instance)
-            .then((file) => new Promise((resolve) => {
-                const fileReader = new FileReader();
-                fileReader.onloadend = (e) => { resolve(JSON.parse(e.target.result)); }
-                fileReader.readAsText(file);
-            }))
+        return Resources.fetchAsJson(Stash.default_running_instance)
             .then((ri) => {
                 ri[sceneName] = ri["defaultScene"];
                 delete ri["defaultScene"];
