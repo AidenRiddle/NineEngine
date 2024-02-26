@@ -199,6 +199,8 @@ export class RunningInstance {
                 this.#materials[materialName].shaderId = mat.shaderId;
                 this.#materials[materialName].uniformValueMap = mat.uniformValueMap;
                 this.#materials[materialName].textures = mat.textures;
+
+                this.#scenes[this.#activeScene].dependencies.materials.add(materialName);
                 return this.saveAssets().then(() => this.#materials[materialName]);
             });
     }
@@ -227,6 +229,8 @@ export class RunningInstance {
                 this.#models[modelName].vertexShaderId = vsId;
                 this.#models[modelName].meshId = model.meshId;
                 this.#models[modelName].materials = model.materials;
+
+                this.#scenes[this.#activeScene].dependencies.models.add(modelName);
                 return this.saveAssets().then(() => this.#models[modelName]);
             });
     }
