@@ -195,8 +195,8 @@ export default class Resources {
 
     static #loadAllImpl = (fileMap, options = { cacheResult: true, hardFetch: false }) => {
         const promises = [];
-        for (const [fileRelativePath, fetchPath] of fileMap.entries()) {
-            promises.push(this.load(fetchPath, { newFileName: fileRelativePath, ...options }));
+        for (const frp in fileMap) {
+            promises.push(this.load(fileMap[frp], { newFileName: frp, ...options }));
         }
         return Promise.all(promises)
     }

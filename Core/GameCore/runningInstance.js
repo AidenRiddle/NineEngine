@@ -29,7 +29,7 @@ export class RunningInstance {
 
         this.#name = savedRunningInstance.name;
         this.#activeScene = savedRunningInstance.activeScene;
-        this.#core = new Map(Object.entries(savedRunningInstance.core));
+        this.#core = savedRunningInstance.core;
         this.#materials = savedRunningInstance.materials;
         this.#models = savedRunningInstance.models;
         this.#resources = new Map(Object.entries(savedRunningInstance.resources));
@@ -50,11 +50,11 @@ export class RunningInstance {
             }
         }
 
-        const fileMap = new Map(this.#core);
+        const fileMap = Object.assign({}, this.#core);
         for (const fileName of dependencies) {
-            if (fileMap.has(fileName)) continue;
+            if (this.#core[fileName]) continue;
             if (!this.#resources.has(fileName)) throw new Error("Undeclared resource (" + fileName + ") found.");
-            fileMap.set(fileName, this.#resources.get(fileName));
+            fileMap[fileName] = this.#resources.get(fileName);
         }
         return fileMap;
     }
@@ -152,17 +152,17 @@ export class RunningInstance {
     }
 
     static getUrlOf(localPath) {
-        return this.#core.get(localPath) ?? this.#resources.get(localPath);
+        return this.#core[localPath] ?? this.#resources.get(localPath);
     }
 
     static getScriptDependencies() {
         const fileMap = new Map();
-        for (const [fileRelativePath, fetchPath] of this.#core.entries()) {
-            if (!fileRelativePath.endsWith(".ts")) continue;
-            fileMap.set(fileRelativePath, fetchPath);
+        for (const fileName in this.#core) {
+            if (!fileName.endsWith(".ts")) continue;
+            fileMap.set(fileName, this.#core[fileName]);
         }
         for (const scriptFileName of this.#scenes[this.#activeScene].dependencies.scripts) {
-            fileMap.set(scriptFileName, this.#resources.get(scriptFileName) ?? this.#core.get(scriptFileName));
+            fileMap.set(scriptFileName, this.#resources.get(scriptFileName) ?? this.#core[scriptFileName]);
         }
         return fileMap;
     }
@@ -286,7 +286,7 @@ export class RunningInstance {
         return {
             name: this.#name,
             activeScene: this.#activeScene,
-            core: Object.fromEntries(this.#core),
+            core: this.#core,
             materials: this.#materials,
             models: this.#models,
             resources: Object.fromEntries(this.#resources),
