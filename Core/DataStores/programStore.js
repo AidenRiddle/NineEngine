@@ -46,6 +46,10 @@ export class ProgramStorage extends DataStorage {
     static #createProgram(vsName, fsName) {
         const vs = ShaderStorage.Get(vsName);
         const fs = ShaderStorage.Get(fsName);
+
+        if (vs == null) { throw new Error(`Undeclared Vertex Shader (${vsName}).`) }
+        if (fs == null) { throw new Error(`Undeclared Fragment Shader (${fsName}).`) }
+
         return this.#gpu.createProgram(vs, fs);
     }
 
