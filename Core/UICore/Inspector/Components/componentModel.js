@@ -3,20 +3,20 @@ import { UiEvent } from "../../uiConfiguration.js";
 
 export class $DropReceiver extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const expectedType = gui.state("expectedType");
-        const value = gui.state("value");
-        const onchangeHandler = gui.state("onchangeHandler");
+    static builder(frag, root) {
+        const expectedType = frag.state("expectedType");
+        const value = frag.state("value");
+        const onchangeHandler = frag.state("onchangeHandler");
 
-        const receiver = gui.node("input", input => {
+        const receiver = frag.node("input", input => {
             input.id = "receiver-hitbox";
             input.type = "text";
             input.value = value ?? `None (${expectedType})`;
             input.style.width = "260px";
-            input.onchange = (e) => onchangeHandler(gui.state("tag"), e.target.value);
+            input.onchange = (e) => onchangeHandler(frag.state("tag"), e.target.value);
         });
 
         root.append(receiver);
@@ -25,11 +25,11 @@ export class $DropReceiver extends GuiHandle {
 
 export class $Receiver extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const tag = gui.state("tag");
+    static builder(frag, root) {
+        const tag = frag.state("tag");
 
         root.style.display = "flex";
         root.style.flexDirection = "row";
@@ -38,23 +38,23 @@ export class $Receiver extends GuiHandle {
         root.style.width = "100%";
 
         root.append(
-            gui.node("p", p => {
+            frag.node("p", p => {
                 p.textContent = tag;
             })
         );
 
-        $DropReceiver.builder(gui, root);
+        $DropReceiver.builder(frag, root);
     }
 }
 
 export class $Material extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const assetName = gui.state("assetName");
-        const materialParams = gui.state("materialParams");
+    static builder(frag, root) {
+        const assetName = frag.state("assetName");
+        const materialParams = frag.state("materialParams");
 
         function saveParam(key, value) {
             console.log("Saving Params:", key, "(", value, ")");
@@ -81,7 +81,7 @@ export class $Material extends GuiHandle {
         root.style.alignItems = "center";
         root.style.width = "100%";
 
-        gui.bake(root, new $Receiver({
+        frag.bake(root, new $Receiver({
             tag: "Shader",
             expectedType: "shader",
             value: materialParams.shaderId,
@@ -89,13 +89,13 @@ export class $Material extends GuiHandle {
         }));
 
         root.append(
-            gui.node("p", p => {
+            frag.node("p", p => {
                 p.textContent = "Textures";
             })
         );
 
         materialParams.textures.forEach((mat, index) => {
-            gui.bake(root, new $Receiver({
+            frag.bake(root, new $Receiver({
                 tag: index.toString(),
                 expectedType: "Textures",
                 value: mat,
@@ -107,12 +107,12 @@ export class $Material extends GuiHandle {
 
 export class $Model extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const assetName = gui.state("assetName");
-        const modelParams = gui.state("modelParams");
+    static builder(frag, root) {
+        const assetName = frag.state("assetName");
+        const modelParams = frag.state("modelParams");
 
         function saveParam(key, value) {
             console.log("Saving Params:", "(" + key + ")", value);
@@ -133,20 +133,20 @@ export class $Model extends GuiHandle {
             })
         }
 
-        gui.bake(root, new $Receiver({
+        frag.bake(root, new $Receiver({
             tag: "MeshID",
             expectedType: "Mesh",
             value: modelParams.meshId,
             onchangeHandler: saveParam,
         }))
         root.append(
-            gui.node("p", p => {
+            frag.node("p", p => {
                 p.textContent = "Materials";
             })
         )
 
         modelParams.materials.forEach((mat, index) => {
-            gui.bake(root, new $Receiver({
+            frag.bake(root, new $Receiver({
                 tag: index.toString(),
                 expectedType: "Material",
                 value: mat,

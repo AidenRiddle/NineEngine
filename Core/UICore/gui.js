@@ -10,13 +10,13 @@ class GuiNodeBuilder {
     }
 
     static refreshNode(guiHandle) {
-        const gui = new GuiContext(guiHandle);
+        const frag = new GuiContext(guiHandle);
         const root = GuiStorage.Get(guiHandle);
 
         // Delete all the children first
         root.replaceChildren();
 
-        guiHandle.constructor.builder(gui, root, guiHandle);
+        guiHandle.constructor.builder(frag, root, guiHandle);
     }
 }
 
@@ -104,11 +104,8 @@ export class GuiContext {
 
 export class GuiHandle {
 
-    /** 
-     * @param {GuiContext} gui
-     * @param {HTMLElement} root
-     * @param {GuiHandle} handle */
-    static builder(gui, root, handle) { throw new Error("No builder defined"); }
+    /** @param {GuiContext} frag  */
+    static builder(frag, root) { throw new Error("No builder defined"); }
 
     constructor(states = {}) {
         GuiStateStorage.Add(this, new Map(Object.entries(states)));

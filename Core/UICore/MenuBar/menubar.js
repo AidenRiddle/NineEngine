@@ -19,25 +19,25 @@ export class $MenuBar extends GuiHandle {
     }
 
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const leftDiv = gui.node("div", div => {
+    static builder(frag, root) {
+        const leftDiv = frag.node("div", div => {
             div.id = "left";
             div.style.display = "flex";
             div.style.gap = "20px";
             div.style.marginLeft = "10px";
             div.style.width = "33%";
         });
-        const middleDiv = gui.node("div", div => {
+        const middleDiv = frag.node("div", div => {
             div.id = "middle";
             div.style.display = "flex";
             div.style.gap = "20px";
             div.style.flexGrow = 1;
             div.style.justifyContent = "center";
         });
-        const rightDiv = gui.node("div", div => {
+        const rightDiv = frag.node("div", div => {
             div.id = "right";
             div.style.display = "flex";
             div.style.gap = "20px";
@@ -46,9 +46,9 @@ export class $MenuBar extends GuiHandle {
             div.style.justifyContent = "right";
         });
 
-        const leftButtons = gui.state("leftButtons");
-        const middleButtons = gui.state("middleButtons");
-        const rightButtons = gui.state("rightButtons");
+        const leftButtons = frag.state("leftButtons");
+        const middleButtons = frag.state("middleButtons");
+        const rightButtons = frag.state("rightButtons");
 
         this.objectToButton(leftButtons, leftDiv);
         this.objectToButton(middleButtons, middleDiv);

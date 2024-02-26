@@ -20,25 +20,25 @@ function toggleFolderListView(arrowImg, node) {
 
 export class $Folder extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const value = gui.state("value");
-        const subfolders = gui.state("subfolders");
-        const callback = gui.state("callback");
-        const adderCallback = gui.state("adderCallback");
-        const moveFileCallBack = gui.state("moveFileCallBack");
+    static builder(frag, root) {
+        const value = frag.state("value");
+        const subfolders = frag.state("subfolders");
+        const callback = frag.state("callback");
+        const adderCallback = frag.state("adderCallback");
+        const moveFileCallBack = frag.state("moveFileCallBack");
 
         tabIndexCounter++;
-        const subfolderContainer = gui.node("div", div => {
+        const subfolderContainer = frag.node("div", div => {
             div.id = "folder-subfolder-container";
             div.style.display = (showSubfolderByDefault) ? "block" : "none";
             div.style.padding = "0px 0px 0px 10px";
-            gui.bake(div, subfolders);
+            frag.bake(div, subfolders);
         });
 
-        const arrowImg = gui.node("img", img => {
+        const arrowImg = frag.node("img", img => {
             img.src = downArrow;
             img.style.width = "15px";
             img.style.height = "15px";
@@ -51,15 +51,15 @@ export class $Folder extends GuiHandle {
             }
         });
 
-        const addFolderButton = gui.node("div", div => {
+        const addFolderButton = frag.node("div", div => {
             div.id = "folder-add",
-                div.append(gui.node("p", p => { p.textContent = "+"; })),
+                div.append(frag.node("p", p => { p.textContent = "+"; })),
                 div.style.display = "none"
             div.onclick = adderCallback
         })
 
         // This was a draggableReciever with moveFileCallBack
-        const wrapper = gui.node("div", div => {
+        const wrapper = frag.node("div", div => {
             div.id = "folder-header";
             div.tabIndex = tabIndexCounter.toString();
             div.style.display = "flex";
@@ -77,14 +77,14 @@ export class $Folder extends GuiHandle {
                 addFolderButton.style.display = "none";
             }
             div.append(
-                gui.node("div", div => {
+                frag.node("div", div => {
                     div.id = "folder-arrow";
                     div.append(arrowImg);
                 }),
-                gui.node("div", div => {
+                frag.node("div", div => {
                     div.id = "folder-name";
                     div.append(
-                        gui.node("p", p => {
+                        frag.node("p", p => {
                             p.textContent = value;
                         })
                     )
@@ -107,19 +107,19 @@ export class $Folder extends GuiHandle {
 
 export class $File extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const value = gui.state("value");
-        const thumbnailUrl = gui.state("thumbnailUrl");
-        const onclick = gui.state("onclick");
-        const deleteHandler = gui.state("deleteHandler");
-        const dragData = gui.state("dragData");
+    static builder(frag, root) {
+        const value = frag.state("value");
+        const thumbnailUrl = frag.state("thumbnailUrl");
+        const onclick = frag.state("onclick");
+        const deleteHandler = frag.state("deleteHandler");
+        const dragData = frag.state("dragData");
 
         tabIndexCounter++;
         const childrenMaxWidth = "100px";
-        const label = gui.node("p", p => {
+        const label = frag.node("p", p => {
             p.textContent = value;
             p.style.maxWidth = childrenMaxWidth;
             p.style.textOverflow = "ellipsis";
@@ -156,7 +156,7 @@ export class $File extends GuiHandle {
         }
         root.oncontextmenu = deleteHandler;
         root.append(
-            gui.node("img", img => {
+            frag.node("img", img => {
                 img.style.maxWidth = childrenMaxWidth;
                 img.style.maxHeight = "75px";
                 img.src = thumbnailUrl ?? imgThumbnail;

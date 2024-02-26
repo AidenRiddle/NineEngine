@@ -19,15 +19,15 @@ function toggleFolderListView(arrowImg, node) {
 
 export class $Card extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const title = gui.state("title");
-        const isEnableable = gui.state("isEnableable");
-        const content = gui.state("content");
+    static builder(frag, root) {
+        const title = frag.state("title");
+        const isEnableable = frag.state("isEnableable");
+        const content = frag.state("content");
 
-        const arrowImg = gui.node("img", img => {
+        const arrowImg = frag.node("img", img => {
             img.src = downArrow;
             img.style.width = "15px";
             img.style.height = "15px";
@@ -35,18 +35,18 @@ export class $Card extends GuiHandle {
             img.style.filter = "invert(100%)";
         });
 
-        const icon = gui.node("img", img => {
+        const icon = frag.node("img", img => {
             img.src = componentIcon;
             img.style.width = "25px";
             img.style.height = "25px";
             img.style.filter = "invert(100%)";
         });
 
-        const label = gui.node("p", p => {
+        const label = frag.node("p", p => {
             p.textContent = title;
         });
         
-        const wrapper = gui.node("div", div => {
+        const wrapper = frag.node("div", div => {
             div.id = "card-header";
             div.style.display = "flex";
             div.style.flexDirection = "row";
@@ -60,7 +60,7 @@ export class $Card extends GuiHandle {
         });
 
         if(isEnableable){
-            const enableCheckmark = gui.node("img", img => {
+            const enableCheckmark = frag.node("img", img => {
                 img.src = checkboxFilled;
                 img.style.width = "15px";
                 img.style.height = "15px";

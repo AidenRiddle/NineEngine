@@ -10,28 +10,28 @@ let wdPath;
 
 class $Tree extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      * @param {GuiHandle} handle
      */
-    static async builder(gui, root, handle) {
+    static async builder(frag, root, handle) {
         root.id = "tree-view";
         root.style.width = "250px";
         root.style.height = "100%";
         root.style.overflow = "auto";
 
-        const fileSystemIsReady = gui.state("fsReady");
+        const fileSystemIsReady = frag.state("fsReady");
 
         console.log("Refreshing asset browser ...");
         if (fileSystemIsReady) {
             const treeNode = await this.buildTree(".");
-            gui.bake(root, treeNode);
-        } else this.displayDefaultMessage(gui, root, handle);
+            frag.bake(root, treeNode);
+        } else this.displayDefaultMessage(frag, root, handle);
     }
 
-    static displayDefaultMessage(gui, root, handle) {
-        const p = gui.node("p", p => { p.innerText = "Please provide Read/Write access to your project folder." })
-        const button = gui.node("button", button => {
+    static displayDefaultMessage(frag, root, handle) {
+        const p = frag.node("p", p => { p.innerText = "Please provide Read/Write access to your project folder." })
+        const button = frag.node("button", button => {
             button.innerText = "Give Access";
             button.onclick = (e) => {
                 NavFS.getDirectoryAccess()
@@ -96,18 +96,18 @@ const dropHandler = (ev) => {
 
 class $Block extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static async builder(gui, root, handle) {
-        const path = gui.state("path");
+    static async builder(frag, root, handle) {
+        const path = frag.state("path");
         wdPath = path;
 
         root.id = "block-view";
         root.style.width = "200px";
         this.makeDropzone(root);
 
-        if (path != null) this.listBlocks(path, gui, root, handle);
+        if (path != null) this.listBlocks(path, frag, root, handle);
     }
 
     static makeDropzone(element) {
@@ -115,7 +115,7 @@ class $Block extends GuiHandle {
         element.ondragover = dragoverHandler;
     }
 
-    static async listBlocks(path, gui, block, handle) {
+    static async listBlocks(path, frag, block, handle) {
         const fileHandles = await NavFS.lsf(path);
         const dirHandles = await NavFS.lsdir(path);
         if (!fileHandles) return;
@@ -154,10 +154,10 @@ class $Block extends GuiHandle {
                 dragData: filePath
             }));
         }
-        gui.bake(block, blocks);
+        frag.bake(block, blocks);
 
         if (block.children.length == 0) {
-            block.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
+            block.append(frag.node("p", p => { p.innerText = "This directory is empty."; }));
         }
     }
 }

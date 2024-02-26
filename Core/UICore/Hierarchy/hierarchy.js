@@ -8,11 +8,11 @@ function clickHandler(so) { eventHandler.sendMessageToParent(UiEvent.hierarchy_s
 
 export class $Hierarchy extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const cargo = gui.state("cargo");
+    static builder(frag, root) {
+        const cargo = frag.state("cargo");
         const soMap = new Map();
         const parents = new Map();
         const orphans = [];
@@ -36,7 +36,7 @@ export class $Hierarchy extends GuiHandle {
         for (const [id, childFolders] of parents.entries()) {
             soMap.get(id).set("subfolders", childFolders);
         }
-        gui.bake(root, orphans);
+        frag.bake(root, orphans);
     }
 }
 

@@ -3,15 +3,15 @@ import { UiEvent } from "../../uiConfiguration.js";
 
 export class $TransformInput extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const initialValue = gui.state("initialValue");
-        const onInputHandler = gui.state("onInput");
+    static builder(frag, root) {
+        const initialValue = frag.state("initialValue");
+        const onInputHandler = frag.state("onInput");
 
         root.append(
-            gui.node("input", input => {
+            frag.node("input", input => {
                 input.id = "transform-parameter-value-input";
                 input.type = "number";
                 input.value = initialValue;
@@ -25,32 +25,32 @@ export class $TransformInput extends GuiHandle {
 
 export class $TransformParameter extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const name = gui.state("name");
-        const x = gui.state("x");
-        const y = gui.state("y");
-        const z = gui.state("z");
-        const onInputHandler = gui.state("onInputHandler");
+    static builder(frag, root) {
+        const name = frag.state("name");
+        const x = frag.state("x");
+        const y = frag.state("y");
+        const z = frag.state("z");
+        const onInputHandler = frag.state("onInputHandler");
 
-        const xLabel = gui.node("p", p => { p.textContent = "X"; });
-        const yLabel = gui.node("p", p => { p.textContent = "Y"; });
-        const zLabel = gui.node("p", p => { p.textContent = "Z"; });
+        const xLabel = frag.node("p", p => { p.textContent = "X"; });
+        const yLabel = frag.node("p", p => { p.textContent = "Y"; });
+        const zLabel = frag.node("p", p => { p.textContent = "Z"; });
 
         const xInput = new $TransformInput({ initialValue: x, onInput: (value) => onInputHandler(0, value) });
         const yInput = new $TransformInput({ initialValue: y, onInput: (value) => onInputHandler(1, value) });
         const zInput = new $TransformInput({ initialValue: z, onInput: (value) => onInputHandler(2, value) });
 
-        const wrapper = gui.node("div", div => {
+        const wrapper = frag.node("div", div => {
             div.id = "transform-parameter-values";
             div.style.display = "flex";
             div.style.flexDirection = "row";
             div.style.alignItems = "center";
             div.style.gap = "5px";
 
-            gui.bake(div, [
+            frag.bake(div, [
                 xLabel, xInput,
                 yLabel, yInput,
                 zLabel, zInput,
@@ -65,7 +65,7 @@ export class $TransformParameter extends GuiHandle {
         root.style.width = "100%";
 
         root.append(
-            gui.node("p", p => { p.textContent = name; }),
+            frag.node("p", p => { p.textContent = name; }),
             wrapper
         );
     }
@@ -73,11 +73,11 @@ export class $TransformParameter extends GuiHandle {
 
 export class $Transform extends GuiHandle {
     /**
-     * @param {GuiContext} gui 
+     * @param {GuiContext} frag 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
-        const transformParams = gui.state("transformParams");
+    static builder(frag, root) {
+        const transformParams = frag.state("transformParams");
         function saveParam(key, index, value) {
             transformParams[key][index] = value;
             parent.postMessage({ uiEventCode: UiEvent.inspector_transform_change, cargo: transformParams })
@@ -89,7 +89,7 @@ export class $Transform extends GuiHandle {
         root.style.gap = "1px";
         root.style.alignItems = "center";
         root.style.alignSelf = "stretch";
-        gui.bake(root, [
+        frag.bake(root, [
             new $TransformParameter({
                 name: "Position",
                 x: transformParams.pos[0],
