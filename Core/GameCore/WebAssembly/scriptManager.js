@@ -7,7 +7,6 @@ import { RunningInstance } from "../runningInstance.js";
 import { compile } from "./asCompiler.js";
 import { RuntimeMemory } from "./runtimeMemory.js";
 import { ScriptGlobals } from "./scriptGlobals.js";
-import { ScriptUtil } from "./scriptUtil.js";
 
 export class ScriptManager {
     static #runtime;
@@ -20,7 +19,7 @@ export class ScriptManager {
     static #inputStates = new Set();
     static #importMap = {
         "env": {
-            "console.log": (ptr) => { ScriptUtil.logDev(this.#memory.readString(ptr)); },
+            "console.log": (ptr) => { this.#logDev(this.#memory.readString(ptr)); },
             memory: this.#memory,
             abort: (msg, fileName, line, col) => {
                 console.error(
@@ -35,8 +34,8 @@ export class ScriptManager {
             "Time.deltaTime": ScriptGlobals.deltaTime,
             "Time.timeSinceStartup": ScriptGlobals.timeSinceStartup,
 
-            "Debug.ptr": (ptr) => { ScriptUtil.logDebug("Debug.Ptr:", ptr); },
-            "Debug.log": (str) => { ScriptUtil.logDebug(this.#memory.readString(str)); },
+            "Debug.ptr": (ptr) => { this.#logDebug("Debug.Ptr:", ptr); },
+            "Debug.log": (str) => { this.#logDebug(this.#memory.readString(str)); },
         },
         "input": {
             "pingBuffer": (tag, buffer) => { this.#runtimeBuffers[this.#memory.readString(tag)] = buffer; },
@@ -122,6 +121,9 @@ export class ScriptManager {
         this.#memory.writeString(ptr, str);
         return ptr;
     }
+
+    static #logDev(...msgs) { System.log(System.dev_console_message_prefix, ...msgs); }
+    static #logDebug(...msgs) { System.log(System.debug_message_prefix, ...msgs); }
 
     static Compile() {
         const startTime = ~~performance.now();
@@ -240,6 +242,8 @@ export class ScriptManager {
         console.log("- Success:", addr);
     }
 
+    static readByte(addr) { return this.#memory.readFloat(addr); }
+
     static start() {
         ScriptGlobals.timeSinceStartup.value = 0;
 
@@ -279,3 +283,4 @@ export class ScriptManager {
         }
     }
 }
+globalThis.scriptManager = ScriptManager;
