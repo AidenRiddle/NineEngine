@@ -14,6 +14,7 @@ export default class GEInstanceDB {
             creationRequest.onupgradeneeded = (event) => {
                 console.log("No database was found. Creating a new one ...");
                 for (const objStore of Object.values(DataBaseSchema)) {
+                    console.log(objStore.storeName);
                     event.target.result.createObjectStore(objStore.storeName, { keyPath: objStore.key })
                 }
             }
