@@ -1,6 +1,7 @@
 import Resources from "../../FileSystem/resources.js";
 import { Stash } from "../../settings.js";
 import { MaterialBuilder, MaterialStorage } from "../DataStores/materialStore.js";
+import { MeshStorage } from "../DataStores/meshStore.js";
 import { ModelStorage } from "../DataStores/modelStore.js";
 import { ProgramStorage } from "../DataStores/programStore.js";
 import { SceneStorage } from "../DataStores/sceneStore.js";
@@ -20,7 +21,6 @@ export class RunningInstance {
 
     static #getLastSavedRI = function () { };
     static #saveInDB = function () { };
-    static #savePromise = null;
 
     static get activeScene() { return this.#activeScene; }
 
@@ -33,7 +33,13 @@ export class RunningInstance {
         this.#materials = savedRunningInstance.materials;
         this.#models = savedRunningInstance.models;
         this.#resources = new Map(Object.entries(savedRunningInstance.resources));
+
         this.#scenes = savedRunningInstance.scenes;
+        for (const scene of Object.values(this.#scenes)) {
+            for (const dependencyKey of Object.keys(scene.dependencies)) {
+                scene.dependencies[dependencyKey] = new Set(scene.dependencies[dependencyKey]);
+            }
+        }
     }
 
     static #getListOfDependencies(sceneName) {
@@ -122,32 +128,34 @@ export class RunningInstance {
                 ShaderStorage.Add("defaultVS", false, defaultVS);
 
                 const sceneName = this.#activeScene;
-                const programs = new Map();
+                const requiredPrograms = new Map();
+                const requiredMaterials = new Map();
+                const requiredModels = new Map();
+                const requiredScenes = new Map();
 
-                const requiredMaterials = {};
                 for (const matName of this.#scenes[sceneName].dependencies.materials) {
-                    requiredMaterials[matName] = this.#materials[matName];
+                    requiredMaterials.set(matName, this.#materials[matName]);
                 }
-                const requiredModels = {};
+
                 for (const modelName of this.#scenes[sceneName].dependencies.models) {
                     const model = this.#models[modelName];
-                    requiredModels[modelName] = model;
-                    if (!programs.has(model.vertexShaderId)) { programs.set(model.vertexShaderId, new Set()); }
+                    requiredModels.set(modelName, model);
+                    if (!requiredPrograms.has(model.vertexShaderId)) { requiredPrograms.set(model.vertexShaderId, new Set()); }
                     for (const materialId of model.materials) {
                         const mat = this.#materials[materialId];
-                        programs.get(model.vertexShaderId).add(mat.shaderId);
+                        requiredPrograms.get(model.vertexShaderId).add(mat.shaderId);
                     }
                 }
-                const requiredScenes = {};
-                requiredScenes[sceneName] = this.#scenes[sceneName];
 
-                const requiredPrograms = Object.fromEntries(programs);
+                for (const [sceneName, scene] of Object.entries(this.#scenes)) {
+                    requiredScenes.set(sceneName, scene);
+                }
 
                 return Promise.all([
-                    MaterialStorage.unpack(requiredMaterials),
-                    ModelStorage.unpack(requiredModels),
-                    ProgramStorage.unpack(requiredPrograms),
-                    SceneStorage.unpack(requiredScenes),
+                    MaterialStorage.unpack(Object.fromEntries(requiredMaterials)),
+                    ModelStorage.unpack(Object.fromEntries(requiredModels)),
+                    ProgramStorage.unpack(Object.fromEntries(requiredPrograms)),
+                    SceneStorage.unpack(Object.fromEntries(requiredScenes)),
                 ])
             })
     }
@@ -224,8 +232,7 @@ export class RunningInstance {
     static putScript(scriptName) {
         return Promise.resolve()
             .then(() => {
-                const scripts = this.#scenes[this.#activeScene].dependencies.scripts;
-                if (!scripts.includes(scriptName)) scripts.push(scriptName);
+                this.#scenes[this.#activeScene].dependencies.scripts.add(scriptName);
                 this.addResource(scriptName, scriptName);
             });
     }
@@ -282,6 +289,12 @@ export class RunningInstance {
     }
 
     static pack() {
+        const packedScenes = structuredClone(this.#scenes);
+        for (const scene of Object.values(packedScenes)) {
+            for (const dependencyKey of Object.keys(scene.dependencies)) {
+                scene.dependencies[dependencyKey] = Array.from(scene.dependencies[dependencyKey]);
+            }
+        }
         return {
             name: this.#name,
             activeScene: this.#activeScene,
@@ -289,7 +302,7 @@ export class RunningInstance {
             materials: this.#materials,
             models: this.#models,
             resources: Object.fromEntries(this.#resources),
-            scenes: this.#scenes,
+            scenes: packedScenes,
         }
     }
 
