@@ -117,7 +117,7 @@ export class RuntimeGenerator {
         let preRuntimeScript = "";
 
         const preImports = new Map();
-        for (const [normalizedPath, sourceText] of buildPackage.entries()) {
+        for (const [normalizedPath, sourceText] of Object.entries(buildPackage)) {
             const className = AscScriptUtil.getClassName(sourceText);
             preImports.set(className, normalizedPath);
         }
