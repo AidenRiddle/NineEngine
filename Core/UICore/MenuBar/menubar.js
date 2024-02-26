@@ -1,5 +1,5 @@
 import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
-import { Canvas, GuiContext, GuiHandle } from "../gui.js";
+import { Canvas, GuiHandle, GuiContext } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { notImplemented } from "../uiUtil.js";
@@ -7,37 +7,7 @@ import { $Button } from "./Components/button.js";
 
 const handler = {}
 
-const contextMenu = {
-    "Save Project": () => { eventHandler.sendMessageToParent(UiEvent.menuBar_saveProject); },
-    "Set root folder": async function () {
-        const dir = await window.showDirectoryPicker({ id: "NineProject", mode: "readwrite" });
-        console.log(dir);
-        NavFS.bootFromDirectory(dir);
-    },
-    "Upload Image": async function () {
-        const [fileHandle] = await window.showOpenFilePicker();
-        const file = await fileHandle.getFile();
-        const fileReader = new FileReader();
-
-        fileReader.onload = async (e) => {
-            const clientKey = "d2a8dd286a1e260c66eb6df9834bc6a2";
-            const expiration = 600;
-            const sliceIndex = e.target.result.indexOf(',') + 1; // Searches for the first comma found in the header: "data:*/*;base64,"
-            const imgData = e.target.result.slice(sliceIndex);
-            const formData = new FormData();
-            formData.append("image", imgData);
-            const response = await fetch(`https://api.imgbb.com/1/upload?expiration=${expiration}&key=${clientKey}`, {
-                method: "POST",
-                body: formData
-            })
-            const json = await response.json();
-            console.log(json);
-            const url = json.data.url;
-            eventHandler.sendMessageToParent(UiEvent.menuBar_upload_image, { url });
-        }
-        fileReader.readAsDataURL(file);
-    },
-}
+const contextMenu = {}
 
 const eventHandler = new UiEventHandler(handler, contextMenu);
 
@@ -98,20 +68,35 @@ export class $MenuBar extends GuiHandle {
 
 Canvas.addToHUD(new $MenuBar({
     leftButtons: {
-        "File": async (e) => {
-            const box = e.target.getBoundingClientRect();
-            eventHandler.sendMessageToParent(UiEvent.global_context_menu, {
-                target: "MenuBar",
-                screenX: box.left,
-                screenY: box.bottom,
-                items: {
-                    "Save Project": null,
-                    "Set root folder": null,
-                    "Upload Image": null,
-                },
-            })
+        "File": async () => {
+            const dir = await window.showDirectoryPicker({ id: "NineProject", mode: "readwrite" });
+            console.log(dir);
+            NavFS.bootFromDirectory(dir);
         },
-        "Edit": async () => { notImplemented(); },
+        "Upload Image": async () => {
+            const [fileHandle] = await window.showOpenFilePicker();
+            const file = await fileHandle.getFile();
+            const fileReader = new FileReader();
+
+            fileReader.onload = async (e) => {
+                const clientKey = "d2a8dd286a1e260c66eb6df9834bc6a2";
+                const expiration = 600;
+                const sliceIndex = e.target.result.indexOf(',') + 1; // Searches for the first comma found in the header: "data:*/*;base64,"
+                const imgData = e.target.result.slice(sliceIndex);
+                const formData = new FormData();
+                formData.append("image", imgData);
+                const response = await fetch(`https://api.imgbb.com/1/upload?expiration=${expiration}&key=${clientKey}`, {
+                    method: "POST",
+                    body: formData
+                })
+                const json = await response.json();
+                console.log(json);
+                const url = json.data.url;
+                eventHandler.sendMessageToParent(UiEvent.menuBar_upload_image, { url });
+            }
+            fileReader.readAsDataURL(file);
+        },
+        "Save Project": async () => { eventHandler.sendMessageToParent(UiEvent.menuBar_saveProject); },
     },
 
     middleButtons: {
@@ -124,5 +109,4 @@ Canvas.addToHUD(new $MenuBar({
         "Profile": async () => { notImplemented(); }
     }
 }));
-
 Canvas.repaint();
