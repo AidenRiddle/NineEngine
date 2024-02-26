@@ -1,12 +1,7 @@
-import { RunningInstance } from "./Core/GameCore/runningInstance.js";
 import Resources from "./FileSystem/resources.js";
 import { AppSettings } from "./settings.js";
 
 class NineEngineConsole {
-
-    Resources = Resources;
-    ri = RunningInstance;
-
     async assetToValidJsonString(path) {
         const file = await Resources.fetchRaw(path, { hardFetch: true, cacheResult: false });
         const fileReader = new FileReader();
