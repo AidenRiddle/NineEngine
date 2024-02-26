@@ -5,12 +5,12 @@ export class MyTransform {
     prg;
 
     afterInitialize(program) {
-        // console.log("What is a program?", program);
+        console.log("What is a program?", program);
         this.prg = program;
-        // console.log("Joe:", program.managedClasses);
+        //console.log("Joe:", program.managedClasses);
     }
     afterCompile(module) {
-        // console.log("What is a module?", module);
+        //console.log("What is a module?", module);
 
         for (const file of this.prg.filesByName.values()) {
             const normalizedPath = file.source.normalizedPath;
