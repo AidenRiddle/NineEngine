@@ -12,9 +12,7 @@ uniform vec3 u_reverseLightDirection;
 uniform sampler2D u_depthTexture;
 uniform float u_intensity;
 
-uniform float u_biasMin;
-uniform float u_biasMax;
-uniform int u_halfSamples;
+uniform float u_lightDirectionalShadowBias;
 
 vec4 ambientColor = vec4(0, 0, 0, 1);
 vec4 shadowColor = vec4(0, 0, 0, 1);
@@ -27,9 +25,13 @@ float lightDirectional() {
 float shadowLight() {
     vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
     vec3 normal = normalize(v_normal);
-    vec3 lightDir = normalize(u_reverseLightDirection);
-    float bias = mix(u_biasMin, u_biasMax, 1.0 - dot(normal, lightDir));
+    float cosTheta = dot(normal, u_reverseLightDirection);
+    float bias = u_lightDirectionalShadowBias * tan(acos(cosTheta));
+    bias = clamp(bias, 0.0, 0.01);
     float currentDepth = projectedTexcoord.z - bias;
+
+    // the 'r' channel has the depth values
+    float projectedDepth = texture(u_depthTexture, projectedTexcoord.xy).r;
 
     bool inRange =
         projectedTexcoord.x >= 0.0 &&
@@ -37,26 +39,15 @@ float shadowLight() {
         projectedTexcoord.y >= 0.0 &&
         projectedTexcoord.y <= 1.0;
 
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / vec2(textureSize(u_depthTexture, 0));
-    for (int x = -u_halfSamples; x <= u_halfSamples; ++x) {
-        for (int y = -u_halfSamples; y <= u_halfSamples; ++y) {
-            float pcfDepth = texture(u_depthTexture, projectedTexcoord.xy + vec2(x, y) * texelSize).r;
-            shadow += (inRange && pcfDepth <= currentDepth) ? 0.1 : 1.0;
-        }
-    }
-    shadow /= pow(float(u_halfSamples) * 2.0 + 1.0, 2.0);
-
-    return shadow;
+    return (inRange && projectedDepth <= currentDepth) ? 0.1 : 1.0;
 }
 
 void main() {
     float light = lightDirectional();
     float shadowLight = shadowLight();
     vec4 texColor = texture(u_texture, v_texcoord);
-    vec4 ambient = mix(shadowColor, texColor, shadowLight);
-    fragColor = mix(ambientColor, ambient, light);
-    // fragColor = vec4(mix(0.0, 1.0, (1.0 - dot(normalize(v_normal), normalize(u_reverseLightDirection)))));
-    // fragColor = texture(u_depthTexture, v_texcoord);
-    // fragColor = texColor + vec4(0, 0, 0.25, 1);
+    vec4 ambient = mix(ambientColor, texColor, light);
+    fragColor = mix(shadowColor, ambient, shadowLight);
+    //fragColor = texture(u_depthTexture, v_texcoord);
+    //fragColor = texColor + vec4(0, 0, 0.25, 1);
 }

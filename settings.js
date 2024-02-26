@@ -18,16 +18,12 @@ export const AppSettings = {
     render_width,
     render_height,
     field_of_view: 70,
-
     vertex_size: 3,
     maximum_vertex_buffer_allocation_per_draw_call: 215 * KB,
     maximum_index_buffer_allocation_per_draw_call: 160 * KB,
     vertex_buffer_size: 2 * MB,
-
     shadow_map_resolution: 2 * KB,
-    shadow_halfSamples: 1,
-    shadow_biasMin: 0.0005,
-    shadow_biasMax: 0.002
+    shadow_bias: 0.001
 };
 
 export const System = Object.freeze({
@@ -121,9 +117,7 @@ export const Webgl = {
         depthTexture: "u_depthTexture",
         lightDirectional: "u_projectedLightDirectionalTextureMatrix",
         timeSinceStart: "u_timeSinceStart",
-        shadowHalfSamples: "u_halfSamples",
-        shadowBiasMin: "u_biasMin",
-        shadowBiasMax: "u_biasMax"
+        shadowBias: "u_lightDirectionalShadowBias"
     })
 }
 

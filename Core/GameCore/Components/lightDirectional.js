@@ -1,6 +1,8 @@
+import { DebugToggle, System } from "../../../settings.js";
 import Matrix4 from "../../Math/matrix4.js";
 import { Projection } from "../../Math/projection.js";
 import SceneObject from "../sceneObject.js";
+import Camera from "./camera.js";
 import { Transform } from "./transform.js";
 
 export class LightDirectional {
