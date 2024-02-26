@@ -58,11 +58,7 @@
     },
     "name": "The one running instance to rule them all",
     "resources": {
-        "jet.glb": "3DModels/Jet.glb",
-        "Scripts/ifSpinner.ts": "Scripts/ifSpinner.ts",
-        "Scripts/ifTranslater.ts": "Scripts/ifTranslater.ts",
-        "Scripts/player.ts": "Scripts/player.ts",
-        "Scripts/weapon.ts": "Scripts/weapon.ts"
+        "jet.glb": "3DModels/Jet.glb"
     },
     "scenes": {
         "defaultScene": {
