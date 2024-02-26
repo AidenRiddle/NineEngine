@@ -23,7 +23,7 @@ export const AppSettings = {
     maximum_index_buffer_allocation_per_draw_call: 160 * KB,
     vertex_buffer_size: 2 * MB,
     shadow_map_resolution: 2 * KB,
-    shadow_bias: 0.001
+    shadow_bias: -0.001
 };
 
 export const System = Object.freeze({
@@ -64,21 +64,6 @@ export const Stash = Object.freeze({
     default_running_instance: location.href + "Core/defaultRunningInstance.json",
     fixtures: location.href + "FileSystem/Navigator/fixtures.json"
 })
-
-export const DataBaseSchema = Object.freeze({
-    resources : Object.freeze({
-        storeName : "resources",
-        key : "name",
-    }),
-    runningInstances : Object.freeze({
-        storeName : "runningInstances",
-        key : "name",
-    }),
-    userConfiguration : Object.freeze({
-        storeName : "userConfiguration",
-        key : "name",
-    })
-});
 
 export const AssetType = {
     material: Object.freeze({

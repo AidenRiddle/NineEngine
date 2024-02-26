@@ -1,4 +1,4 @@
-import { DataBaseSchema } from "../settings.js";
+import schema from "./geInstanceDBSchema.js";
 
 export default class GEInstanceDB {
     /** @type {IDBDatabase} */
@@ -13,8 +13,9 @@ export default class GEInstanceDB {
             }
             creationRequest.onupgradeneeded = (event) => {
                 console.log("No database was found. Creating a new one ...");
-                for (const objStore in Object.values(DataBaseSchema)) {
-                    event.target.result.createObjectStore(objStore.storeName, { keyPath: objStore.key })
+                for (const objStore in schema) {
+                    event.target.result
+                        .createObjectStore(schema[objStore].storeName, { keyPath: schema[objStore].key })
                 }
             }
             creationRequest.onerror = (event) => {
