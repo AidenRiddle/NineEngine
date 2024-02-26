@@ -33,7 +33,13 @@ void main() { gl_Position = u_viewMatrix * u_objectMatrix * a_position; }
 `;
 
 export const depthFS = `#version 300 es
-void main (void) {}
+precision highp float;
+
+out vec4 fragColor;
+
+void main (void) {
+    fragColor = vec4(0, 0, 0, 1);
+}
 `;
 
 export const blurVS = `#version 300 es
