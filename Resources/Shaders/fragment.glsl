@@ -12,11 +12,6 @@ uniform vec3 u_reverseLightDirection;
 uniform sampler2D u_depthTexture;
 uniform float u_intensity;
 
-uniform float u_lightDirectionalShadowBias;
-
-vec4 ambientColor = vec4(0, 0, 0, 1);
-vec4 shadowColor = vec4(0, 0, 0, 1);
-
 float lightDirectional() {
     vec3 normal = normalize(v_normal);
     return dot(normal, u_reverseLightDirection) * u_intensity;
@@ -24,11 +19,8 @@ float lightDirectional() {
 
 float shadowLight() {
     vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
-    vec3 normal = normalize(v_normal);
-    float cosTheta = dot(normal, u_reverseLightDirection);
-    float bias = u_lightDirectionalShadowBias * tan(acos(cosTheta));
-    bias = clamp(bias, 0.0, 0.01);
-    float currentDepth = projectedTexcoord.z - bias;
+
+    float currentDepth = projectedTexcoord.z;
 
     // the 'r' channel has the depth values
     float projectedDepth = texture(u_depthTexture, projectedTexcoord.xy).r;
@@ -43,11 +35,11 @@ float shadowLight() {
 }
 
 void main() {
+    vec4 shadowColor = vec4(0, 0, 0, 1);
     float light = lightDirectional();
     float shadowLight = shadowLight();
     vec4 texColor = texture(u_texture, v_texcoord);
-    vec4 ambient = mix(ambientColor, texColor, light);
-    fragColor = mix(shadowColor, ambient, shadowLight);
+    fragColor = mix(shadowColor, texColor, light * shadowLight);
     //fragColor = texture(u_depthTexture, v_texcoord);
     //fragColor = texColor + vec4(0, 0, 0.25, 1);
 }
