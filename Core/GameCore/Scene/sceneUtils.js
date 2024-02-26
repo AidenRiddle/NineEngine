@@ -4,7 +4,6 @@ import { LightDirectional } from "../Components/lightDirectional.js";
 import { RuntimeGenerator } from "../WebAssembly/runtimeGenerator.js";
 import { RunningInstance } from "../runningInstance.js";
 import SceneObject from "../sceneObject.js";
-import EditorScene from "./editorScene.js";
 
 export default class SceneUtils {
 
@@ -136,12 +135,7 @@ export default class SceneUtils {
         };
     }
 
-    /** @param {EditorScene} scene */
-    static pack(scene) {
-        const cameras = [scene.camera];
-        const lights = [LightDirectional.activeLight];
-        const sceneObjects = scene.objs;
-
+    static pack(cameras, lights, sceneObjects) {
         const assets = {};
         assets.cameras = [];
         assets.components = [];
