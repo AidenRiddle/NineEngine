@@ -225,25 +225,3 @@ const thumbnailCache = {
         default_model: "/Core/UICore/AssetBrowser/Icons/3d.png",
     }
 };
-
-// function processFile(payload) {
-//     if (payload.kind != "file") { console.error("Drag'n'Drop payload is not a file:", payload); return; }
-//     const item = payload.getAsFile();
-//     const path = wdPath + "/" + item.name;
-
-//     if (thumbnailCache[path]) return;
-
-//     const link = URL.createObjectURL(item);
-//     thumbnailCache[path] = link;
-//     block.appendChild($file(item.name, link, () => clickHandler(thumbnailCache[path]), (e) => { e.preventDefault(); deleteFile(path); }));
-//     NavFS.put(path, item);
-// }
-
-// document.body.ondragenter = (e) => e.preventDefault();
-// document.body.ondragover = (e) => e.preventDefault();
-// document.body.ondrop = (e) => {
-//     const payload = e.dataTransfer.items;
-//     for (const item of payload) {
-//         processFile(item);
-//     }
-// }
