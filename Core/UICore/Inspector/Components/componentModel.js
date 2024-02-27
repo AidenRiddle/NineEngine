@@ -1,5 +1,7 @@
+import { AssetType } from "../../../../settings.js";
 import { GuiHandle, GuiContext } from "../../gui.js";
 import { UiEvent } from "../../uiConfiguration.js";
+import { notImplemented } from "../../uiUtil.js";
 
 export class $DropReceiver extends GuiHandle {
     /**
@@ -117,10 +119,13 @@ export class $Model extends GuiHandle {
         function saveParam(key, value) {
             console.log("Saving Params:", "(" + key + ")", value);
             if (key == "MeshID") {
-                if (!value.endsWith("glb")) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
+                if (!AssetType.isMesh(value)) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
                 modelParams.meshId = value;
+            } else if (key == "ModelID") {
+                notImplemented();
+                return;
             } else {
-                if (!value.endsWith("mat")) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
+                if (!AssetType.isMaterial(value)) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
                 modelParams.materials[Number.parseInt(key)] = value;
             }
 
@@ -133,20 +138,24 @@ export class $Model extends GuiHandle {
             })
         }
 
-        gui.bake(root, new $Receiver({
+        const modelInput = new $Receiver({
+            tag: "ModelID",
+            expectedType: "Mesh",
+            value: assetName,
+            onchangeHandler: saveParam,
+        });
+
+        const meshInput = new $Receiver({
             tag: "MeshID",
             expectedType: "Mesh",
             value: modelParams.meshId,
             onchangeHandler: saveParam,
-        }))
-        root.append(
-            gui.node("p", p => {
-                p.textContent = "Materials";
-            })
-        )
+        });
 
+        const materialTitle = gui.node("p", p => { p.textContent = "Materials"; });
+        const materialSection = [materialTitle];
         modelParams.materials.forEach((mat, index) => {
-            gui.bake(root, new $Receiver({
+            materialSection.push(new $Receiver({
                 tag: index.toString(),
                 expectedType: "Material",
                 value: mat,
@@ -159,5 +168,7 @@ export class $Model extends GuiHandle {
         root.style.flexDirection = "column";
         root.style.alignItems = "center";
         root.style.width = "100%";
+
+        gui.bake(root, modelInput, meshInput, materialSection);
     }
 }

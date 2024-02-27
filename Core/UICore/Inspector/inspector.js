@@ -1,3 +1,5 @@
+import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
+import { AssetType, System } from "../../../settings.js";
 import { Canvas, GuiContext, GuiHandle } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
@@ -13,7 +15,7 @@ export class $Inspector extends GuiHandle {
      * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static builder(gui, root) {
+    static async builder(gui, root) {
         const cargo = gui.state("cargo");
         if (cargo == null) return;
 
@@ -22,24 +24,41 @@ export class $Inspector extends GuiHandle {
         root.style.flexDirection = "column";
         root.style.alignSelf = "stretch";
 
-        if (cargo.assetName?.endsWith("mat")) this.assetBrowserSelectMaterial(gui, root, cargo);
-        else if (cargo.assetName?.endsWith("model")) this.assetBrowserSelectModel(gui, root, cargo);
-        else this.hierarchySelect(gui, root, cargo);
+        if (cargo.type == "assetFile") {
+            if (AssetType.isMaterial(cargo.target)) {
+                const content = await NavFS.readFileAsText(cargo.target);
+                this.assetBrowserSelectMaterial(gui, root, cargo.target, content);
+            }
+            else if (AssetType.isModel(cargo.target)) {
+                const content = await NavFS.readFileAsText(cargo.target);
+                this.assetBrowserSelectModel(gui, root, cargo.target, content);
+            }
+            else if (AssetType.isImage(cargo.target)) {
+                const content = await NavFS.readFileAsDataUrl(cargo.target);
+                console.log("Selected Image (" + cargo.target + "):", content);
+            } else {
+                System.error(System.ui_message_prefix, "Unknown asset type:", cargo.target);
+            }
+        } else if (cargo.type == "sceneObject") {
+            this.hierarchySelect(gui, root, cargo.target);
+        } else {
+            System.error(System.ui_message_prefix, "Unknown cargo type:", cargo.type);
+        }
     }
 
-    static assetBrowserSelectMaterial(gui, root, cargo) {
+    static assetBrowserSelectMaterial(gui, root, assetName, content) {
         gui.bake(root, new $Card({
             title: "Material",
             isEnableable: false,
-            content: new $Material({ assetName: cargo.assetName, materialParams: JSON.parse(cargo.content) })
+            content: new $Material({ assetName, materialParams: JSON.parse(content) })
         }));
     }
 
-    static assetBrowserSelectModel(gui, root, cargo) {
+    static assetBrowserSelectModel(gui, root, assetName, content) {
         gui.bake(root, new $Card({
             title: "Model",
             isEnableable: false,
-            content: new $Model({ assetName: cargo.assetName, modelParams: JSON.parse(cargo.content) })
+            content: new $Model({ assetName, modelParams: JSON.parse(content) })
         }))
     }
 
@@ -71,7 +90,7 @@ Canvas.addToHUD(inspector);
 
 const handler = {
     [UiEvent.inspector_request_error]: () => { console.log("You suck"); },
-    [UiEvent.assetBrowser_select_assetFile]: (cargo) => { inspector.set("cargo", cargo); },
+    [UiEvent.inspector_display_properties]: (cargo) => { inspector.set("cargo", cargo); },
     [UiEvent.hierarchy_select]: (cargo) => { inspector.set("cargo", cargo); },
 }
 

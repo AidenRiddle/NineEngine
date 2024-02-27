@@ -26,7 +26,7 @@ export default class UiManager {
         [UiEvent.hierarchy_select]: (cargo) => {
             const so = Scene.getObject(cargo);
             const soModel = ModelStorage.Get(so.modelId);
-            const newCargo = {
+            const packagedSO = {
                 so: {
                     id: so.id,
                     name: so.name
@@ -43,15 +43,16 @@ export default class UiManager {
                 },
                 components: so.components
             }
-            const payload = new Payload(UiEvent.hierarchy_select, newCargo);
-            this.sendMessage(UiWindow.Inspector, payload);
             this.#activeSceneObject = so;
+            const out = { type: "sceneObject", target: packagedSO };
+            const payload = new Payload(UiEvent.inspector_display_properties, out);
+            this.sendMessage(UiWindow.Inspector, payload);
         },
         [UiEvent.hierarchy_new_sceneobject]: (cargo) => {
             const so = Scene.Instantiate(cargo.modelId);
             this.#activeSceneObject = so;
         },
-        [UiEvent.hierarchy_rename_sceneobject]: (cargo) => {            
+        [UiEvent.hierarchy_rename_sceneobject]: (cargo) => {
             this.#activeSceneObject.name = cargo.newName;
             this.syncSceneObjects(Scene.objectsInScene);
             this.#handler[UiEvent.hierarchy_select](this.#activeSceneObject.id);
@@ -70,11 +71,11 @@ export default class UiManager {
                 .then(() => {
                     const payload = new Payload(
                         UiEvent.assetBrowser_select_assetFile,
-                        { assetName: cargo.assetName, content: cargo.content }
+                        cargo.assetName
                     );
                     this.sendMessage(UiWindow.Inspector, payload);
                 })
-                // .catch((e) => console.error("Failed to update asset (", cargo.assetName, ").", e));
+            // .catch((e) => console.error("Failed to update asset (", cargo.assetName, ").", e));
         },
         [UiEvent.inspector_transform_change]: (cargo) => {
             const newPos = cargo.pos;
@@ -102,14 +103,12 @@ export default class UiManager {
             console.log(this.#activeSceneObject);
         },
         [UiEvent.assetBrowser_select_assetFile]: (cargo) => {
-            NavFS.readFileAsText(cargo)
-                .then((stringContents) => {
-                    const payload = new Payload(
-                        UiEvent.assetBrowser_select_assetFile,
-                        { assetName: cargo, content: stringContents }
-                    )
-                    this.sendMessage(UiWindow.Inspector, payload);
-                })
+            const out = { type: "assetFile", target: cargo };
+            const payload = new Payload(
+                UiEvent.inspector_display_properties,
+                out
+            )
+            this.sendMessage(UiWindow.Inspector, payload);
         },
         [UiEvent.assetBrowser_refresh]: (cargo) => {
             const payload = new Payload(UiEvent.assetBrowser_refresh, null);
