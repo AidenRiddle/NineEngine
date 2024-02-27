@@ -162,7 +162,8 @@ class $Block extends GuiHandle {
     }
 }
 
-const guiTree = new $Tree({ fsReady: false });
+const rootFolderIsAccessible = await NavFS.isReady();
+const guiTree = new $Tree({ fsReady: rootFolderIsAccessible });
 const guiBlock = new $Block({});
 
 const handler = {

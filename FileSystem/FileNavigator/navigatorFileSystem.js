@@ -36,18 +36,20 @@ const promiseNavStorage = navigator.storage.persisted()
     .then(async (isPersisted) => {
         if (!isPersisted && !(await navigator.storage.persist())) {
             throw new Error("Failed to persist default Navigator Storage.");
+        } else {
+            return navigator.storage.getDirectory();
         }
     });
 
 const promiseUserDirectory = idb.get("userConfiguration", "projectRoot")
     .then((result) => result.dirHandle)
-    .catch(async (e) => {
+    .catch((e) => {
         console.warn(e, "\nPlease specify a project directory.");
         return null;
     })
 
 const navDir = await Promise.all([promiseNavStorage, promiseUserDirectory])
-    .then(() => navigator.storage.getDirectory());
+    .then(([navDir, userDir]) => userDir);
 
 function promiseIteratorToArray(asyncIterator) {
     const listOfFiles = [];
@@ -115,7 +117,10 @@ export class NavFS {
         const permission = await handle.queryPermission(opts);
 
         if (permission === "granted") { return Promise.resolve(permission); }
-        else { return Promise.reject("User has not granted write access to the project folder."); }
+        else {
+            console.log(`(${handle.name}) permissions: `, permission);
+            return Promise.reject("User has not granted write access to the project folder.");
+        }
     }
 
     static async validateRootFolder() {
@@ -154,7 +159,7 @@ export class NavFS {
     static async isReady() {
         return this.#verifyFolderAccess(this.#root)
             .then(() => true)
-            .catch(() => false)
+            .catch((msg) => { console.error(msg); return false; })
     }
 
     static async makeRoot(dirHandle) {

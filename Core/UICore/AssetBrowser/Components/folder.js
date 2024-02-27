@@ -65,6 +65,7 @@ export class $File extends GuiHandle {
         const value = gui.state("value");
         const thumbnailUrl = gui.state("thumbnailUrl");
         const onclick = gui.state("onclick");
+        const ondblclick = gui.state("ondblclick");
         const deleteHandler = gui.state("deleteHandler");
         const dragData = gui.state("dragData");
 
@@ -95,16 +96,15 @@ export class $File extends GuiHandle {
             label.style.whiteSpace = "initial";
             // label.style.overflow = "initial";
         }
-        root.onclick = (e) => { onclick(); }
+        if (onclick != null) root.onclick = (e) => { onclick(); }
+        if (ondblclick != null) root.ondblclick = (e) => { ondblclick(); }
         root.onblur = function (e) {
             e.target.style.background = "none";
             label.style.maxWidth = childrenMaxWidth;
             label.style.whiteSpace = "nowrap";
             label.style.overflow = "hidden";
-
-            this.onmouseup = (e) => { }
         }
-        root.oncontextmenu = deleteHandler;
+        root.oncopy = deleteHandler;
         root.append(
             gui.node("img", img => {
                 img.style.maxWidth = childrenMaxWidth;
