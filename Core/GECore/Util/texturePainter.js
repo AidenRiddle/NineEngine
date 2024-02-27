@@ -113,15 +113,38 @@ export default class TexturePainter {
         })
     }
 
+    static resizeImage = (img, maxWidth, maxHeight) => {
+        return createImageBitmap(img).then((bitmap) => {
+            let targetWidth;
+            let targetHeight;
+
+            if (bitmap.width >= bitmap.height) {
+                const scaleFactor = maxWidth / bitmap.width;
+                targetHeight = Math.round(bitmap.height * scaleFactor);
+
+                targetWidth = maxWidth;
+            } else {
+                const scaleFactor = maxHeight / bitmap.height;
+                targetWidth = Math.round(bitmap.width * scaleFactor);
+
+                targetHeight = maxHeight;
+            }
+
+            //Set texture size
+            [this.#canvas.width, this.#canvas.height] = [targetWidth, targetHeight];
+            this.#ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+
+            bitmap.close();
+            return this.#ctx.getImageData(0, 0, this.#canvas.width, this.#canvas.height);
+        })
+    }
+
+    static imageToThumbnailBlob = (img, maxWidth, maxHeight) => {
+        return this.resizeImage(img, maxWidth, maxHeight)
+            .then(() => new Promise((resolve) => this.#canvas.toBlob((blob) => resolve(blob), "image/webp")));
+    }
+
     static debug = (img) => {
-        const fileReader = new FileReader();
-        fileReader.onloadend = (e) => {
-            const base64 = btoa(e.target.result);
-            const image = new Image();
-            image.src = "data:image/png;base64," + base64;
-    
-            document.body.appendChild(image);
-        }
-        fileReader.readAsBinaryString(img);
+        window.open(URL.createObjectURL(img));
     }
 }
