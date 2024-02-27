@@ -33,6 +33,8 @@ export const AppSettings = {
 export const System = Object.freeze({
     target_frame_rate: 60,
     target_background_frame_rate: 30,
+    target_gui_frame_rate: 10,
+
     max_threads: 0,
     runtime_initial_memory: 1,
     runtime_maximum_memory: 100,

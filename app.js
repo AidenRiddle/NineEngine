@@ -118,8 +118,7 @@ class Main {
 
     defineGuiCycle(eventController) {
         const cycleName = "guiCycle";
-        const targetFPS = 30;
-        const targetDeltaTime = 1000 / targetFPS;
+        const targetDeltaTime = 1000 / System.target_gui_frame_rate;
         eventController.addCycle(cycleName, targetDeltaTime, (startOfThisFrame, deltaTime) => { Canvas.repaint(); UiManager.sendGuiUpdate(); });
         eventController.enableCycle(cycleName);
     }
