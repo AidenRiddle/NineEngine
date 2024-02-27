@@ -167,6 +167,13 @@ export default class UiManager {
         this.sendMessage(UiWindow.Hierarchy, payload);
     }
 
+    static sendGuiUpdate() {
+        const payload = new Payload(UiEvent.global_gui_update);
+        for (const iframe of this.#windows.values()) {
+            iframe.contentWindow.postMessage(payload, "*");
+        }
+    }
+
     static #assignHandlers(target, items, prefix = '') {
         for (const [key, value] of Object.entries(items)) {
             if (value == null)

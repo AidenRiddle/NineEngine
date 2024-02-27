@@ -1,3 +1,4 @@
+import { Canvas } from "./gui.js";
 import Payload from "./payload.js";
 import { UiEvent } from "./uiConfiguration.js";
 
@@ -31,10 +32,10 @@ export class UiEventHandler {
 
     /** @param {Payload} payload */
     #invokeHandler(payload) {
-        if (payload.uiEventCode == UiEvent.global_context_menu)
-            this.#handleContextMenu(payload.cargo["selection"]);
-        else
-            this.handler[payload.uiEventCode](payload.cargo);
+        if (payload.uiEventCode == UiEvent.global_context_menu) this.#handleContextMenu(payload.cargo["selection"]);
+        else if (payload.uiEventCode == UiEvent.global_gui_update) Canvas.repaint();
+
+        if (this.handler[payload.uiEventCode] != null) this.handler[payload.uiEventCode](payload.cargo);
     }
 
     #handleContextMenu(selection) {

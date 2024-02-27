@@ -68,12 +68,11 @@ export class $Inspector extends GuiHandle {
 const inspector = new $Inspector();
 Canvas.addToHUD(inspector);
 // Canvas.createContextFrom(inspector);
-Canvas.repaint();
 
 const handler = {
     [UiEvent.inspector_request_error]: () => { console.log("You suck"); },
-    [UiEvent.assetBrowser_select_assetFile]: (cargo) => { inspector.set("cargo", cargo); Canvas.repaint(); },
-    [UiEvent.hierarchy_select]: (cargo) => { inspector.set("cargo", cargo); Canvas.repaint(); },
+    [UiEvent.assetBrowser_select_assetFile]: (cargo) => { inspector.set("cargo", cargo); },
+    [UiEvent.hierarchy_select]: (cargo) => { inspector.set("cargo", cargo); },
 }
 
 const contextMenu = {

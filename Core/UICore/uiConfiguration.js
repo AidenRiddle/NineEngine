@@ -15,6 +15,7 @@ function createFrame(src, style) {
 export const UiEvent = {
     global_visibility_change: 0,
     global_context_menu: 0,
+    global_gui_update: 0,
 
     hierarchy_refresh: 0,
     hierarchy_select: 0,

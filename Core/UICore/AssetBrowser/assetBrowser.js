@@ -36,7 +36,6 @@ class $Tree extends GuiHandle {
             button.onclick = (e) => {
                 NavFS.getDirectoryAccess()
                     .then(() => handle.set("fsReady", true))
-                    .then(() => Canvas.repaint())
                     .catch((msg) => console.error("User denied Read/Write access.", msg))
             }
         })
@@ -45,7 +44,7 @@ class $Tree extends GuiHandle {
 
     static async buildTree(path) {
         const entries = await NavFS.lsdir(path);
-        const callback = () => { guiBlock.set("path", path); Canvas.repaint(); };
+        const callback = () => { guiBlock.set("path", path); };
         const adderCallback = () => {
             const name = prompt("New folder name ?");
             if (name == null || name.length == 0) return;
@@ -87,11 +86,14 @@ const dropHandler = (ev) => {
     for (const item of payload) { items.push(item); }
     console.log("Items:", items);
 
+    const promises = [];
     for (const file of ev.dataTransfer.files) {
         const path = wdPath + "/" + file.name;
         console.log(path, file);
-        NavFS.copyFile(file, path);
+        promises.push(NavFS.copyFile(file, path));
     }
+
+    Promise.all(promises).then(() => guiBlock.rebuild());
 }
 
 class $Block extends GuiHandle {
@@ -126,7 +128,7 @@ class $Block extends GuiHandle {
             blocks.push(new $File({
                 value: dirHandle.name,
                 thumbnailUrl: thumbnailCache._default.default_folder,
-                onclick: async () => { handle.set("path", filePath); Canvas.repaint(); },
+                ondblclick: async () => { handle.set("path", filePath); },
                 deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
                 dragData: filePath
             }));
@@ -135,12 +137,10 @@ class $Block extends GuiHandle {
             const file = await fileHandle.getFile();
             const filePath = path + "/" + file.name;
             let thumbnail = thumbnailCache[filePath];
-            let click;
+            const click = () => clickHandler(filePath);
             if (NavFS.getFileExtension(file) == AssetType.material.extension) {
-                click = () => clickHandler(filePath);
                 thumbnail = thumbnailCache._default.default_material;
             } else if (NavFS.getFileExtension(file) == AssetType.model.extension) {
-                click = () => clickHandler(filePath);
                 thumbnail = thumbnailCache._default.default_model;
             } else if (thumbnail == null) {
                 thumbnailCache[filePath] = URL.createObjectURL(file);
@@ -184,7 +184,7 @@ const contextMenu = {
         if (name != '') {
             let fullName = wdPath + '/' + name;
             if (!fullName.endsWith(".model")) fullName += ".model";
-            NavFS.put(fullName, "{\"id\": \"default_Cube_screenSaver_if\", \"meshId\": \"3DModels/cube.glb\", \"materials\": [\"slideshow_if.mat\"]}");
+            NavFS.put(fullName, "{\"vertexShaderId\":\"defaultVS\", \"meshId\": \"3DModels/cube.glb\", \"materials\": [\"slideshow_if.mat\"]}");
             guiTree.rebuild();
             guiBlock.set("path", wdPath);
         }
@@ -211,10 +211,7 @@ function clickHandler(link) {
 
 async function deleteFile(path) {
     await NavFS.rm(path);
-    const targetName = path.split("/").splice(-1, 1)[0];
-    const pathWithoutTarget = path.replace("/" + targetName, '');
-    guiBlock.set("path", pathWithoutTarget);
-    //NavFS.debug();
+    guiBlock.rebuild();
 }
 
 Canvas.addToHUD(guiTree);

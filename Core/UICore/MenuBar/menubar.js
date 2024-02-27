@@ -125,5 +125,3 @@ Canvas.addToHUD(new $MenuBar({
         "Profile": async () => { notImplemented(); }
     }
 }));
-
-Canvas.repaint();

@@ -52,7 +52,7 @@ export class $Hierarchy extends GuiHandle {
 
 const mainHierarchy = new $Hierarchy({ "cargo": {} });
 const handler = {
-    [UiEvent.hierarchy_refresh]: cargo => { mainHierarchy.set("cargo", cargo); Canvas.repaint() },
+    [UiEvent.hierarchy_refresh]: cargo => { mainHierarchy.set("cargo", cargo); },
 }
 
 const contextMenu = {
