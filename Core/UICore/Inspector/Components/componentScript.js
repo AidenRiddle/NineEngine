@@ -92,9 +92,7 @@ export class $Script extends GuiHandle {
         const com = gui.state("com");
 
         function saveParam(paramName, value) {
-            console.log("Tweaked:", paramName, value);
             com.imports[paramName] = value;
-
             parent.postMessage({ uiEventCode: UiEvent.inspector_script_param_change, cargo: com })
         }
 
