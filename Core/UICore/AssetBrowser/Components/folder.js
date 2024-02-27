@@ -110,7 +110,6 @@ export class $File extends GuiHandle {
                 img.style.maxWidth = childrenMaxWidth;
                 img.style.maxHeight = "75px";
                 img.src = thumbnailUrl ?? imgThumbnail;
-                img.ondblclick = (e) => { window.open(thumbnailUrl ?? imgThumbnail, '_blank'); };
             }),
             label
         );
