@@ -5,7 +5,7 @@ import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { notImplemented } from "../uiUtil.js";
 import { $Card } from "./Components/card.js";
-import { $Material, $Model } from "./Components/componentModel.js";
+import { $Image, $Material, $Model } from "./Components/componentModel.js";
 import { $Script } from "./Components/componentScript.js";
 import { $Transform } from "./Components/componentTransform.js";
 import { $SceneObjectDescriptor } from "./Components/sceneObjectDescriptor.js";
@@ -35,7 +35,7 @@ export class $Inspector extends GuiHandle {
             }
             else if (AssetType.isImage(cargo.target)) {
                 const content = await NavFS.readFileAsDataUrl(cargo.target);
-                console.log("Selected Image (" + cargo.target + "):", content);
+                this.assetBrowserSelectImage(gui, root, cargo.target, content);
             } else {
                 System.error(System.ui_message_prefix, "Unknown asset type:", cargo.target);
             }
@@ -60,6 +60,11 @@ export class $Inspector extends GuiHandle {
             isEnableable: false,
             content: new $Model({ assetName, modelParams: JSON.parse(content) })
         }))
+    }
+
+    static assetBrowserSelectImage(gui, root, path, dataUrl) {
+        const assetName = NavFS.getFileNameFromPath(path);
+        gui.bake(root, new $Image({ assetName, path, dataUrl }))
     }
 
     static hierarchySelect(gui, root, cargo) {

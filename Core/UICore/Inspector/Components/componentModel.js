@@ -172,3 +172,60 @@ export class $Model extends GuiHandle {
         gui.bake(root, modelInput, meshInput, materialSection);
     }
 }
+
+export class $Image extends GuiHandle {
+    /**
+     * @param {GuiContext} gui 
+     * @param {HTMLElement} root
+     */
+    static builder(gui, root) {
+        const assetName = gui.state("assetName");
+        const path = gui.state("path");
+        const dataUrl = gui.state("dataUrl");
+
+        const label = gui.node("h2", h2 => {
+            h2.style.margin = "0px";
+            h2.append(gui.node("b", b => { b.textContent = assetName; }));
+        })
+
+        const preview = gui.node("div", div => {
+            div.style.width = "100%";
+            div.style.height = "535px";
+            div.style.backgroundImage = `url(${dataUrl})`;
+            div.style.backgroundSize = "contain";
+            div.style.backgroundPosition = "center";
+            div.style.backgroundRepeat = "no-repeat";
+        })
+
+        const input = new $Receiver({
+            tag: "Reference Path",
+            expectedType: "path",
+            value: path,
+            onchangeHandler: (tag, newValue) => { preview.style.backgroundImage = `url(${newValue})`; console.log(assetName, " to reference", newValue); }
+        });
+
+        const referenceOnly = gui.node("div", div => {
+            div.style.display = "flex";
+            div.style.flexDirection = "row";
+            div.style.justifyContent = "space-between";
+            div.style.alignItems = "center";
+            div.style.width = "100%";
+
+            const label = gui.node("p", p => { p.textContent = "External reference?"; });
+            div.append(
+                label,
+                gui.node("input", input => {
+                    input.type = "checkbox";
+                    input.checked = false;
+                    input.onchange = (e) => { notImplemented(); input.checked = false; }
+                })
+            );
+        });
+
+        root.style.display = "flex";
+        root.style.flexDirection = "column";
+        root.style.width = "100%";
+
+        gui.bake(root, label, input, referenceOnly, preview);
+    }
+}
