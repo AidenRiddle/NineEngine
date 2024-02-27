@@ -140,10 +140,9 @@ export default class Gpu {
     }
 
     useTextures(textureArray) {
-        const offset = this.gl.TEXTURE0 + Webgl.engineTexture.length;
         //const tex = TextureStorage.Get("Textures/tk3.jpg");
         for (let j = 0; j < textureArray.length; j++) {
-            this.gl.activeTexture(offset + j);
+            this.gl.activeTexture(this.gl.TEXTURE0 + j);
             this.gl.bindTexture(this.gl.TEXTURE_2D, TextureStorage.Get(textureArray[j]).webGl);
             //this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
         }

@@ -49,7 +49,7 @@ export class WebGlTextureBuilder {
     wrapT(value) { this.#wrapT = value; return this; };
 
     colorTexture() {
-        this.#address = WebGLConstants.TEXTURE0 + Webgl.engineTexture.length;
+        this.#address = WebGLConstants.TEXTURE0;
         this.#internalFormat = WebGLConstants.RGBA;
         this.#format = WebGLConstants.RGBA;
         this.#texelType = WebGLConstants.UNSIGNED_BYTE;

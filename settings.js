@@ -110,9 +110,9 @@ export const Webgl = {
         xrCompatible: false
     },
     engineTexture: Object.freeze({          // Reserved index for these textures
-        depthTexture: 0,
-        effectsTexture: 1,
-        jointTexture: 2,
+        depthTexture: 31,
+        effectsTexture: 30,
+        jointTexture: 29,
         length: 3
     }),
     uniform: Object.freeze({

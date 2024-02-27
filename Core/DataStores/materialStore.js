@@ -79,11 +79,11 @@ export class MaterialBuilder {
     shader(shaderId) {
         let numOfTextures = 0;
         const uniformTypes = {
-            ["sampler2D"]: () => { numOfTextures++; return numOfTextures - 1 + Webgl.engineTexture.length; },
-            ["int"]: () => { return 0; },
-            ["float"]: () => { return 0; },
-            ["vec3"]: () => { return [0, 0, 0]; },
-            ["mat4"]: () => { return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; },
+            "sampler2D": () => { numOfTextures++; return numOfTextures - 1; },
+            "int": () => { return 0; },
+            "float": () => { return 0; },
+            "vec3": () => { return [0, 0, 0]; },
+            "mat4": () => { return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; },
         }
         const shader = ShaderStorage.Get(shaderId);
         const uniformValueMap = new Map();
@@ -104,7 +104,7 @@ export class MaterialBuilder {
     uniform(uniformName, uniformValue) {
         if (!this.#uniformValueMap.has(uniformName)) return // throw new Error(`Invalid parameters: Uniform (${uniformName}) doesn't exist.`);
         if (typeof uniformValue == "string") {    // Lazy way to identify if uniform value is pointing to a texture
-            this.#uniformValueMap.set(uniformName, this.#textures.length + Webgl.engineTexture.length);
+            this.#uniformValueMap.set(uniformName, this.#textures.length);
             this.addTexture(uniformValue);
         } else {
             this.#uniformValueMap.set(uniformName, uniformValue);
