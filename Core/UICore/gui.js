@@ -55,7 +55,7 @@ export class Canvas {
         const importedElement = context.document.adoptNode(liveElement);
         GuiStorage.Add(guiHandle, importedElement);
 
-        if (options.useEventController) {}
+        if (options.useEventController) { }
     }
 }
 
@@ -96,15 +96,19 @@ export class GuiContext {
 
     /**
      * @param {HTMLElement} target 
-     * @param {GuiHandle | GuiHandle[]} any 
+     * @param {GuiHandle[]} any 
      */
-    bake(target, any) {
-        if (Array.isArray(any)) {
-            any.map(this.getNode).forEach(el => target.appendChild(el));
-        } else {
-            target.appendChild(this.getNode(any));
+    bake(target, ...any) {
+        const threshold = 50;  // milliseconds
+        const start = performance.now();
+        const flat = any.flat(Infinity);
+        flat.map(this.getNode).forEach(el => target.appendChild(el));
+        if (performance.now() - start > threshold) {
+            console.error("Gui bake took a long time:",
+                this.#guiHandle.constructor.name,
+                " - Flattened", flat.length, "total elements."
+            );
         }
-
     }
 }
 
