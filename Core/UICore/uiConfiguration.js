@@ -28,6 +28,7 @@ export const UiEvent = {
     inspector_model_material_change: 0,
     inspector_script_param_change: 0,
     inspector_request_error: 0,
+    inspector_display_properties: 0,
 
     assetBrowser_select_assetFile: 0,
     assetBrowser_select_image: 0,
