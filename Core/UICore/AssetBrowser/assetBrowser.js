@@ -166,6 +166,9 @@ const rootFolderIsAccessible = await NavFS.isReady();
 const guiTree = new $Tree({ fsReady: rootFolderIsAccessible });
 const guiBlock = new $Block({});
 
+Canvas.addToHUD(guiTree);
+Canvas.addToHUD(guiBlock);
+
 const handler = {
     [UiEvent.assetBrowser_refresh]: guiTree.rebuild,
     [UiEvent.global_visibility_change]: guiTree.rebuild,
@@ -214,9 +217,6 @@ async function deleteFile(path) {
     await NavFS.rm(path);
     guiBlock.rebuild();
 }
-
-Canvas.addToHUD(guiTree);
-Canvas.addToHUD(guiBlock);
 
 const thumbnailCache = {
     _default: {

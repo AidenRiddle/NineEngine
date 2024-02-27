@@ -60,8 +60,8 @@ export class $Card extends GuiHandle {
             "titleCard": titleCard,
             "subCard": gui.state("content"),
             "onselect": gui.state("callback"),
-            "onexpand": () => { root.style.marginBottom = "30px"; },
-            "oncollapse": () => { root.style.marginBottom = "5px"; },
+            "onexpand": () => { card.style.marginBottom = "30px"; },
+            "oncollapse": () => { card.style.marginBottom = "5px"; },
             "highlightOnSelect": true,
         }));
 
