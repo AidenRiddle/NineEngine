@@ -1,5 +1,6 @@
 import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
 import { AssetType } from "../../../settings.js";
+import TexturePainter from "../../GECore/Util/texturePainter.js";
 import { Canvas, GuiContext, GuiHandle } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
@@ -117,10 +118,14 @@ class $Block extends GuiHandle {
         element.ondragover = dragoverHandler;
     }
 
-    static async listBlocks(path, gui, block, handle) {
+    static async listBlocks(path, gui, root, handle) {
         const fileHandles = await NavFS.lsf(path);
         const dirHandles = await NavFS.lsdir(path);
-        if (!fileHandles) return;
+
+        if (fileHandles.length == 0) {
+            root.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
+            return;
+        }
 
         const blocks = [];
         for (const dirHandle of dirHandles) {
@@ -133,6 +138,8 @@ class $Block extends GuiHandle {
                 dragData: filePath
             }));
         }
+        gui.bake(root, blocks);
+
         for (let fileHandle of fileHandles) {
             const file = await fileHandle.getFile();
             const filePath = path + "/" + file.name;
@@ -142,22 +149,24 @@ class $Block extends GuiHandle {
                 thumbnail = thumbnailCache._default.default_material;
             } else if (NavFS.getFileExtension(file) == AssetType.model.extension) {
                 thumbnail = thumbnailCache._default.default_model;
-            } else if (thumbnail == null) {
-                thumbnailCache[filePath] = URL.createObjectURL(file);
-                thumbnail = thumbnailCache[filePath];
             }
-            blocks.push(new $File({
+
+            const block = new $File({
                 value: file.name,
                 thumbnailUrl: thumbnail,
                 onclick: click,
                 deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
                 dragData: filePath
-            }));
-        }
-        gui.bake(block, blocks);
+            });
+            gui.bake(root, block);
 
-        if (block.children.length == 0) {
-            block.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
+            if (thumbnail == null) {
+                TexturePainter.imageToThumbnailBlob(file, 75, 75)
+                    .then((resized) => {
+                        thumbnailCache[filePath] = URL.createObjectURL(resized);
+                        block.set("thumbnailUrl", thumbnailCache[filePath]);
+                    });
+            }
         }
     }
 }
