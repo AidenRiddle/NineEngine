@@ -53,7 +53,8 @@ export const System = Object.freeze({
     input_state_editor: "The One State To Rule Them All",
     input_state_runtime: "Runtime Input State",
 
-    log(style, ...msgs) { console.log(...style, ...msgs); }
+    log(style, ...msgs) { console.log(...style, ...msgs); },
+    error(style, ...msgs) { console.error(...style, ...msgs); }
 })
 
 export const DebugToggle = Object.freeze({
@@ -85,6 +86,22 @@ export const DataBaseSchema = Object.freeze({
 });
 
 export const AssetType = {
+    isMaterial: function (name) {
+        return name.endsWith("mat");
+    },
+    isModel: function (name) {
+        return name.endsWith("model");
+    },
+    isMesh: function (name) {
+        return name.endsWith("glb");
+    },
+    isImage: function (name) {
+        return name.endsWith("jpg")
+            || name.endsWith("png")
+            || name.endsWith("jpeg")
+            || name.endsWith("jfif")
+            || name.endsWith("webp");
+    },
     material: Object.freeze({
         extension: "mat"
     }),
