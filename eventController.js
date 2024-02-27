@@ -42,7 +42,6 @@ class EventCycle {
     }
 
     start() {
-        this.#targetDeltaTime = (System.target_frame_rate != 0) ? 1000 / System.target_frame_rate : 0;
         this.#startOfLastFrame = performance.now();
         this.#elapsedTime = this.#targetDeltaTime;
         Debug.StartAverage("Frames Skipped Avg:", 50);
