@@ -14,7 +14,6 @@ export class $DropReceiver extends GuiHandle {
         const onchangeHandler = gui.state("onchangeHandler");
 
         const receiver = gui.node("input", input => {
-            input.id = "receiver-hitbox";
             input.type = "text";
             input.value = value ?? `None (${expectedType})`;
             input.style.width = "260px";

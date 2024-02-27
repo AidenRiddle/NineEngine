@@ -12,7 +12,6 @@ export class $TransformInput extends GuiHandle {
 
         gui.makeRoot(
             gui.node("input", input => {
-                input.id = "transform-parameter-value-input";
                 input.type = "number";
                 input.value = initialValue;
                 input.style.width = "60px";

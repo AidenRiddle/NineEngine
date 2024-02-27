@@ -33,7 +33,6 @@ export class $ScriptInput extends GuiHandle {
 
         root.append(
             gui.node("input", input => {
-                input.id = "script-parameter-value-input";
                 input.type = primitiveTypeToInputType[type] ?? "text";
                 input.pattern = primitiveTypeToPatternMatch[type] ?? "[^]*";
                 input.autocomplete = "off";
