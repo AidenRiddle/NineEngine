@@ -1,35 +1,19 @@
 import { AssetType } from "../../../../settings.js";
+import { $DragReceiver } from "../../Common/commonGui.js";
 import { GuiHandle, GuiContext } from "../../gui.js";
 import { UiEvent } from "../../uiConfiguration.js";
-import { notImplemented } from "../../uiUtil.js";
-
-export class $DropReceiver extends GuiHandle {
-    /**
-     * @param {GuiContext} gui 
-     * @param {HTMLElement} root
-     */
-    static builder(gui, root) {
-        const expectedType = gui.state("expectedType");
-        const value = gui.state("value");
-        const onchangeHandler = gui.state("onchangeHandler");
-
-        const receiver = gui.node("input", input => {
-            input.type = "text";
-            input.value = value ?? `None (${expectedType})`;
-            input.style.width = "260px";
-            input.onchange = (e) => onchangeHandler(gui.state("tag"), e.target.value);
-        });
-
-        root.append(receiver);
-    }
-}
+import { notImplemented } from "../../../../methods.js";
 
 export class $Receiver extends GuiHandle {
     /**
      * @param {GuiContext} gui 
      * @param {HTMLElement} root
+     * @param {GuiHandle} handle
      */
-    static builder(gui, root) {
+    static builder(gui, root, handle) {
+        const expectedType = gui.state("expectedType");
+        const value = gui.state("value");
+        const onchangeHandler = gui.state("onchangeHandler");
         const tag = gui.state("tag");
 
         root.style.display = "flex";
@@ -44,7 +28,29 @@ export class $Receiver extends GuiHandle {
             })
         );
 
-        $DropReceiver.builder(gui, root);
+
+        const receiver = gui.node("input", input => {
+            input.type = "text";
+            input.value = value ?? `None (${expectedType})`;
+            input.style.width = "260px";
+            input.onchange = (e) => onchangeHandler(gui.state("tag"), e.target.value);
+        });
+
+        handle.set("onItemDrop", (dt) => {
+            const assetFilePath = dt.getData("assetFilePath");
+            const url = dt.getData("text/plain");
+            console.log("Types:", dt.types);
+            if (assetFilePath != "") {
+                receiver.value = assetFilePath;
+                receiver.dispatchEvent(new Event('change'));
+            } else if (url != "") {
+                receiver.value = url;
+                receiver.dispatchEvent(new Event('change'));
+            }
+        })
+        $DragReceiver.builder(gui, receiver);
+
+        root.append(receiver);
     }
 }
 
@@ -63,7 +69,7 @@ export class $Material extends GuiHandle {
                 if (!value.endsWith("glsl")) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
                 materialParams.shaderId = value;
             } else {
-                if (!value.endsWith("jpg")) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
+                if (!AssetType.isImage(value) && !value.startsWith("http")) { window.postMessage({ uiEventCode: UiEvent.inspector_request_error }); return; }
                 materialParams.textures[Number.parseInt(key)] = value;
             }
 

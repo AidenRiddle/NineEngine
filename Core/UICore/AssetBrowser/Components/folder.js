@@ -1,4 +1,4 @@
-import { $ExpandableCard } from "../../Common/commonGui.js";
+import { $Draggable, $ExpandableCard } from "../../Common/commonGui.js";
 import { GuiContext, GuiHandle } from "../../gui.js";
 
 const showSubfolderByDefault = true;
@@ -67,7 +67,6 @@ export class $File extends GuiHandle {
         const onclick = gui.state("onclick");
         const ondblclick = gui.state("ondblclick");
         const deleteHandler = gui.state("deleteHandler");
-        const dragData = gui.state("dragData");
 
         tabIndexCounter++;
         const childrenMaxWidth = "100px";
@@ -80,6 +79,8 @@ export class $File extends GuiHandle {
             p.style.wordBreak = "break-word";
             p.style.textAlign = "center";
         });
+
+        if (gui.state("dragData") != null) $Draggable.builder(gui, root);
 
         // This was a draggableReciever with dragData
         root.tabIndex = tabIndexCounter.toString();

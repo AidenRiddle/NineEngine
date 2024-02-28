@@ -87,3 +87,39 @@ export class $ExpandableCard extends GuiHandle {
         if (subCard != null) root.append(gui.getNode(subCard));
     }
 }
+
+export class $Draggable extends GuiHandle {
+    /**
+     * @param {GuiContext} gui 
+     * @param {HTMLElement} root
+     */
+    static builder(gui, root) {
+        const dragData = gui.state("dragData");
+
+        root.draggable = true;
+        root.ondragstart = (e) => {
+            for (const [type, data] of Object.entries(dragData)) {
+                e.dataTransfer.setData(type, data);
+            }
+        }
+    }
+}
+
+export class $DragReceiver extends GuiHandle {
+    /**
+     * @param {GuiContext} gui 
+     * @param {HTMLElement} root
+     */
+    static builder(gui, root) {
+        const onFileDrop = gui.state("onFileDrop");
+        const onItemDrop = gui.state("onItemDrop");
+
+        root.ondragenter = (e) => e.preventDefault();
+        root.ondragover = (e) => e.preventDefault();
+        root.ondrop = (e) => {
+            e.preventDefault();
+            if (onFileDrop != null) onFileDrop(e.dataTransfer.files);
+            if (onItemDrop != null) onItemDrop(e.dataTransfer);
+        }
+    }
+}
