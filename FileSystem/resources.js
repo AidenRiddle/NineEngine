@@ -1,4 +1,4 @@
-import { DataBaseSchema, Stash } from "../settings.js";
+import { AssetType, DataBaseSchema, Stash } from "../settings.js";
 import GEInstanceDB from "./geInstanceDB.js";
 import Loader from "./loader.js";
 import { NavFS } from "./FileNavigator/navigatorFileSystem.js";
@@ -61,7 +61,7 @@ class WebResources {
         if (fileType == null) throw new Error("Unknow MIME type (" + fileRelativePath + "): " + mimeType);
 
         return this.readFullStream(response.body)
-            .then((data) => { return { fileType, fileData: data } })
+            .then((data) => { return { fileType: mimeType, fileData: data } })
     }
 
     async #fetchFileData(fileRelativePath) {
@@ -171,11 +171,14 @@ export default class Resources {
         }
         return this.#disk.loadFileFromDisk(fileRelativePath)
             .catch(() => this.#web.loadFileFromWeb(fileRelativePath))
-            .catch(() => {
-                if (fileRelativePath.endsWith(".jpg")) return this.#fetchRawImpl("Textures/error_cors.png")
+            .catch((e) => {
+                if (AssetType.isImage(fileRelativePath)) return this.#fetchRawImpl("Textures/error_cors.png");
+                if (fileRelativePath.startsWith("http")) return this.#fetchRawImpl("Textures/error_cors.png");
+
+                throw new Error(e);
             })
             .then((file) => {
-                const renamedFile = new File([file], fileName);
+                const renamedFile = new File([file], fileName, { type: file.type });
                 if (options.cacheResult) this.#stash(renamedFile);
                 return renamedFile;
             })
