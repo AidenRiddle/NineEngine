@@ -1,5 +1,5 @@
 import { UiEvent } from "../uiConfiguration.js";
-import { notImplemented } from "../uiUtil.js";
+import { notImplemented } from "../../../methods.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { $Folder } from "./Components/item.js";
 import { Canvas, GuiHandle, GuiContext } from "../gui.js";

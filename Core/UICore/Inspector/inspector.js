@@ -3,7 +3,7 @@ import { AssetType, System } from "../../../settings.js";
 import { Canvas, GuiContext, GuiHandle } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
-import { notImplemented } from "../uiUtil.js";
+import { notImplemented } from "../../../methods.js";
 import { $Card } from "./Components/card.js";
 import { $Image, $Material, $Model } from "./Components/componentModel.js";
 import { $Script } from "./Components/componentScript.js";

@@ -2,7 +2,7 @@ import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js"
 import { Canvas, GuiContext, GuiHandle } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
-import { notImplemented } from "../uiUtil.js";
+import { notImplemented } from "../../../methods.js";
 import { $Button } from "./Components/button.js";
 
 const handler = {}

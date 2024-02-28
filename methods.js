@@ -6,3 +6,5 @@ export function objectToEnum(obj) {
     else for (let i = 0; i < keys.length; i++) { obj[key] = ++i; }
     Object.freeze(obj);
 }
+
+export function notImplemented() { alert("Not implemented."); }

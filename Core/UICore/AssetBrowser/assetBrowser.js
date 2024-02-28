@@ -1,8 +1,8 @@
 import { NavFS } from "../../../FileSystem/FileNavigator/navigatorFileSystem.js";
+import { notImplemented } from "../../../methods.js";
 import { Canvas } from "../gui.js";
 import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
-import { notImplemented } from "../uiUtil.js";
 import { $Block } from "./Components/folderFiles.js";
 import { $Tree } from "./Components/folderTree.js";
 
