@@ -54,9 +54,9 @@ const navDir = await Promise.all([promiseNavStorage, promiseUserDirectory])
 function promiseIteratorToArray(asyncIterator) {
     const listOfFiles = [];
     function recur(asyncIt) {
-        return asyncIt.next().then((res) => { if (res.done) return; listOfFiles.push(res.value); return recur(asyncIt); });
+        return asyncIt.next().then((res) => { if (res.done) return listOfFiles; listOfFiles.push(res.value); return recur(asyncIt); });
     }
-    return recur(asyncIterator).then(() => listOfFiles.reverse());
+    return recur(asyncIterator);
 }
 
 export class NavFS {
