@@ -66,7 +66,7 @@ class WebResources {
 
     async #fetchFileData(fileRelativePath) {
         const address = (fileRelativePath.startsWith("http")) ? fileRelativePath : this.#root + fileRelativePath;
-        const response = await fetch(address, { mode: 'no-cors' });
+        const response = await fetch(address);
 
         if (!response.ok) {
             if (response.type == "cors") {
