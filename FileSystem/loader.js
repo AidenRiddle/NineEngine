@@ -20,7 +20,9 @@ export default class Loader {
     constructor() {
         this.#fileFormatMapper.set("jpg", this.#unpackTexture);
         this.#fileFormatMapper.set("png", this.#unpackTexture);
+        this.#fileFormatMapper.set("image/png", this.#unpackTexture);
         this.#fileFormatMapper.set("jpeg", this.#unpackTexture);
+        this.#fileFormatMapper.set("image/jpeg", this.#unpackTexture);
         this.#fileFormatMapper.set("jfif", this.#unpackTexture);
         this.#fileFormatMapper.set("webp", this.#unpackTexture);
 
