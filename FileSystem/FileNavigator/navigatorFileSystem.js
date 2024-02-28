@@ -75,8 +75,11 @@ export class NavFS {
         }
         if (path == "." || path == "") return wd;
         for (const dirName of path.split("/")) {
-            wd = await wd.getDirectoryHandle(dirName, { create });
-            if (!wd) { console.error("Invalid path. Could not find (", dirName, ")."); return; }
+            try {
+                wd = await wd.getDirectoryHandle(dirName, { create });
+            } catch (e) {
+                throw new Error("Invalid path. Could not find (" + dirName + ").");
+            }
         }
         return wd;
     }
