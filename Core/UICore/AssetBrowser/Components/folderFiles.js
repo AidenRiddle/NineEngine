@@ -29,9 +29,12 @@ export class $Block extends GuiHandle {
     }
 
     static makeDropzone(gui, root, handle) {
-        handle.set("onFileDrop", (files) => {
+        handle.set("onItemDrop", async (dt) => {
+            const assetFilePath = dt.getData("assetFilePath");
+            if (assetFilePath != "" && await NavFS.getFile(assetFilePath) != null) return;
+
             const promises = [];
-            for (const file of files) {
+            for (const file of dt.files) {
                 const filePath = gui.state("path") + "/" + file.name;
                 promises.push(NavFS.copyFile(file, filePath));
             }
