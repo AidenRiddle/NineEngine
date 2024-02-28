@@ -29,9 +29,12 @@ export class $Block extends GuiHandle {
     }
 
     static makeDropzone(gui, root, handle) {
-        handle.set("onItemDrop", async (dt) => {
+        handle.set("onItemDrop", (dt) => {
             const assetFilePath = dt.getData("assetFilePath");
-            if (assetFilePath != "" && await NavFS.getFile(assetFilePath) != null) return;
+            if (assetFilePath != "") {
+                const { dirPath } = NavFS.getFileNameAndPath(assetFilePath);
+                if (dirPath == gui.state("path")) { return; }
+            }
 
             const promises = [];
             for (const file of dt.files) {
@@ -67,7 +70,8 @@ export class $Block extends GuiHandle {
                 value: dirHandle.name,
                 thumbnailUrl: thumbnailCache._default.default_folder,
                 ondblclick: async () => { handle.set("path", filePath); },
-                deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); }
+                deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
+                dragData: { "assetFilePath": filePath }
             }));
         }
         gui.bake(root, blocks);
