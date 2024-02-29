@@ -91,6 +91,33 @@ export class $Block extends GuiHandle {
                 value: file.name,
                 thumbnailUrl: thumbnail,
                 onclick: click,
+                ondblclick: async () => {
+                    const extension = NavFS.getFileExtension(file);
+                    const entry = prompt(`Rename Asset (${file.name}):`).trim();
+                    const name = entry.endsWith(extension) ? entry : entry + '.' + extension;
+                    if (file.name == name) { console.log("Hen:", file.name, name); return; }
+
+                    const newPath = path + '/' + name;
+
+                    try {
+                        await NavFS.getFile(newPath);
+                        alert(newPath + " already exists.");
+                        return;
+                    } catch (e) {}
+
+                    await NavFS.copyFileFromPath(filePath, newPath);
+                    await NavFS.rm(filePath);
+
+                    thumbnailCache[newPath] = thumbnailCache[filePath];
+                    delete thumbnailCache[filePath];
+
+                    handle.rebuild();
+                    clickHandler(newPath);
+
+                    // const cargo = { soid: so.id, newName: name };
+                    // const payload = new Payload(UiEvent.hierarchy_rename_sceneobject, cargo);
+                    // parent.postMessage(payload);
+                },
                 deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
                 dragData: { "assetFilePath": filePath }
             });
