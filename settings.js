@@ -104,6 +104,9 @@ export const AssetType = {
             || name.endsWith(".jfif")
             || name.endsWith(".webp");
     },
+    isScript: function (name) {
+        return name.endsWith(".ts");
+    },
     material: Object.freeze({
         extension: "mat"
     }),
