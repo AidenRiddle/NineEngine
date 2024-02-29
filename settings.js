@@ -89,20 +89,20 @@ export const DataBaseSchema = Object.freeze({
 
 export const AssetType = {
     isMaterial: function (name) {
-        return name.endsWith("mat");
+        return name.endsWith(".mat");
     },
     isModel: function (name) {
-        return name.endsWith("model");
+        return name.endsWith(".model");
     },
     isMesh: function (name) {
-        return name.endsWith("glb");
+        return name.endsWith(".glb");
     },
     isImage: function (name) {
-        return name.endsWith("jpg")
-            || name.endsWith("png")
-            || name.endsWith("jpeg")
-            || name.endsWith("jfif")
-            || name.endsWith("webp");
+        return name.endsWith(".jpg")
+            || name.endsWith(".png")
+            || name.endsWith(".jpeg")
+            || name.endsWith(".jfif")
+            || name.endsWith(".webp");
     },
     material: Object.freeze({
         extension: "mat"
