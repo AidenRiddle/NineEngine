@@ -177,7 +177,7 @@ class Main {
         const projectFolderFound = await NavFS.isReady();
         if (projectFolderFound) {
             const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false });
-    
+
             function recur(path, dir) {
                 const promises = [];
                 for (const [key, value] of Object.entries(dir)) {

@@ -1,6 +1,5 @@
 import { Stash } from "../../settings.js";
 import GEInstanceDB from "../geInstanceDB.js";
-import Resources from "../resources.js";
 
 const nineEngineRootName = "NineEngine";
 
@@ -8,11 +7,7 @@ const idb = new GEInstanceDB();
 await idb.getInstance("geInstanceDB");
 
 async function runFixtures() {
-    const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false })
-        .catch((e) => {
-            console.error(e);
-            return fetch(Stash.fixtures).then((response) => response.json());
-        });
+    const fixtures = await fetch(Stash.fixtures).then((response) => response.json());
 
     function recur(path, dir) {
         const promises = [];
@@ -91,7 +86,7 @@ export class NavFS {
         return await dir.getFileHandle(fileName, { create });
     }
 
-    static #getSuffix(str, separator) { return str.substring(str.lastIndexOf(separator) + 1); }
+    static #getSuffix(str, separator) { return str.substring(str.lastIndexOf(separator)); }
     static getFileExtension(file) { return this.#getSuffix(file.name, '.'); }
     static getFileNameFromPath(path) { return this.#getSuffix(path, '/'); }
     static getFileNameAndPath(path) {
@@ -127,20 +122,22 @@ export class NavFS {
     }
 
     static async validateRootFolder() {
-        const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false })
-            .catch((e) => {
-                console.error(e);
-                return fetch(Stash.fixtures).then((response) => response.json());
-            });
+        const fixtures = await fetch(Stash.fixtures).then((response) => response.json());
 
         const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
+        const path = "./Assets";
 
-        const directories = await this.lsdir('.');
-        for (const dirName of Object.keys(fixtures)) {
-            const result = directories.find(dir => dir.name == dirName);
-            if (result == null) return Promise.reject(invalidDirectory + path);
+        try {
+            const directories = await this.lsdir(path);
+            for (const dirName of Object.keys(fixtures)) {
+                const result = directories.find(dir => dir.name == dirName);
+                if (result == null) return Promise.reject(invalidDirectory + path);
+            }
+            return Promise.resolve();
+        } catch(e) {
+            console.log(this.#root);
+            return Promise.reject(invalidDirectory + path);
         }
-        return Promise.resolve();
     }
 
     static async getDirectoryAccess() {
