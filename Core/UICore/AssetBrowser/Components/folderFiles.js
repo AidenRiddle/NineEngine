@@ -81,10 +81,14 @@ export class $Block extends GuiHandle {
             const filePath = path + "/" + file.name;
             let thumbnail = thumbnailCache[filePath];
             const click = () => clickHandler(filePath);
-            if (NavFS.getFileExtension(file) == AssetType.material.extension) {
+            const fileExtension = NavFS.getFileExtension(file);
+            console.log(fileExtension);
+            if (AssetType.isMaterial(fileExtension)) {
                 thumbnail = thumbnailCache._default.default_material;
-            } else if (NavFS.getFileExtension(file) == AssetType.model.extension) {
+            } else if (AssetType.isModel(fileExtension)) {
                 thumbnail = thumbnailCache._default.default_model;
+            } else if (AssetType.isScript(fileExtension)) {
+                thumbnail = thumbnailCache._default.default_script;
             }
 
             const block = new $File({
@@ -123,7 +127,7 @@ export class $Block extends GuiHandle {
             });
             gui.bake(root, block);
 
-            if (thumbnail == null) {
+            if (thumbnail == null && AssetType.isImage(fileExtension)) {
                 TexturePainter.imageToThumbnailBlob(file, 75, 75)
                     .then((resized) => {
                         thumbnailCache[filePath] = URL.createObjectURL(resized);

@@ -13,6 +13,7 @@ const thumbnailCache = {
         default_folder: "/Core/UICore/AssetBrowser/Icons/icons8-file-folder-96.png",
         default_material: "/Core/UICore/AssetBrowser/Icons/crystal-ball.png",
         default_model: "/Core/UICore/AssetBrowser/Icons/3d.png",
+        default_script: "/Core/UICore/AssetBrowser/Icons/icon_script.png",
     }
 };
 
