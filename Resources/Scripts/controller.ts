@@ -44,7 +44,7 @@ export class Controller extends Component {
         let dx = inpDesc.deltaX();
         let dy = inpDesc.deltaY();
         this.sceneObject.transform.rotateByEuler(dy * this.sensitivity, 0, 0);
-        
+
         const vec = new Vector3(0, -dx * this.sensitivity, 0);
         const mag = vec.magnitude;
         const quat = Quaternion.from(mag, vec.normalize());
