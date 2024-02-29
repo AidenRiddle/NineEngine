@@ -40,45 +40,61 @@ class CachedResources {
 class WebResources {
     #root;
     #error_cors_texture;
+    #error_404_texture;
+    #error_unknown_texture;
 
     constructor(baseURL) {
         this.#root = baseURL;
-        this.#error_cors_texture = baseURL + "Textures/error_cors.png";
+        this.#error_cors_texture = this.#root + "Textures/error_cors.jpg";
+        this.#error_404_texture = this.#root + "Textures/error_404.jpg";
+        this.#error_unknown_texture = this.#root + "Textures/error_unknown.jpg";
     }
 
     #processFetchResponse(response) {
-        const fileTypeConverter = {
-            "application/json; charset=UTF-8": "json",
-            "model/gltf-binary": "glb",
-            "image/jpeg": "jpg",
-            "image/png": "png",
-            "image/webp": "webp",
-            "video/mp2t": "ts",
-            "application/octet-stream": "glsl"
-        }
-        const mimeType = response.headers.get("Content-Type");
-        const fileType = fileTypeConverter[mimeType];
-        if (fileType == null) throw new Error("Unknow MIME type (" + fileRelativePath + "): " + mimeType);
-
-        return this.readFullStream(response.body)
-            .then((data) => { return { fileType: mimeType, fileData: data } })
+        return response.blob();
     }
 
-    async #fetchFileData(fileRelativePath) {
-        const address = (fileRelativePath.startsWith("http")) ? fileRelativePath : this.#root + fileRelativePath;
-        const response = await fetch(address);
+    /**
+     * @param {Response} response 
+     */
+    #processBadResponse(address, response) {
+        console.log("Bad response (" + address + "):", response);
 
-        if (!response.ok) {
-            if (response.type == "cors") {
-                console.log("Fetch failed with CORS error. Using proxy for resource:", address);
-                return this.#fetchFileData("http://api.allorigins.win/raw?url=" + encodeURIComponent(address));
+        if (AssetType.isImage(address)) {
+            if (response.status == 404) {
+                return Resources.fetchRaw(this.#error_404_texture, { newFileName: address, cacheResult: false });
             } else {
-                console.log(response);
-                throw new Error("Bad response (" + fileRelativePath + ")");
+                return Resources.fetchRaw(this.#error_unknown_texture, { newFileName: address, cacheResult: false });
             }
         }
+        throw new TypeError("Fetch error (" + address + ")", { cause: response });
+    }
 
-        return this.#processFetchResponse(response);
+    /**
+     * @param {TypeError} e 
+     */
+    #processFetchError(address, e) {
+        const err = new TypeError("Fetch error (" + address + ")", { cause: e });
+        console.warn(err);
+
+        // console.log("Fetch failed with CORS error. Using proxy for resource:", address);
+        // return this.#fetchFileData("http://api.allorigins.win/raw?url=" + encodeURIComponent(address));
+
+        if (AssetType.isImage(address) || address.startsWith("http")) {
+            return fetch(this.#error_unknown_texture);
+        }
+        throw err;
+    }
+
+    #fetchFileData(fileRelativePath) {
+        const address = (fileRelativePath.startsWith("http")) ? fileRelativePath : this.#root + fileRelativePath;
+
+        return fetch(address)
+            .catch(e => this.#processFetchError(address, e))
+            .then(response => response.ok
+                ? this.#processFetchResponse(response)
+                : this.#processBadResponse(address, response)
+            );
     }
 
     /**
@@ -87,7 +103,7 @@ class WebResources {
     readFullStream(readableStream) {
         const reader = readableStream.getReader();
         const result = [];
-        return reader.read().then(function pump({done, value}) {      // 'value' is guaranteed to be a byte array (Uint8Array)
+        return reader.read().then(function pump({ done, value }) {      // 'value' is guaranteed to be a byte array (Uint8Array)
             if (done) { reader.releaseLock(); return result; }
             result.push(value);
             return reader.read().then(pump);
@@ -98,8 +114,7 @@ class WebResources {
      * @param {string} fileRelativePath 
      */
     loadFileFromWeb(fileRelativePath) {
-        return this.#fetchFileData(fileRelativePath)
-            .then((payload) => new File(payload.fileData, fileRelativePath, { type: payload.fileType }))
+        return this.#fetchFileData(fileRelativePath);
     }
 }
 
@@ -171,12 +186,6 @@ export default class Resources {
         }
         return this.#disk.loadFileFromDisk(fileRelativePath)
             .catch(() => this.#web.loadFileFromWeb(fileRelativePath))
-            .catch((e) => {
-                if (AssetType.isImage(fileRelativePath)) return this.#fetchRawImpl("Textures/error_cors.png");
-                if (fileRelativePath.startsWith("http")) return this.#fetchRawImpl("Textures/error_cors.png");
-
-                throw new Error(e);
-            })
             .then((file) => {
                 const renamedFile = new File([file], fileName, { type: file.type });
                 if (options.cacheResult) this.#stash(renamedFile);
@@ -217,7 +226,7 @@ export default class Resources {
         if (!this.#tracker.has(pathWithName)) return;
 
         return this.#cache.deleteFromCache(pathWithName)
-            .then(() => this.#tracker.delete(pathWithName));
+            .finally(() => this.#tracker.delete(pathWithName));
     }
 
     static #renameImpl = (oldPathWithName, newPathWithName) => {
