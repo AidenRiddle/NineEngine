@@ -1,7 +1,10 @@
 {
     "activeScene": "defaultScene",
     "core": {
-        "error_cors.png": "Textures/error_cors.png",
+        "error_cors.jpg": "Textures/error_cors.jpg",
+        "error_404.jpg": "Textures/error_404.jpg",
+        "error_unknown.jpg": "Textures/error_unknown.jpg",
+        "error_forbidden.jpg": "Textures/error_forbidden.jpg",
         "default_cube.glb": "3DModels/cube.glb",
         "default_plane.glb": "3DModels/plane.glb",
         "default_sphere.glb": "3DModels/sphere.glb",
