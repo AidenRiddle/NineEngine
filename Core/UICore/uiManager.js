@@ -2,6 +2,7 @@ import { NavFS } from "../../FileSystem/FileNavigator/navigatorFileSystem.js";
 import Resources from "../../FileSystem/resources.js";
 import { AssetType, DebugToggle, System } from "../../settings.js";
 import { ModelStorage } from "../DataStores/modelStore.js";
+import { ScriptStorage } from "../DataStores/scriptStore.js";
 import { Scene } from "../GameCore/Scene/scene.js";
 import { ScriptManager } from "../GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "../GameCore/runningInstance.js";
@@ -95,6 +96,17 @@ export default class UiManager {
             const com = this.#activeSceneObject.components.find((com) => com.module == cargo.module);
             Object.assign(com.imports, cargo.imports);
             console.log(this.#activeSceneObject);
+        },
+        [UiEvent.inspector_add_script]: (cargo) => {
+            const script = ScriptStorage.Get(cargo) ?? ScriptStorage.Get(cargo.substring(2));
+            const imports = {};
+            for (const [field, value] of Object.entries(script.declarations)) {
+                imports[field] = value.initialValue;
+            }
+            const component = { module: cargo, imports: imports };
+            this.#activeSceneObject.addComponent(component);
+            console.log(this.#activeSceneObject);
+            this.#handler[UiEvent.hierarchy_select](this.#activeSceneObject.id);
         },
         [UiEvent.assetBrowser_select_assetFile]: (cargo) => {
             const out = { type: "assetFile", target: cargo };

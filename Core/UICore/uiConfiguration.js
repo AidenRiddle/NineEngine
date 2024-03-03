@@ -27,6 +27,7 @@ export const UiEvent = {
     inspector_script_param_change: 0,
     inspector_request_error: 0,
     inspector_display_properties: 0,
+    inspector_add_script: 0,
 
     assetBrowser_select_assetFile: 0,
     assetBrowser_refresh: 0,
