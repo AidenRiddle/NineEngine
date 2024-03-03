@@ -4,7 +4,7 @@ import { ScriptStorage } from "../../DataStores/scriptStore.js";
 import Quaternion from "../../Math/quaternion.js";
 import { InputManager } from "../Input/input.js";
 import { RunningInstance } from "../runningInstance.js";
-import { compile } from "./asCompiler.js";
+import { compile, preCompile } from "./asCompiler.js";
 import { RuntimeMemory } from "./runtimeMemory.js";
 import { ScriptGlobals } from "./scriptGlobals.js";
 import { ScriptUtil } from "./scriptUtil.js";
@@ -169,11 +169,11 @@ export class ScriptManager {
                     for (const com of comPackage.soComponents) {
                         if (this.#componentMaps[soid] == null) this.#componentMaps[soid] = {};
                         const sceneObjectPtr = this.#runtime[soid];
-                        const className = ScriptStorage.Get(com.module).className;
+                        const className = (ScriptStorage.Get(com.module) ?? ScriptStorage.Get(com.module.substring(2))).className;
                         this.#componentMaps[soid][com.module] = this.#runtime["add_component_" + className](sceneObjectPtr);
                     }
                     for (const com of comPackage.soComponents) {
-                        const script = ScriptStorage.Get(com.module);
+                        const script = ScriptStorage.Get(com.module) ?? ScriptStorage.Get(com.module.substring(2));
                         const className = script.className;
 
                         for (const [field, rawValue] of Object.entries(com.imports)) {

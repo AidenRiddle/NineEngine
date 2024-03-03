@@ -123,7 +123,9 @@ export class RuntimeGenerator {
         }
 
         for (const [className, classPath] of preImports.entries()) {
-            preRuntimeScript += `import { ${className} } from "./${classPath}";`;
+            const startsWithDot = classPath.startsWith("./");
+            const fileUrl = startsWithDot ? classPath : "./" + classPath;
+            preRuntimeScript += `import { ${className} } from "${fileUrl}";`;
         }
 
         preRuntimeScript += "export const so = idof<SceneObject>();";
