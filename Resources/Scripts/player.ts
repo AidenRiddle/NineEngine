@@ -1,15 +1,15 @@
-import { Component, Time } from "./Core/NineEngine";
+import { Component, Serialize, Time } from "./Core/NineEngine";
 import { Weapon } from "./weapon";
 
 export class Player extends Component {
     angleToRad: f32 = 3.14159 / 180;
-    health: f32 = 0;
-    level: i8 = 0;
-    armorPerLevel: i32 = 0;
-    armor: i32 = 0;
-    energy: f32 = 0;
+    @Serialize health: f32 = 100;
+    @Serialize level: i8 = 1;
+    @Serialize armorPerLevel: i32 = 5;
+    @Serialize armor: i32 = 10;
+    @Serialize energy: f32 = 350;
 
-    weapon: Weapon | null = null;
+    @Serialize weapon: Weapon | null = null;
 
     Start(): void {
         console.log("Starting Player...");
