@@ -130,6 +130,18 @@ export class ScriptManager {
         return ptr;
     }
 
+    static PreCompileOnly() {
+        const startTime = ~~performance.now();
+        console.groupCollapsed("Pre-compilation Log");
+        return this.#createBuildPackage()
+            .then((buildPackage) => preCompile(buildPackage))
+            .then((buildPackage) => {
+                console.log("Package serialized properties:", ScriptStorage.pack());
+                console.groupEnd();
+                console.log("Pre-compiled successfully. Finished in " + (~~performance.now() - startTime) + "ms.");
+            })
+    }
+
     static Compile() {
         const startTime = ~~performance.now();
         console.groupCollapsed("Script Compilation Log");

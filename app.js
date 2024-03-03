@@ -28,6 +28,7 @@ import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
 import Gpu from "./Core/GECore/Gpu/gpu.js";
 import { WorkerManager } from "./Core/Worker/workerManager.js";
 import { Canvas } from "./Core/UICore/gui.js";
+import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 
 class Main {
     /** @type {HTMLCanvasElement} */
@@ -211,7 +212,7 @@ class Main {
             .then(() => this.#loadFromRunningInstance());
 
         const asyncInitialize = Promise.all([
-            this.runFixtures()
+            ScriptManager.PreCompileOnly(),
         ]);
 
         // Resources.fetchRaw("3DModels/vanguard@samba.glb", { cacheResult: false, hardFetch: true })
