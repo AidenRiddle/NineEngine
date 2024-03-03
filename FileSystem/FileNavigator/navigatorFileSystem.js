@@ -86,9 +86,8 @@ export class NavFS {
         return await dir.getFileHandle(fileName, { create });
     }
 
-    static #getSuffix(str, separator) { return str.substring(str.lastIndexOf(separator)); }
-    static getFileExtension(file) { return this.#getSuffix(file.name, '.'); }
-    static getFileNameFromPath(path) { return this.#getSuffix(path, '/'); }
+    static getFileExtension(file) { return file.name.substring(file.name.lastIndexOf('.')); }
+    static getFileNameFromPath(path) { return path.substring(path.lastIndexOf('/') + 1); }
     static getFileNameAndPath(path) {
         if (!path.includes('.')) throw new Error("Invalid file path.");
         const fileNameStartIndex = path.lastIndexOf("/");
