@@ -10,13 +10,24 @@ class GuiNodeBuilder {
     }
 
     static refreshNode(guiHandle) {
-        const gui = new GuiContext(guiHandle);
-        const root = GuiStorage.Get(guiHandle);
+        const abortController = new AbortController();
+        const gui = new GuiContext(guiHandle, abortController);
+        const liveElement = GuiStorage.Get(guiHandle);
 
-        // Delete all the children first
-        root.replaceChildren();
+        abortController.signal.addEventListener("abort", () => {
+            console.log(`GuiNode (${guiHandle.constructor.name}) Build aborted.`);
+            if (!liveElement.isConnected) {
+                GuiStorage.Get(guiHandle).replaceWith(liveElement);
+            }
+            GuiStorage.Add(guiHandle, liveElement);
+        }, { once: true });
 
-        guiHandle.constructor.builder(gui, root, guiHandle);
+        GuiStorage.Add(guiHandle, liveElement.cloneNode());
+        guiHandle.constructor.builder(gui, GuiStorage.Get(guiHandle), guiHandle);
+
+        if (!abortController.signal.aborted) {
+            liveElement.replaceWith(GuiStorage.Get(guiHandle));
+        }
     }
 }
 
@@ -61,9 +72,12 @@ export class Canvas {
 
 export class GuiContext {
     #guiHandle;
+    /** @type {AbortController} */
+    #abortController;
 
-    constructor(guiHandle) {
+    constructor(guiHandle, abortController) {
         this.#guiHandle = guiHandle;
+        this.#abortController = abortController;
     }
 
     makeRoot(guiHandle) {
@@ -109,6 +123,11 @@ export class GuiContext {
                 " - Flattened", flat.length, "total elements."
             );
         }
+    }
+
+    abortBuild() {
+        this.#abortController.signal.throwIfAborted();
+        this.#abortController.abort();
     }
 }
 
