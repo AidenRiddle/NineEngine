@@ -7,11 +7,6 @@ import Payload from "../../payload.js";
 import { UiEvent } from "../../uiConfiguration.js";
 import { $File } from "./folder.js";
 
-function clickHandler(link) {
-    const payload = new Payload(UiEvent.assetBrowser_select_assetFile, link);
-    parent.postMessage(payload);
-}
-
 export class $Block extends GuiHandle {
     /**
      * @param {GuiContext} gui 
@@ -48,33 +43,65 @@ export class $Block extends GuiHandle {
         $DragReceiver.builder(gui, root, handle);
     }
 
-    static async listBlocks(path, gui, root, handle) {
-        const fileHandles = await NavFS.lsf(path);
-        const dirHandles = await NavFS.lsdir(path);
+    static broadcastSelectEvent(link) {
+        const payload = new Payload(UiEvent.assetBrowser_select_assetFile, link);
+        parent.postMessage(payload);
+    }
 
-        if (fileHandles.length == 0 && dirHandles.length == 0) {
-            root.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
+    static async deleteFile(path, handle) {
+        await NavFS.rm(path);
+        handle.rebuild();
+    }
+
+    static async renameFile(path, handle, fileHandle, thumbnailCache) {
+        const extension = NavFS.getFileExtension(fileHandle);
+        const entry = prompt(`Rename Asset (${fileHandle.name}):`).trim();
+
+        if (entry == null) return;
+
+        const name = entry.endsWith(extension) ? entry : entry + '.' + extension;
+        if (fileHandle.name == name) { console.log("Hen:", fileHandle.name, name); return; }
+
+        const newPath = path + '/' + name;
+
+        try {
+            await NavFS.getFile(newPath);
+            alert(newPath + " already exists.");
             return;
-        }
+        } catch (e) { }
 
+        await NavFS.copyFileFromPath(filePath, newPath);
+        await NavFS.rm(filePath);
+
+        thumbnailCache[newPath] = thumbnailCache[filePath];
+        delete thumbnailCache[filePath];
+
+        handle.rebuild();
+        this.broadcastSelectEvent(newPath);
+
+        // const cargo = { soid: so.id, newName: name };
+        // const payload = new Payload(UiEvent.hierarchy_rename_sceneobject, cargo);
+        // parent.postMessage(payload);
+    }
+
+    static listDirectories(gui, root, handle, dirHandles) {
         const thumbnailCache = gui.state("thumbnailCache");
-        async function deleteFile(path) {
-            await NavFS.rm(path);
-            handle.rebuild();
-        }
-
         for (const dirHandle of dirHandles) {
             const filePath = path + "/" + dirHandle.name;
             const dirBlock = new $File({
                 value: dirHandle.name,
                 thumbnailUrl: thumbnailCache._default.default_folder,
-                ondblclick: async () => { handle.set("path", filePath); },
-                deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
+                ondblclick: () => { handle.set("path", filePath); },
+                deleteHandler: (e) => { e.preventDefault(); this.deleteFile(filePath, handle); },
                 dragData: { "assetFilePath": filePath }
             })
             gui.bake(root, dirBlock);
         }
+    }
 
+    static listFiles(gui, root, handle, fileHandles) {
+        const path = gui.state("path");
+        const thumbnailCache = gui.state("thumbnailCache");
         for (const fileHandle of fileHandles) {
             const filePath = path + "/" + fileHandle.name;
             let thumbnail = thumbnailCache[filePath];
@@ -90,35 +117,9 @@ export class $Block extends GuiHandle {
             const block = new $File({
                 value: fileHandle.name,
                 thumbnailUrl: thumbnail,
-                onclick: () => clickHandler(filePath),
-                ondblclick: async () => {
-                    const extension = NavFS.getFileExtension(fileHandle);
-                    const entry = prompt(`Rename Asset (${fileHandle.name}):`).trim();
-                    const name = entry.endsWith(extension) ? entry : entry + '.' + extension;
-                    if (fileHandle.name == name) { console.log("Hen:", fileHandle.name, name); return; }
-
-                    const newPath = path + '/' + name;
-
-                    try {
-                        await NavFS.getFile(newPath);
-                        alert(newPath + " already exists.");
-                        return;
-                    } catch (e) { }
-
-                    await NavFS.copyFileFromPath(filePath, newPath);
-                    await NavFS.rm(filePath);
-
-                    thumbnailCache[newPath] = thumbnailCache[filePath];
-                    delete thumbnailCache[filePath];
-
-                    handle.rebuild();
-                    clickHandler(newPath);
-
-                    // const cargo = { soid: so.id, newName: name };
-                    // const payload = new Payload(UiEvent.hierarchy_rename_sceneobject, cargo);
-                    // parent.postMessage(payload);
-                },
-                deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
+                onclick: () => this.broadcastSelectEvent(filePath),
+                ondblclick: async () => { this.renameFile(path, handle, fileHandle, thumbnailCache); },
+                deleteHandler: (e) => { e.preventDefault(); this.deleteFile(filePath, handle); },
                 dragData: { "assetFilePath": filePath }
             });
             gui.bake(root, block);
@@ -132,5 +133,18 @@ export class $Block extends GuiHandle {
                     });
             }
         }
+    }
+
+    static async listBlocks(path, gui, root, handle) {
+        const fileHandles = await NavFS.lsf(path);
+        const dirHandles = await NavFS.lsdir(path);
+
+        if (fileHandles.length == 0 && dirHandles.length == 0) {
+            root.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));
+            return;
+        }
+
+        this.listDirectories(gui, root, handle, dirHandles);
+        this.listFiles(gui, root, handle, fileHandles);
     }
 }
