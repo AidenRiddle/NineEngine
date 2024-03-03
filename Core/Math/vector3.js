@@ -1,6 +1,7 @@
-import { System } from "../../settings.js";
-import Matrix4 from "./matrix4.js";
 import Quaternion from "./quaternion.js";
+
+const deg2rad = Math.PI / 180;
+const rad2deg = 180 / Math.PI;
 
 export default class Vector3 {
     x; y; z;
@@ -36,7 +37,7 @@ export default class Vector3 {
         );
     }
 
-    static angleBetween(v1, v2) { return Math.acos(this.dot(v1, v2) / (v1.magnitude * v2.magnitude)) * System.rad_to_deg; }
+    static angleBetween(v1, v2) { return Math.acos(this.dot(v1, v2) / (v1.magnitude * v2.magnitude)) * rad2deg; }
     static axisBetween(v1, v2) { return this.cross(v1, v2).normalize(); }
 
     static copy(v) { return new Vector3(v.x, v.y, v.z); }

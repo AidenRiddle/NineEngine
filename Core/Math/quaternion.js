@@ -1,4 +1,3 @@
-import { System } from "../../settings.js";
 import Matrix4 from "./matrix4.js";
 import Vector3 from "./vector3.js";
 
@@ -7,6 +6,9 @@ import Vector3 from "./vector3.js";
 // https://www.3dgep.com/understanding-quaternions/#Quaternions
 // https://www.andre-gaschler.com/rotationconverter/
 
+const deg2rad = Math.PI / 180;
+const rad2deg = 180 / Math.PI;
+
 export default class Quaternion {
     w; x; y; z;
 
@@ -14,7 +16,7 @@ export default class Quaternion {
     get conjugated() { return new Quaternion(this.w, this.x, this.y, this.z).conjugate(); }
     get inversed() { return new Quaternion(this.w, this.x, this.y, this.z).inverse(); }
     get asNormalized() { return new Quaternion(this.w, this.x, this.y, this.z).normalize(); }
-    get angle() { return 2 * Math.acos(this.w) * System.rad_to_deg; }
+    get angle() { return 2 * Math.acos(this.w) * rad2deg; }
     get axis() { return new Vector3(this.x, this.y, this.z).normalize(); }
 
     static get identity() { return new Quaternion(1, 0, 0, 0); }
@@ -47,7 +49,7 @@ export default class Quaternion {
      * @returns 
      */
     static from(angle, axis) {
-        const finalAngle = angle * System.deg_to_rad * 0.5;
+        const finalAngle = angle * deg2rad * 0.5;
         axis = axis.asNormalized;
         return new Quaternion(
             Math.cos(finalAngle),
@@ -157,16 +159,16 @@ export default class Quaternion {
         const cosy_cosp = 1 - 2 * (this.y * this.y + this.z * this.z);
 
         return new Vector3(
-            Math.atan2(sinr_cosp, cosr_cosp) * System.rad_to_deg,
-            (2 * Math.atan2(sinp, cosp) - Math.PI / 2) * System.rad_to_deg,
-            Math.atan2(siny_cosp, cosy_cosp) * System.rad_to_deg
+            Math.atan2(sinr_cosp, cosr_cosp) * rad2deg,
+            (2 * Math.atan2(sinp, cosp) - Math.PI / 2) * rad2deg,
+            Math.atan2(siny_cosp, cosy_cosp) * rad2deg
         );
     }
 
     setFromEuler(x, y, z) {
-        const roll = x * System.deg_to_rad * 0.5;
-        const pitch = y * System.deg_to_rad * 0.5;
-        const yaw = z * System.deg_to_rad * 0.5;
+        const roll = x * deg2rad * 0.5;
+        const pitch = y * deg2rad * 0.5;
+        const yaw = z * deg2rad * 0.5;
 
         const cr = Math.cos(roll);
         const sr = Math.sin(roll);

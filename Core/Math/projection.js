@@ -1,12 +1,14 @@
-import { System } from "../../settings.js";
 import Matrix4 from "./matrix4.js";
+
+const deg2rad = Math.PI / 180;
+const rad2deg = 180 / Math.PI;
 
 export class Projection {
     static #corrector = this.#createCorrectorMatrix();
 
     static #createCorrectorMatrix() {
         const res = Matrix4.identity;
-        Matrix4.rotateYBy(res, 180 * System.deg_to_rad);
+        Matrix4.rotateYBy(res, 180 * deg2rad);
         return res;
     }
 
@@ -27,7 +29,7 @@ export class Projection {
     }
 
     static perspective(dst, fov, aspect, near, far) {
-        const fieldOfViewInRadians = fov * System.deg_to_rad;
+        const fieldOfViewInRadians = fov * deg2rad;
         const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
         const rangeInv = 1.0 / (near - far);
 
