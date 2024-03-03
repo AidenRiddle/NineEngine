@@ -20,16 +20,12 @@ const Greek = Object.freeze({
 })
 
 const state = {
-    IDLE: "idle",
-    RUNNING: "running",
-    FINISHED: "finished",
+    IDLE: 0,
+    RUNNING: 0,
+    FINISHED: 0,
+    ERROR: 0,
 };
 objectToEnum(state);
-
-function updateState(instance, state) {
-    instance.state = state;
-    Debug.Log("Worker " + instance.id, instance.state);
-}
 
 export class WorkerRequest {
     f;
@@ -73,17 +69,15 @@ export class Runner {
     onTaskComplete = (e) => {
         const response = new WorkerResponse(e.data.f, e.data.status, e.data.ret);
         const returnedCommand = response.f;
+        const task = this.tasks.get(returnedCommand);
         if (response.status == "complete") {
-            const task = this.tasks.get(returnedCommand);
             task.resolve(response.ret);
-            clearTimeout(task.timeout);
-
-            this.tasks.delete(returnedCommand);
-            if (this.tasks.size == 0) { this.changeState(state.FINISHED); }
+        } else {
+            task.reject(`${this.id} Failed to complete (${returnedCommand}): ${response.status}`);
         }
-        else {
-            this.tasks.get(returnedCommand).reject(`${this.id} Failed to complete (${returnedCommand}): ${response.status}`);
-        }
+        clearTimeout(task.timeout);
+        this.tasks.delete(returnedCommand);
+        if (this.tasks.size == 0) { this.changeState(state.FINISHED); }
     }
 
     changeState(state) {
