@@ -5,10 +5,12 @@ import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { notImplemented } from "../../../methods.js";
 import { $Card } from "./Components/card.js";
-import { $Image, $Material, $Model } from "./Components/componentModel.js";
+import { $Model } from "./Components/componentModel.js";
 import { $Script } from "./Components/componentScript.js";
 import { $Transform } from "./Components/componentTransform.js";
 import { $SceneObjectDescriptor } from "./Components/sceneObjectDescriptor.js";
+import { $Image } from "./Components/imagePreviewer.js";
+import { $Material } from "./Components/componentMaterial.js";
 
 export class $Inspector extends GuiHandle {
     /**
