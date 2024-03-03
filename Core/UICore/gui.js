@@ -102,7 +102,7 @@ export class GuiContext {
         const threshold = 50;  // milliseconds
         const start = performance.now();
         const flat = any.flat(Infinity);
-        flat.map(this.getNode).forEach(el => target.appendChild(el));
+        flat.map(this.getNode).filter(el => el != null).forEach(el => target.appendChild(el));
         if (performance.now() - start > threshold) {
             console.error("Gui bake took a long time:",
                 this.#guiHandle.constructor.name,
