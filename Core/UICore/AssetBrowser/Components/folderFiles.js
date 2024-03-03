@@ -55,13 +55,14 @@ export class $Block extends GuiHandle {
 
     static async renameFile(path, handle, fileHandle, thumbnailCache) {
         const extension = NavFS.getFileExtension(fileHandle);
-        const entry = prompt(`Rename Asset (${fileHandle.name}):`).trim();
+        const entry = prompt(`Rename Asset (${fileHandle.name}):`, fileHandle.name)?.trim();
 
         if (entry == null) return;
 
-        const name = entry.endsWith(extension) ? entry : entry + '.' + extension;
-        if (fileHandle.name == name) { console.log("Hen:", fileHandle.name, name); return; }
+        const name = entry.endsWith(extension) ? entry : entry + extension;
+        if (fileHandle.name == name) { return; }
 
+        const filePath = path + '/' + fileHandle.name;
         const newPath = path + '/' + name;
 
         try {
@@ -86,6 +87,7 @@ export class $Block extends GuiHandle {
 
     static listDirectories(gui, root, handle, dirHandles) {
         const thumbnailCache = gui.state("thumbnailCache");
+        const path = gui.state("path");
         for (const dirHandle of dirHandles) {
             const filePath = path + "/" + dirHandle.name;
             const dirBlock = new $File({
