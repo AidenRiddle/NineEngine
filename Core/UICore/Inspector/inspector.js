@@ -38,6 +38,7 @@ export class $Inspector extends GuiHandle {
                 this.assetBrowserSelectImage(gui, root, cargo.target, content);
             } else {
                 System.error(System.ui_message_prefix, "Unknown asset type:", cargo.target);
+                gui.abortBuild();
             }
         } else if (cargo.type == "sceneObject") {
             this.hierarchySelect(gui, root, cargo.target);
