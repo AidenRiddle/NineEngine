@@ -20,6 +20,8 @@
         "Scripts/Core/RuntimeManager.ts": "Scripts/Core/RuntimeManager.ts",
         "Scripts/Core/sceneObject.ts": "Scripts/Core/sceneObject.ts",
         "Scripts/Core/transform.ts": "Scripts/Core/transform.ts",
+        "./Assets/Scripts/spinner.ts": "./Assets/Scripts/spinner.ts",
+        "./Assets/Scripts/translater.ts": "./Assets/Scripts/translater.ts",
         "fragment.glsl": "Shaders/fragment.glsl"
     },
     "materials": {
