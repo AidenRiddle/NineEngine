@@ -1,3 +1,4 @@
+import { GuiStateStorage, GuiStorage } from "./Core/DataStores/guiStore.js";
 import { MaterialStorage } from "./Core/DataStores/materialStore.js";
 import { MeshStorage } from "./Core/DataStores/meshStore.js";
 import { ModelStorage } from "./Core/DataStores/modelStore.js";
@@ -43,7 +44,11 @@ class NineEngineConsole {
         const gpuLog = {
             "TotalBufferAllocationSize": Gpu.bufferAllocation
         }
-        console.log("Gpu:", gpuLog,
+        console.log(
+            "Gpu:", gpuLog,
+            "\n",
+            "\nGuiStates:", GuiStateStorage.debug(),
+            "\nGuiNodes:", GuiStorage.debug(),
             "\n",
             "\nMaterials:", MaterialStorage.debug(),
             "\nMeshes:", MeshStorage.debug(),
