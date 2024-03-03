@@ -63,26 +63,22 @@ export class $Block extends GuiHandle {
             handle.rebuild();
         }
 
-        const blocks = [];
         for (const dirHandle of dirHandles) {
             const filePath = path + "/" + dirHandle.name;
-            blocks.push(new $File({
+            const dirBlock = new $File({
                 value: dirHandle.name,
                 thumbnailUrl: thumbnailCache._default.default_folder,
                 ondblclick: async () => { handle.set("path", filePath); },
                 deleteHandler: (e) => { e.preventDefault(); deleteFile(filePath); },
                 dragData: { "assetFilePath": filePath }
-            }));
+            })
+            gui.bake(root, dirBlock);
         }
-        gui.bake(root, blocks);
 
-        for (let fileHandle of fileHandles) {
-            const file = await fileHandle.getFile();
-            const filePath = path + "/" + file.name;
+        for (const fileHandle of fileHandles) {
+            const filePath = path + "/" + fileHandle.name;
             let thumbnail = thumbnailCache[filePath];
-            const click = () => clickHandler(filePath);
-            const fileExtension = NavFS.getFileExtension(file);
-            console.log(fileExtension);
+            const fileExtension = NavFS.getFileExtension(fileHandle);
             if (AssetType.isMaterial(fileExtension)) {
                 thumbnail = thumbnailCache._default.default_material;
             } else if (AssetType.isModel(fileExtension)) {
@@ -92,14 +88,14 @@ export class $Block extends GuiHandle {
             }
 
             const block = new $File({
-                value: file.name,
+                value: fileHandle.name,
                 thumbnailUrl: thumbnail,
-                onclick: click,
+                onclick: () => clickHandler(filePath),
                 ondblclick: async () => {
-                    const extension = NavFS.getFileExtension(file);
-                    const entry = prompt(`Rename Asset (${file.name}):`).trim();
+                    const extension = NavFS.getFileExtension(fileHandle);
+                    const entry = prompt(`Rename Asset (${fileHandle.name}):`).trim();
                     const name = entry.endsWith(extension) ? entry : entry + '.' + extension;
-                    if (file.name == name) { console.log("Hen:", file.name, name); return; }
+                    if (fileHandle.name == name) { console.log("Hen:", fileHandle.name, name); return; }
 
                     const newPath = path + '/' + name;
 
@@ -107,7 +103,7 @@ export class $Block extends GuiHandle {
                         await NavFS.getFile(newPath);
                         alert(newPath + " already exists.");
                         return;
-                    } catch (e) {}
+                    } catch (e) { }
 
                     await NavFS.copyFileFromPath(filePath, newPath);
                     await NavFS.rm(filePath);
@@ -128,7 +124,8 @@ export class $Block extends GuiHandle {
             gui.bake(root, block);
 
             if (thumbnail == null && AssetType.isImage(fileExtension)) {
-                TexturePainter.imageToThumbnailBlob(file, 75, 75)
+                fileHandle.getFile()
+                    .then((file) => TexturePainter.imageToThumbnailBlob(file, 75, 75))
                     .then((resized) => {
                         thumbnailCache[filePath] = URL.createObjectURL(resized);
                         block.set("thumbnailUrl", thumbnailCache[filePath]);
