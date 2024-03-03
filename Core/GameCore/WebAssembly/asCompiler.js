@@ -1,21 +1,24 @@
 import asc from "assemblyscript/asc";
 import { AssemblyScript } from "../../../settings.js";
 import { RuntimeGenerator } from "./runtimeGenerator.js";
-import { MyTransform } from "./transform.js";
+import { PreCompileTransform } from "./preCompileTransform.js";
+import { CompileTransform } from "./compileTransform.js";
 
 const runtimeFileName = "__Runtime.ts";
 
-export function preCompile(compilerArgs, buildPackage) {
+export function preCompile(buildPackage) {
+    const compilerArgs = [runtimeFileName].concat(AssemblyScript.compiler_args);
+    console.log("Pre-compiler Arguments:", compilerArgs.join(" "));
     console.groupCollapsed("Pre-compile generated file");
     buildPackage.set(runtimeFileName, RuntimeGenerator.generatePreRuntime(buildPackage));
     console.groupEnd();
     return asc.main(
         compilerArgs,
         {
-            readFile(name, baseDir) { return buildPackage.get(name) ?? null; },
-            writeFile(name, data, baseDir) { buildPackage.get(name) = data; },
+            readFile(name, baseDir) { return buildPackage.get(baseDir + "/" + name) ?? buildPackage.get(name); },
+            writeFile(name, data, baseDir) { buildPackage.set(name, data); },
             listFiles(dirname, baseDir) { console.log("Compiler ListFiles:", dirname); },
-            transforms: [new MyTransform()],
+            transforms: [new PreCompileTransform()],
         }
     )
         .then((output) => {
@@ -25,16 +28,19 @@ export function preCompile(compilerArgs, buildPackage) {
         })
 }
 
-function compileToWebAssemblyModule(compilerArgs, buildPackage) {
+function compileToWebAssemblyModule(buildPackage) {
+    const compilerArgs = [runtimeFileName].concat(AssemblyScript.compiler_args);
+    console.log("Compiler Arguments:", compilerArgs.join(" "));
     console.groupCollapsed("Runtime generated file");
     buildPackage.set(runtimeFileName, RuntimeGenerator.generateWithLog());
     console.groupEnd();
     return asc.main(
         compilerArgs,
         {
-            readFile(name, baseDir) { return buildPackage.get(name) ?? null; },
-            writeFile(name, data, baseDir) { buildPackage.get(name) = data; },
-            listFiles(dirname, baseDir) { console.log("Compiler ListFiles:", dirname); }
+            readFile(name, baseDir) { return buildPackage.get(baseDir + "/" + name) ?? buildPackage.get(name); },
+            writeFile(name, data, baseDir) { buildPackage.set(name, data); },
+            listFiles(dirname, baseDir) { console.log("Compiler ListFiles:", dirname); },
+            transforms: [new CompileTransform()],
         }
     )
         .then((output) => {
@@ -52,10 +58,8 @@ function compileToWebAssemblyModule(compilerArgs, buildPackage) {
  * @returns Promise resolved with the list of modules
  */
 export function compile(buildPackage) {
-    const compilerArgs = [runtimeFileName].concat(AssemblyScript.compiler_args);
-    console.log("Compiler Arguments:", compilerArgs.join(" "));
-    return preCompile(compilerArgs, buildPackage)
-        .then(() => compileToWebAssemblyModule(compilerArgs, buildPackage))
+    return preCompile(buildPackage)
+        .then(() => compileToWebAssemblyModule(buildPackage))
 }
 
 globalThis.ASChelp = async () => asc.main(["--help"], {}).then((output) => console.log(output.stdout.toString()));
