@@ -11,13 +11,14 @@ import { $Transform } from "./Components/componentTransform.js";
 import { $SceneObjectDescriptor } from "./Components/sceneObjectDescriptor.js";
 import { $Image } from "./Components/imagePreviewer.js";
 import { $Material } from "./Components/componentMaterial.js";
+import { $DragReceiver } from "../Common/commonGui.js";
 
 export class $Inspector extends GuiHandle {
     /**
      * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
-    static async builder(gui, root) {
+    static async builder(gui, root, handle) {
         const cargo = gui.state("cargo");
         if (cargo == null) return;
 
@@ -43,6 +44,14 @@ export class $Inspector extends GuiHandle {
             }
         } else if (cargo.type == "sceneObject") {
             this.hierarchySelect(gui, root, cargo.target);
+            handle.set("onItemDrop", (dt) => {
+                const assetFilePath = dt.getData("assetFilePath");
+                if (assetFilePath != "") {
+                    eventHandler.sendMessageToParent(UiEvent.inspector_add_script, assetFilePath);
+                }
+            });
+    
+            $DragReceiver.builder(gui, root, handle);
         } else {
             System.error(System.ui_message_prefix, "Unknown cargo type:", cargo.type);
         }
