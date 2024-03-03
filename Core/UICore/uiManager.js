@@ -91,12 +91,6 @@ export default class UiManager {
                 newScale[0], newScale[1], newScale[2]
             );
         },
-        [UiEvent.inspector_model_mesh_change]: (cargo) => {
-            console.trace(UiEvent.inspector_model_mesh_change, cargo);
-        },
-        [UiEvent.inspector_model_material_change]: (cargo) => {
-            console.trace(UiEvent.inspector_model_material_change, cargo);
-        },
         [UiEvent.inspector_script_param_change]: (cargo) => {
             const com = this.#activeSceneObject.components.find((com) => com.module == cargo.module);
             Object.assign(com.imports, cargo.imports);
