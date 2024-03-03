@@ -3,6 +3,7 @@ import { $DragReceiver } from "../../Common/commonGui.js";
 import { GuiHandle, GuiContext } from "../../gui.js";
 import { UiEvent } from "../../uiConfiguration.js";
 import { notImplemented } from "../../../../methods.js";
+import { NavFS } from "../../../../FileSystem/FileNavigator/navigatorFileSystem.js";
 
 export class $Receiver extends GuiHandle {
     /**
@@ -186,24 +187,36 @@ export class $Image extends GuiHandle {
     static builder(gui, root) {
         const assetName = gui.state("assetName");
         const path = gui.state("path");
-        const dataUrl = gui.state("dataUrl");
+
+        const image = gui.node("img", img => {
+            img.style.maxHeight = "100%";
+            img.style.maxWidth = "100%";
+        });
+        const preview = gui.node("div", div => {
+            div.style.width = "100%";
+            div.style.height = "535px";
+            div.style.width = "100%";
+            div.style.height = "510px";
+            div.style.display = "flex";
+            div.style.flexDirection = "column";
+            div.style.justifyContent = "center";
+            div.style.alignItems = "center";
+
+            div.append(image);
+        });
+
+        NavFS.readFileAsDataUrl(path).then((dataUrl) => {
+            image.src = dataUrl;
+            gui.bake(root, preview)
+        });
 
         const label = gui.node("h2", h2 => {
             h2.style.margin = "0px";
             h2.append(gui.node("b", b => { b.textContent = assetName; }));
-        })
-
-        const preview = gui.node("div", div => {
-            div.style.width = "100%";
-            div.style.height = "535px";
-            div.style.backgroundImage = `url(${dataUrl})`;
-            div.style.backgroundSize = "contain";
-            div.style.backgroundPosition = "center";
-            div.style.backgroundRepeat = "no-repeat";
-        })
+        });
 
         const input = new $Receiver({
-            tag: "Reference Path",
+            tag: "Reference URI",
             expectedType: "path",
             value: path,
             onchangeHandler: (tag, newValue) => { preview.style.backgroundImage = `url(${newValue})`; console.log(assetName, " to reference", newValue); }

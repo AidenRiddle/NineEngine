@@ -34,8 +34,7 @@ export class $Inspector extends GuiHandle {
                 this.assetBrowserSelectModel(gui, root, cargo.target, content);
             }
             else if (AssetType.isImage(cargo.target)) {
-                const content = await NavFS.readFileAsDataUrl(cargo.target);
-                this.assetBrowserSelectImage(gui, root, cargo.target, content);
+                this.assetBrowserSelectImage(gui, root, cargo.target);
             } else {
                 System.error(System.ui_message_prefix, "Unknown asset type:", cargo.target);
                 gui.abortBuild();
@@ -63,9 +62,10 @@ export class $Inspector extends GuiHandle {
         }))
     }
 
-    static assetBrowserSelectImage(gui, root, path, dataUrl) {
+    static assetBrowserSelectImage(gui, root, path) {
         const assetName = NavFS.getFileNameFromPath(path);
-        gui.bake(root, new $Image({ assetName, path, dataUrl }))
+        const imagePage = new $Image({ assetName, path });
+        gui.bake(root, imagePage);
     }
 
     static hierarchySelect(gui, root, cargo) {
