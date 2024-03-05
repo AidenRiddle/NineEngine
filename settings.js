@@ -43,9 +43,6 @@ export const System = Object.freeze({
     camera_zoom_min: 5,
     camera_zoom_step: 5,
 
-    deg_to_rad: Math.PI / 180,
-    rad_to_deg: 180 / Math.PI,
-
     // https://www.w3schools.com/cssref/css_colors.php
     dev_console_message_prefix: ["%c[Dev]", "color: BlueViolet"],
     debug_message_prefix: ["%c[Debug]", "color: LimeGreen"],
@@ -69,7 +66,8 @@ export const Stash = Object.freeze({
     resource_root: location.origin + "/Resources/",
     worker_script_root: location.origin,
     default_running_instance: location.origin + "/Core/defaultRunningInstance.json",
-    fixtures: location.origin + "/FileSystem/FileNavigator/fixtures.json"
+    fixtures: location.origin + "/FileSystem/FileNavigator/fixtures.json",
+    coreFixtures: location.origin + "/FileSystem/FileNavigator/coreFixtures.json",
 })
 
 export const DataBaseSchema = Object.freeze({
