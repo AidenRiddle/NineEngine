@@ -94,7 +94,7 @@ export class $Block extends GuiHandle {
                 value: dirHandle.name,
                 thumbnailUrl: thumbnailCache._default.default_folder,
                 ondblclick: () => { handle.set("path", filePath); },
-                deleteHandler: (e) => { e.preventDefault(); this.deleteFile(filePath, handle); },
+                onDelete: () => { this.deleteFile(filePath, handle); },
                 dragData: { "assetFilePath": filePath }
             })
             gui.bake(root, dirBlock);
@@ -121,7 +121,7 @@ export class $Block extends GuiHandle {
                 thumbnailUrl: thumbnail,
                 onclick: () => this.broadcastSelectEvent(filePath),
                 ondblclick: async () => { this.renameFile(path, handle, fileHandle, thumbnailCache); },
-                deleteHandler: (e) => { e.preventDefault(); this.deleteFile(filePath, handle); },
+                onDelete: () => { this.deleteFile(filePath, handle); },
                 dragData: { "assetFilePath": filePath }
             });
             gui.bake(root, block);

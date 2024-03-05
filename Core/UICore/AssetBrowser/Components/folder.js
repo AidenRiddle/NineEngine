@@ -1,4 +1,4 @@
-import { $Draggable, $ExpandableCard } from "../../Common/commonGui.js";
+import { $Deleteable, $Draggable, $ExpandableCard } from "../../Common/commonGui.js";
 import { GuiContext, GuiHandle } from "../../gui.js";
 
 const showSubfolderByDefault = true;
@@ -66,7 +66,6 @@ export class $File extends GuiHandle {
         const thumbnailUrl = gui.state("thumbnailUrl");
         const onclick = gui.state("onclick");
         const ondblclick = gui.state("ondblclick");
-        const deleteHandler = gui.state("deleteHandler");
 
         tabIndexCounter++;
         const childrenMaxWidth = "100px";
@@ -81,6 +80,7 @@ export class $File extends GuiHandle {
         });
 
         if (gui.state("dragData") != null) $Draggable.builder(gui, root);
+        if (gui.state("onDelete") != null) $Deleteable.builder(gui, root);
 
         // This was a draggableReciever with dragData
         root.tabIndex = tabIndexCounter.toString();
@@ -105,7 +105,6 @@ export class $File extends GuiHandle {
             label.style.whiteSpace = "nowrap";
             label.style.overflow = "hidden";
         }
-        root.oncopy = deleteHandler;
         root.append(
             gui.node("img", img => {
                 img.style.maxWidth = childrenMaxWidth;

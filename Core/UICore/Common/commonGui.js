@@ -123,3 +123,16 @@ export class $DragReceiver extends GuiHandle {
         }
     }
 }
+
+export class $Deleteable extends GuiHandle {
+    /**
+     * @param {GuiContext} gui 
+     * @param {HTMLElement} root
+     */
+    static builder(gui, root) {
+        const onDelete = gui.state("onDelete");
+        root.addEventListener("keydown", (e) => {
+            if (e.key.toLowerCase() == "delete") onDelete(e);
+        });
+    }
+}
