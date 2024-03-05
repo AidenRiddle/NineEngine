@@ -8,6 +8,7 @@ import { ScriptStorage } from "./Core/DataStores/scriptStore.js";
 import { ShaderStorage } from "./Core/DataStores/shaderStore.js";
 import { TextureStorage } from "./Core/DataStores/textureStore.js";
 import Gpu from "./Core/GECore/Gpu/gpu.js";
+import TexturePainter from "./Core/GECore/Util/texturePainter.js";
 import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "./Core/GameCore/runningInstance.js";
 import Resources from "./FileSystem/resources.js";
@@ -29,6 +30,36 @@ class NineEngineConsole {
             }
             fileReader.readAsDataURL(file);
         })
+    }
+
+    async imageToJsonString(path, width, height) {
+        const file = await Resources.fetchRaw(path, { hardFetch: true, cacheResult: false });
+        const dataURL = await TexturePainter.imageToThumbnailDataURL(file, width, height);
+        return dataURL;
+    }
+
+    async runCoreFixtures() {
+        const fixtures = await Resources.fetchAsJson(Stash.coreFixtures, { hardFetch: true, cacheResult: false });
+
+        function recur(path, dir) {
+            const promises = [];
+            for (const [key, value] of Object.entries(dir)) {
+                const newPath = path + "/" + key;
+                if (typeof value == 'object') {
+                    promises.push(NavFS.mkdir(newPath).then(() => recur(newPath, value)));
+                } else {
+                    let data;
+
+                    // Depending on file format (.jpg, .glb, etc), file data could be Base64 encoded
+                    try { data = Uint8Array.from(atob(value), c => c.charCodeAt(0)); }
+                    // If not, write the data as is.
+                    catch (e) { data = value; }
+                    promises.push(NavFS.put(newPath, data).then((file) => console.log(newPath, URL.createObjectURL(file))));
+                }
+            }
+            return Promise.all(promises);
+        }
+        return recur(".NineEngine", fixtures);
     }
 
     shadowBias(min, max) {

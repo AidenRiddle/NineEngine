@@ -174,32 +174,6 @@ class Main {
         Debug.Log("World Space mouse: ", 0, 0);
     }
 
-    async runFixtures() {
-        const projectFolderFound = await NavFS.isReady();
-        if (projectFolderFound) {
-            const fixtures = await Resources.fetchAsJson(Stash.fixtures, { hardFetch: true, cacheResult: false });
-
-            function recur(path, dir) {
-                const promises = [];
-                for (const [key, value] of Object.entries(dir)) {
-                    const newPath = path + "/" + key;
-                    if (typeof value == 'object') {
-                        promises.push(NavFS.mkdir(newPath).then(() => recur(newPath, value)));
-                    } else {
-                        let data;
-                        try { data = atob(value); }     // Depending on file format (.jpg, .glb, etc), file data could be Base64 encoded
-                        catch (e) { data = value; }     // If not, write the data as is.
-                        promises.push(NavFS.put(newPath, data));
-                    }
-                }
-                return Promise.all(promises);
-            }
-            return recur("./NineEngine", fixtures);
-        } else {
-            return Promise.resolve();
-        }
-    }
-
     Main = async () => {
         const startTime = ~~performance.now();
         console.group("Core Boot Log");
@@ -212,7 +186,7 @@ class Main {
             .then(() => this.#loadFromRunningInstance());
 
         const asyncInitialize = Promise.all([
-            ScriptManager.PreCompileOnly(),
+            // ScriptManager.PreCompileOnly(),
         ]);
 
         // Resources.fetchRaw("3DModels/vanguard@samba.glb", { cacheResult: false, hardFetch: true })
