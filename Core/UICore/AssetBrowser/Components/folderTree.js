@@ -1,3 +1,4 @@
+import { NavFS } from "../../../../FileSystem/FileNavigator/navigatorFileSystem.js";
 import { GuiContext, GuiHandle } from "../../gui.js";
 import { $Folder } from "./folder.js";
 
@@ -17,8 +18,9 @@ export class $Tree extends GuiHandle {
 
         console.log("Refreshing asset browser ...");
         if (fileSystemIsReady) {
-            const treeNode = await this.buildTree(gui, ".");
-            gui.bake(root, treeNode);
+            const coreTreeNode = await this.buildTree(gui, NavFS.coreName);
+            const projectTreeNode = await this.buildTree(gui, NavFS.rootName);
+            gui.bake(root, coreTreeNode, projectTreeNode);
         } else this.displayDefaultMessage(gui, root, handle);
     }
 
