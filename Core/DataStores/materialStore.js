@@ -1,3 +1,4 @@
+import { Address } from "../../FileSystem/address.js";
 import { Webgl } from "../../settings.js";
 import { DataStorage } from "./Base/baseStore.js";
 import { ShaderStorage } from "./shaderStore.js";
@@ -31,7 +32,7 @@ export class MaterialStorage extends DataStorage {
     static pack() {
         const payload = {};
         for (const key of super.keys()) {
-            const mat = this.storage.get(key);
+            const mat = super.Get(key);
             payload[key] = {
                 shaderId: mat.shaderId,
                 uniformValueMap: mat.uniformValueMap,
@@ -77,6 +78,8 @@ export class MaterialBuilder {
     static create() { return new MaterialBuilder(); }
 
     shader(shaderId) {
+        shaderId = Address.asInternal(shaderId);
+
         let numOfTextures = 0;
         const uniformTypes = {
             "sampler2D": () => { numOfTextures++; return numOfTextures - 1; },
@@ -112,7 +115,11 @@ export class MaterialBuilder {
         return this;
     }
 
-    addTexture(textureRelativePath) { this.#textures.push(textureRelativePath); return this; }
+    addTexture(textureAddress) {
+        const cleansed = Address.asInternal(textureAddress);
+        this.#textures.push(cleansed);
+        return this;
+    }
 
     useDepthTexture() {
         this.#textures.push("__depthTexture__");

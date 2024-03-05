@@ -1,4 +1,5 @@
 import { NavFS } from "../../FileSystem/FileNavigator/navigatorFileSystem.js";
+import { Address } from "../../FileSystem/address.js";
 import Resources from "../../FileSystem/resources.js";
 import { AssetType, DebugToggle, System } from "../../settings.js";
 import { ModelStorage } from "../DataStores/modelStore.js";
@@ -59,12 +60,13 @@ export default class UiManager {
             this.#handler[UiEvent.hierarchy_select](this.#activeSceneObject.id);
         },
         [UiEvent.inspector_assetFile_update]: (cargo) => {
+            cargo.assetName = Address.asInternal(cargo.assetName);
             const data = JSON.parse(cargo.content);
             let promiseChain;
-            if (cargo.assetName.endsWith(AssetType.material.extension)) {
+            if (AssetType.isMaterial(cargo.assetName)) {
                 promiseChain = RunningInstance.putMaterial(cargo.assetName, data);
             }
-            if (cargo.assetName.endsWith(AssetType.model.extension)) {
+            if (AssetType.isModel(cargo.assetName)) {
                 promiseChain = RunningInstance.putModel(cargo.assetName, data);
             }
             promiseChain

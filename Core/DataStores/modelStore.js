@@ -1,5 +1,6 @@
 import { MeshStorage } from "./meshStore.js";
 import { DataStorage } from "./Base/baseStore.js";
+import { Address } from "../../FileSystem/address.js";
 
 class Model {
     #meshId;
@@ -34,8 +35,10 @@ export class ModelStorage extends DataStorage {
     static storage = new Map();
 
     static Add(name, meshId, vertexShaderId, listOfMaterials) {
-        if (this.storage.has(name)) {
-            const model = this.storage.get(name);
+        meshId = Address.asInternal(meshId);
+        listOfMaterials = listOfMaterials.map((matAddress) => Address.asInternal(matAddress));
+        if (super.Exists(name)) {
+            const model = super.Get(name);
             super.Add(name, new Model(
                 meshId ?? model.meshId,
                 vertexShaderId ?? model.vertexShaderId,
@@ -52,7 +55,7 @@ export class ModelStorage extends DataStorage {
     static pack() {
         const payload = {}
         for (const key of super.keys()) {
-            const model = this.storage.get(key);
+            const model = super.Get(key);
             payload[key] = {
                 meshId: model.meshId,
                 materials: model.materials,

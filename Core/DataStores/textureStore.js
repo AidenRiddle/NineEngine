@@ -43,7 +43,7 @@ export class TextureStorage extends DataStorage {
             .build(textureData.width, textureData.height, textureData.data);
 
         const tex = new Texture(gpuTexture, textureData.width, textureData.height, textureData.colorSpace);
-        this.storage.set(name, tex);
+        super.Add(name, tex);
     }
 
     static pack() {

@@ -1,5 +1,7 @@
+import { Address } from "../../../FileSystem/address.js";
+
 export class DataStorage {
-    static Add(key, value) { this.storage.set(key, value); }
+    static Add(key, value) { this.storage.set(Address.asInternal(key), value); }
 
     static Get(name) { return this.storage.get(name); }
 

@@ -2,13 +2,14 @@ import { AssetType, DataBaseSchema, Stash } from "../settings.js";
 import GEInstanceDB from "./geInstanceDB.js";
 import Loader from "./loader.js";
 import { NavFS } from "./FileNavigator/navigatorFileSystem.js";
+import { Address } from "./address.js";
 
 class DiskResources {
-    /** @param {string} fileRelativePath */
-    loadFileFromDisk(fileRelativePath) {
-        return NavFS.getFile(fileRelativePath)
+    /** @param {Address} address */
+    loadFileFromDisk(address) {
+        return NavFS.getFile(address.raw)
             .then((file) => {
-                console.log("Loading from disk:", fileRelativePath);
+                console.log("Loading from disk:", address);
                 return file;
             });
     }
@@ -86,9 +87,7 @@ class WebResources {
         throw err;
     }
 
-    #fetchFileData(fileRelativePath) {
-        const address = (fileRelativePath.startsWith("http")) ? fileRelativePath : this.#root + fileRelativePath;
-
+    #fetchFileData(address) {
         return fetch(address)
             .catch(e => this.#processFetchError(address, e))
             .then(response => response.ok
@@ -111,10 +110,10 @@ class WebResources {
     }
 
     /**
-     * @param {string} fileRelativePath 
+     * @param {Address} address 
      */
-    loadFileFromWeb(fileRelativePath) {
-        return this.#fetchFileData(fileRelativePath);
+    loadFileFromWeb(address) {
+        return this.#fetchFileData(address.url);
     }
 }
 
@@ -163,10 +162,10 @@ export default class Resources {
     static #notInitialized() { return Promise.reject("Module (Resources) must be started before this function can be called."); }
 
     // --- Function definitions updated after the 'Start' method is called ---
-    static fetchRaw(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static fetchAsText(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static fetchAsJson(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
-    static load(fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
+    static fetchRaw(address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
+    static fetchAsText(address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
+    static fetchAsJson(address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
+    static load(address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
     static loadAll(arrayOfFileRelativePaths, options = { cacheResult: true, hardFetch: false }) { return this.#notInitialized(); }
     static plant(file, pathWithName) { return this.#notInitialized(); }
     static uncache(pathWithName) { return this.#notInitialized(); }
@@ -178,14 +177,16 @@ export default class Resources {
         this.#cache.writeToCache(file);
     }
 
-    static #fetchRawImpl = (fileRelativePath, options = this.#defaultFetchOptions) => {
+    static #fetchRawImpl = (address, options = this.#defaultFetchOptions) => {
         options = Object.assign({}, this.#defaultFetchOptions, options);
-        const fileName = options.newFileName ?? fileRelativePath;
+
+        const fetchAddress = new Address(address);
+        const fileName = Address.asInternal(options.newFileName ?? address);
         if (!options.hardFetch && this.#tracker.has(fileName)) {
             return this.#cache.loadFileFromCache(fileName);
         }
-        return this.#disk.loadFileFromDisk(fileRelativePath)
-            .catch(() => this.#web.loadFileFromWeb(fileRelativePath))
+        return this.#disk.loadFileFromDisk(fetchAddress)
+            .catch(() => this.#web.loadFileFromWeb(fetchAddress))
             .then((file) => {
                 const renamedFile = new File([file], fileName, { type: file.type });
                 if (options.cacheResult) this.#stash(renamedFile);
@@ -193,25 +194,25 @@ export default class Resources {
             })
     }
 
-    static #fetchAsTextImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
-        return this.fetchRaw(fileRelativePath, options)
+    static #fetchAsTextImpl = (address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
+        return this.fetchRaw(address, options)
             .then((file) => file.text())
     }
 
-    static #fetchAsJsonImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
-        return this.fetchAsText(fileRelativePath, options)
+    static #fetchAsJsonImpl = (address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
+        return this.fetchAsText(address, options)
             .then((jsonText) => JSON.parse(jsonText))
     }
 
-    static #loadImpl = (fileRelativePath, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
-        return this.fetchRaw(fileRelativePath, options)
+    static #loadImpl = (address, options = { newFileName: undefined, cacheResult: true, hardFetch: false }) => {
+        return this.fetchRaw(address, options)
             .then((file) => this.#loader.unpackFile(file))
     }
 
     static #loadAllImpl = (fileMap, options = { cacheResult: true, hardFetch: false }) => {
         const promises = [];
-        for (const [fileRelativePath, fetchPath] of fileMap.entries()) {
-            promises.push(this.load(fetchPath, { newFileName: fileRelativePath, ...options }));
+        for (const [address, fetchPath] of fileMap.entries()) {
+            promises.push(this.load(fetchPath, { newFileName: address, ...options }));
         }
         return Promise.all(promises)
     }

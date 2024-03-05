@@ -1,7 +1,6 @@
 import { Stash } from "../../settings.js";
+import { Address } from "../address.js";
 import GEInstanceDB from "../geInstanceDB.js";
-
-const nineEngineRootName = "NineEngine";
 
 const idb = new GEInstanceDB();
 await idb.getInstance("geInstanceDB");
@@ -55,25 +54,31 @@ function promiseIteratorToArray(asyncIterator) {
 }
 
 export class NavFS {
+    /** @type {FileSystemDirectoryHandle} */
     static #root = navDir;
 
-    static async #resolveDir(path, create = false) {
-        const { dirHandle } = await idb.get("userConfiguration", "projectRoot");
-        let wd = dirHandle;
-        if (path.startsWith("./")) path = path.slice(2);
-        if (path.startsWith(nineEngineRootName)) {
-            const temp = path.replace(nineEngineRootName, "");
-            path = temp.startsWith("/")
-                ? temp.slice(1)
-                : temp;
+    static get rootName() { return this.#root?.name; }
+    static get coreName() { return ".NineEngine"; }
+
+    static #cutPath(path, match) {
+        const temp = path.replace(match, '');
+        return temp.startsWith('/') ? temp.slice(1) : temp;
+    }
+
+    static async #resolveDir(dirPath, create = false) {
+        let path = Address.asFilePath(dirPath);
+        let wd = this.#root;
+        if (path.startsWith(this.coreName)) {
+            path = this.#cutPath(path, this.coreName);
             wd = await navigator.storage.getDirectory();
         }
-        if (path == "." || path == "") return wd;
+        if (path.startsWith(this.rootName + '/')) path = this.#cutPath(path, this.rootName);
+        if (path == "" || path == this.rootName || path == this.coreName) return wd;
         for (const dirName of path.split("/")) {
             try {
                 wd = await wd.getDirectoryHandle(dirName, { create });
             } catch (e) {
-                throw new Error("Invalid path. Could not find (" + dirName + ").");
+                throw new Error("Could not find (" + dirName + "). Invalid path (" + path + ").");
             }
         }
         return wd;
@@ -89,7 +94,7 @@ export class NavFS {
     static getFileExtension(file) { return file.name.substring(file.name.lastIndexOf('.')); }
     static getFileNameFromPath(path) { return path.substring(path.lastIndexOf('/') + 1); }
     static getFileNameAndPath(path) {
-        if (!path.includes('.')) throw new Error("Invalid file path.");
+        path = Address.asFilePath(path);
         const fileNameStartIndex = path.lastIndexOf("/");
         return {
             fileName: path.substring(fileNameStartIndex + 1),
@@ -301,8 +306,8 @@ export class NavFS {
             }
             return res;
         }
-        console.log("Debug:", await recur("."));
-        console.log(nineEngineRootName + ":", await recur(nineEngineRootName));
+        console.log(this.#root.name, ":", await recur(this.#root.name));
+        console.log(this.coreName + ":", await recur(this.coreName));
     }
 }
 

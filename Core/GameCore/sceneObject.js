@@ -1,3 +1,4 @@
+import { Address } from "../../FileSystem/address.js";
 import { Armature, MeshStorage } from "../DataStores/meshStore.js";
 import { ModelStorage } from "../DataStores/modelStore.js";
 import { Transform } from "./Components/transform.js";
@@ -45,6 +46,9 @@ export default class SceneObject {
             SceneObject.#idList.add(id);
         }
         else this.#id = SceneObject.#generateId();
+
+        modelId = Address.asInternal(modelId);
+
         this.#modelId = modelId;
         this.#name = name;
 

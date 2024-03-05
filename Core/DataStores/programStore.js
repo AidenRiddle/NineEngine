@@ -1,3 +1,4 @@
+import { Address } from "../../FileSystem/address.js";
 import { Webgl } from "../../settings.js";
 import Gpu from "../GECore/Gpu/gpu.js";
 import { WebGLConstants } from "../GECore/Gpu/webGLConstants.js";
@@ -88,8 +89,10 @@ export class ProgramStorage extends DataStorage {
     }
 
     static Add(vsName, fsName) {
-        if (this.storage.has(vsName)) {
-            const fsMap = this.storage.get(vsName);
+        vsName = Address.asInternal(vsName);
+        fsName = Address.asInternal(fsName);
+        if (super.Exists(vsName)) {
+            const fsMap = super.Get(vsName);
             if (fsMap.has(fsName)) return;
 
             const program = this.#createProgram(vsName, fsName);
@@ -98,7 +101,7 @@ export class ProgramStorage extends DataStorage {
             const fsMap = new Map();
 
             const program = this.#createProgram(vsName, fsName);
-            this.storage.set(vsName, fsMap);
+            super.Add(vsName, fsMap);
             fsMap.set(fsName, new Program(program, this.#mapAttributes(program), this.#mapUniforms(program)));
         }
     }
