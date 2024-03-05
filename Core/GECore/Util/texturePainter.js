@@ -144,6 +144,11 @@ export default class TexturePainter {
             .then(() => new Promise((resolve) => this.#canvas.toBlob((blob) => resolve(blob), "image/webp")));
     }
 
+    static imageToThumbnailDataURL = (img, maxWidth, maxHeight) => {
+        return this.resizeImage(img, maxWidth, maxHeight)
+            .then(() => this.#canvas.toDataURL("image/webp"));
+    }
+
     static debug = (img) => {
         window.open(URL.createObjectURL(img));
     }
