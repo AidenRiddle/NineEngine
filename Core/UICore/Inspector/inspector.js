@@ -46,11 +46,11 @@ export class $Inspector extends GuiHandle {
             this.hierarchySelect(gui, root, cargo.target);
             handle.set("onItemDrop", (dt) => {
                 const assetFilePath = dt.getData("assetFilePath");
-                if (assetFilePath != "") {
+                if (assetFilePath != "" && AssetType.isScript(assetFilePath)) {
                     eventHandler.sendMessageToParent(UiEvent.inspector_add_script, assetFilePath);
                 }
             });
-    
+
             $DragReceiver.builder(gui, root, handle);
         } else {
             System.error(System.ui_message_prefix, "Unknown cargo type:", cargo.type);
