@@ -20,8 +20,6 @@
         "Scripts/Core/RuntimeManager.ts": "Scripts/Core/RuntimeManager.ts",
         "Scripts/Core/sceneObject.ts": "Scripts/Core/sceneObject.ts",
         "Scripts/Core/transform.ts": "Scripts/Core/transform.ts",
-        ".NineEngine/Assets/Scripts/spinner.ts": ".NineEngine/Assets/Scripts/spinner.ts",
-        ".NineEngine/Assets/Scripts/translater.ts": ".NineEngine/Assets/Scripts/translater.ts",
         "fragment.glsl": "Shaders/fragment.glsl"
     },
     "materials": {
@@ -63,6 +61,8 @@
     },
     "name": "The one running instance to rule them all",
     "resources": {
+        ".NineEngine/Assets/Scripts/spinner.ts": ".NineEngine/Assets/Scripts/spinner.ts",
+        ".NineEngine/Assets/Scripts/translater.ts": ".NineEngine/Assets/Scripts/translater.ts",
         "jet.glb": "3DModels/Jet.glb",
         "Scripts/ifSpinner.ts": "Scripts/ifSpinner.ts",
         "Scripts/ifTranslater.ts": "Scripts/ifTranslater.ts",
