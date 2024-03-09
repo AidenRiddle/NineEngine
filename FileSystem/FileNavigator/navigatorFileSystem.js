@@ -73,7 +73,8 @@ export class NavFS {
             wd = await navigator.storage.getDirectory();
         }
         if (path.startsWith(this.rootName + '/')) path = this.#cutPath(path, this.rootName);
-        if (path == "" || path == this.rootName || path == this.coreName) return wd;
+        if (path.startsWith("./")) path = this.#cutPath(path, "./");
+        if (path == "." || path == "" || path == this.rootName || path == this.coreName) return wd;
         for (const dirName of path.split("/")) {
             try {
                 wd = await wd.getDirectoryHandle(dirName, { create });

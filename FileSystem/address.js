@@ -40,12 +40,12 @@ export class Address {
             this.#internal = address;
         }
         else if (address.startsWith(NavFS.rootName + '/')) {
-            this.#filePath = address;
+            this.#filePath = address.replace(NavFS.rootName + '/', "./");
             this.#url = null;
             this.#internal = address.replace(NavFS.rootName + '/', '');
         }
         else if (address.startsWith("./")) {
-            this.#filePath = address.replace("./", NavFS.rootName + '/');
+            this.#filePath = address;
             this.#url = address.replace("./", Stash.resource_root);
             this.#internal = address.replace("./", '');
         }
@@ -60,7 +60,7 @@ export class Address {
             this.#internal = null;
         }
         else {
-            this.#filePath = NavFS.rootName + '/' + address;
+            this.#filePath = "./" + address;
             this.#url = Stash.resource_root + address;
             this.#internal = address;
         }

@@ -7,9 +7,9 @@ import { Address } from "./address.js";
 class DiskResources {
     /** @param {Address} address */
     loadFileFromDisk(address) {
-        return NavFS.getFile(address.raw)
+        return NavFS.getFile(address.filePath)
             .then((file) => {
-                console.log("Loading from disk:", address);
+                console.log("Loading from disk:", address.filePath);
                 return file;
             });
     }
