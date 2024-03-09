@@ -59,18 +59,23 @@ export default class UiManager {
             this.syncSceneObjects(Scene.objectsInScene);
             this.#handler[UiEvent.hierarchy_select](this.#activeSceneObject.id);
         },
+        [UiEvent.hierarchy_delete_sceneobject]: (cargo) => {
+            console.log(Scene.getObject(cargo));
+            Scene.DeleteWithChildren(cargo)
+            this.syncSceneObjects(Scene.objectsInScene);
+        },
         [UiEvent.inspector_assetFile_update]: (cargo) => {
-            cargo.assetName = Address.asInternal(cargo.assetName);
+            const assetAddress = new Address(cargo.assetName);
             const data = JSON.parse(cargo.content);
             let promiseChain;
-            if (AssetType.isMaterial(cargo.assetName)) {
-                promiseChain = RunningInstance.putMaterial(cargo.assetName, data);
+            if (AssetType.isMaterial(assetAddress.internal)) {
+                promiseChain = RunningInstance.putMaterial(assetAddress, data);
             }
-            if (AssetType.isModel(cargo.assetName)) {
-                promiseChain = RunningInstance.putModel(cargo.assetName, data);
+            if (AssetType.isModel(assetAddress.internal)) {
+                promiseChain = RunningInstance.putModel(assetAddress, data);
             }
             promiseChain
-                .then((assetContent) => NavFS.write(cargo.assetName, JSON.stringify(assetContent)))
+                .then((assetContent) => NavFS.write(assetAddress.filePath, JSON.stringify(assetContent)))
                 .then(() => {
                     const payload = new Payload(
                         UiEvent.assetBrowser_select_assetFile,

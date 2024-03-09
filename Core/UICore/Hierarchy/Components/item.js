@@ -1,4 +1,4 @@
-import { $ExpandableCard } from "../../Common/commonGui.js";
+import { $Deleteable, $ExpandableCard } from "../../Common/commonGui.js";
 import { GuiContext, GuiHandle } from "../../gui.js";
 
 const showSubfolderByDefault = true;
@@ -12,6 +12,8 @@ export class $Folder extends GuiHandle {
     static builder(gui, root, handle) {
         const value = gui.state("value");
         const subfolders = gui.state("subfolders");
+
+        if (gui.state("onDelete") != null) $Deleteable.builder(gui, root);
 
         const titleCard = gui.node("div", div => {
             div.append(
