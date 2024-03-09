@@ -37,7 +37,6 @@ export default class EditorScene {
      */
     Instantiate(modelId, params = undefined) {
         const so = new SceneObject(modelId, params?.name ?? "New SceneObject", params?.id);
-        RuntimeGenerator.addSceneObject(so.id);
 
         if (params) {
             so.transform.setPosition(params.posX ?? 0, params.posY ?? 0, params.posZ ?? 0);

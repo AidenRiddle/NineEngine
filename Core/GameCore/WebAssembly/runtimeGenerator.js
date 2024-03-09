@@ -1,9 +1,9 @@
 import { ScriptStorage } from "../../DataStores/scriptStore.js";
 import { AscScriptUtil } from "../../GECore/Util/ascScriptUtil.js";
+import { Scene } from "../Scene/scene.js";
 
 export class RuntimeGenerator {
     static #runtimeScript = "";
-    static #sceneObjects = new Set();
 
     static #generateCoreImports() {
         let body =
@@ -43,7 +43,8 @@ export class RuntimeGenerator {
 
     static #generateSceneObjects() {
         let body = "";
-        for (const soid of this.#sceneObjects) {
+        for (const so of Scene.objectsInScene) {
+            const soid = so.id;
             body += `export const ${soid} = addSceneObject("${soid}");`;
         }
         return body;
@@ -88,10 +89,6 @@ export class RuntimeGenerator {
             + `export function Update(): void { rm.Update(); }`
             + `export function ScriptEnd(): void { rm.ScriptEnd(); }`;
         return body;
-    }
-
-    static addSceneObject(soid) {
-        this.#sceneObjects.add(soid);
     }
 
     static generate() {

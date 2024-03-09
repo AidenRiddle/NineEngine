@@ -51,8 +51,6 @@ export default class SceneUtils {
         so.transform.setScale(sca.x, sca.y, sca.z);
         so.transform.setRotation(rot.x, rot.y, rot.z);
 
-        RuntimeGenerator.addSceneObject(so.id);
-
         return so;
     }
 
