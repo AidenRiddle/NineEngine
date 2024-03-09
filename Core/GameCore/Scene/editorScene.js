@@ -59,18 +59,23 @@ export default class EditorScene {
 
     Delete(so) {
         if (so.transform.children.length > 0) {
-            for (const child of so.transform.children) {
-                child.transform.setParent(null);
+            for (const transform of so.transform.children) {
+                transform.parent = null;
             }
         }
         const index = this.#objectsInScene.findIndex(m => m.id == so.id);
         this.#objectsInScene.splice(index, 1);
+
+        const pack = SceneUtils.pack(this);
+        RunningInstance.updateScene(Scene.activeSceneName, pack);
+
         return null;
     }
 
     DeleteWithChildren(so) {
         if (so.transform.children.length > 0) {
-            for (const child of so.transform.children) {
+            for (const transform of so.transform.children) {
+                const child = transform.sceneObject;
                 this.DeleteWithChildren(child);
             }
         }
