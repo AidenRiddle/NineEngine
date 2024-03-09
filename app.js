@@ -20,15 +20,12 @@ import { runtimeInputScheme } from "./Core/GameCore/Input/runtimeInputScheme.js"
 import { RunningInstance } from "./Core/GameCore/runningInstance.js";
 import { Scene } from "./Core/GameCore/Scene/scene.js";
 import { ScriptGlobals } from "./Core/GameCore/WebAssembly/scriptGlobals.js";
-import UiManager from "./Core/UICore/uiManager.js";
-import { UiEvent, UiWindow } from "./Core/UICore/uiConfiguration.js";
-import { EventController } from "./eventController.js";
-import { AppSettings, Stash, System } from "./settings.js";
-import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
 import Gpu from "./Core/GECore/Gpu/gpu.js";
-import { WorkerManager } from "./Core/Worker/workerManager.js";
 import { Canvas } from "./Core/UICore/gui.js";
-import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
+import { UiWindow } from "./Core/UICore/uiConfiguration.js";
+import UiManager from "./Core/UICore/uiManager.js";
+import { EventController } from "./eventController.js";
+import { AppSettings, System } from "./settings.js";
 
 class Main {
     /** @type {HTMLCanvasElement} */
