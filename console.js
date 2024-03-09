@@ -12,7 +12,7 @@ import TexturePainter from "./Core/GECore/Util/texturePainter.js";
 import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "./Core/GameCore/runningInstance.js";
 import Resources from "./FileSystem/resources.js";
-import { AppSettings } from "./settings.js";
+import { AppSettings, Stash } from "./settings.js";
 
 class NineEngineConsole {
 
@@ -90,6 +90,15 @@ class NineEngineConsole {
             "\nShaders:", ShaderStorage.debug(),
             "\nTextures:", TextureStorage.debug()
         );
+    }
+
+    getSceneObject(id) {
+        return Scene.getObject(id);
+    }
+
+    saveRunningInstance = () => {
+        console.log("Saving...");
+        return RunningInstance.saveProject();
     }
 }
 globalThis.nine = new NineEngineConsole();

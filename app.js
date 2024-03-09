@@ -101,15 +101,6 @@ class Main {
         Camera.activeCamera.setAspectRatio(AppSettings.aspect_ratio);
     }
 
-    getSceneObject(id) {
-        return Scene.getObject(id);
-    }
-
-    saveRunningInstance = () => {
-        console.log("Saving...");
-        return RunningInstance.saveProject();
-    }
-
     defineEngineCycle(eventController) {
         const cycleName = "engineCycle";
         const targetDeltaTime = (System.target_frame_rate != 0) ? 1000 / System.target_frame_rate : 0;
