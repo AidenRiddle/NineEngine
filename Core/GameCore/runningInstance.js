@@ -1,3 +1,4 @@
+import { Address } from "../../FileSystem/address.js";
 import Resources from "../../FileSystem/resources.js";
 import { Stash } from "../../settings.js";
 import { MaterialBuilder, MaterialStorage } from "../DataStores/materialStore.js";
@@ -92,9 +93,10 @@ export class RunningInstance {
         }
         if (Array.isArray(modelPackage.materials)) {
             for (const matName of modelPackage.materials) {
-                if (this.#materials[matName]) continue;
-                let promise = Resources.fetchAsJson(matName, { hardFetch: true })
-                    .then((json) => this.putMaterial(matName, json));
+                const matAddress = new Address(matName);
+                if (this.#materials[matAddress.internal]) continue;
+                let promise = Resources.fetchAsJson(matAddress.raw, { hardFetch: true })
+                    .then((json) => this.putMaterial(matAddress, json));
                 promises.push(promise);
             }
         }
@@ -189,9 +191,10 @@ export class RunningInstance {
     //
     //  Material functions
     //
-    static putMaterial(materialName, materialProperties) {
+    static putMaterial(materialAddress, materialProperties) {
         return this.#solveMaterialDependencies(materialProperties)
             .then(() => {
+                const materialName = materialAddress.internal;
                 const mat = MaterialBuilder.buildFromParams(materialProperties);
                 MaterialStorage.Add(materialName, mat);
 
@@ -212,9 +215,10 @@ export class RunningInstance {
     //
     //  Model functions
     //
-    static putModel(modelName, modelProperties) {
+    static putModel(modelAddress, modelProperties) {
         return this.#solveModelDependencies(modelProperties)
             .then(() => {
+                const modelName = modelAddress.internal;
                 ModelStorage.Add(modelName, modelProperties.meshId, modelProperties.vertexShaderId, modelProperties.materials);
 
                 const model = ModelStorage.Get(modelName);
