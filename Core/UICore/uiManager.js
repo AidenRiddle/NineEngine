@@ -8,14 +8,15 @@ import { Scene } from "../GameCore/Scene/scene.js";
 import { ScriptManager } from "../GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "../GameCore/runningInstance.js";
 import SceneObject from "../GameCore/sceneObject.js";
-import { showContextMenu } from "./contextmenu.js";
+import { $ContextMenu } from "./contextmenu.js";
+import { Canvas } from "./gui.js";
 import Payload from "./payload.js";
 import { UiEvent, UiGroup, UiWindow } from "./uiConfiguration.js";
 
 export default class UiManager {
+    /** @type {$ContextMenu} */ static #contextMenu;
+    /** @type {SceneObject} */  static #activeSceneObject;
     static #windows = new Map();
-    /** @type {SceneObject} */
-    static #activeSceneObject;
     static #handler = {
         [UiEvent.global_visibility_change]: (cargo) => {
             const payload = new Payload(UiEvent.global_visibility_change, cargo);
@@ -23,7 +24,7 @@ export default class UiManager {
         },
         [UiEvent.global_context_menu]: (cargo) => {
             this.#assignHandlers(cargo.target, cargo.items);
-            showContextMenu(cargo.screenX, cargo.screenY, cargo.items);
+            this.showContextMenu(cargo.screenX, cargo.screenY, cargo.items);
         },
         [UiEvent.hierarchy_select]: (cargo) => {
             const so = Scene.getObject(cargo);
@@ -150,6 +151,9 @@ export default class UiManager {
             if (!(payload.uiEventCode in this.#handler)) { console.error("Unhandled UIEvent:", payload.uiEventCode); return; }
             this.#handler[payload.uiEventCode](payload.cargo);
         };
+
+        this.#contextMenu = new $ContextMenu({ visible: false });
+        Canvas.addToHUD(this.#contextMenu);
     }
 
     static sendMessage(recipient, payload) {
@@ -184,6 +188,17 @@ export default class UiManager {
         for (const iframe of this.#windows.values()) {
             iframe.contentWindow.postMessage(payload, "*");
         }
+    }
+
+    static showContextMenu(x, y, itemMap) {
+        this.#contextMenu.set("visible", true);
+        this.#contextMenu.set("x", x + "px");
+        this.#contextMenu.set("y", y + "px");
+        this.#contextMenu.set("itemMap", itemMap);
+    }
+
+    static hideContextMenu() {
+        this.#contextMenu.set("visible", false);
     }
 
     static #assignHandlers(target, items, prefix = '') {

@@ -1,4 +1,4 @@
-import { Canvas, GuiHandle, GuiContext } from "./gui.js";
+import { GuiContext, GuiHandle } from "./gui.js";
 
 const divStyle = {
     display: "flex",
@@ -63,7 +63,7 @@ const contextMenuTester = {
     },
 }
 
-export class $ContextMenuItem extends GuiHandle {
+class $ContextMenuItem extends GuiHandle {
     /**
      * @param {GuiContext} gui 
      * @param {HTMLElement} root
@@ -73,7 +73,7 @@ export class $ContextMenuItem extends GuiHandle {
         const handler = gui.state("handler");
         root.onmouseover = function (e) { e.target.style.background = "darkgrey"; };
         root.onmouseout = function (e) { e.target.style.background = "none"; };
-        root.onclick = function (e) { hideContextMenu(); handler(); };
+        root.onclick = handler;
         root.append(gui.node("p", p => {
             p.innerText = title;
             Object.assign(p.style, pStyle);
@@ -81,7 +81,7 @@ export class $ContextMenuItem extends GuiHandle {
     }
 }
 
-export class $ContextMenuParentItem extends GuiHandle {
+class $ContextMenuParentItem extends GuiHandle {
     /**
      * @param {GuiContext} gui 
      * @param {HTMLElement} root
@@ -103,28 +103,24 @@ export class $ContextMenuParentItem extends GuiHandle {
         root.append(item);
 
         if (showSubMenu) {
-            const subContextMenu = new $ContextMenu({
+            const subContextMenu = new $ContextMenuItemList({
                 visible: true,
                 x: "100%",
                 y: "initial",
-                itemMap: subMenu
+                itemMap: subMenu,
+                rootGuiHandle: gui.state("rootGuiHandle")
             })
             root.append(gui.getNode(subContextMenu));
         }
     }
 }
 
-export class $ContextMenu extends GuiHandle {
+class $ContextMenuItemList extends GuiHandle {
     /**
      * @param {GuiContext} gui 
      * @param {HTMLElement} root
      */
     static builder(gui, root) {
-        if (!gui.state("visible")) {
-            root.style.display = "none";
-            return;
-        }
-
         Object.assign(root.style, divStyle);
         root.style.display = "flex";
         root.style.left = gui.state("x");
@@ -151,28 +147,53 @@ export class $ContextMenu extends GuiHandle {
 
         const itemMap = gui.state("itemMap");
         for (const [title, value] of Object.entries(itemMap)) {
-            let handle;
-            if (typeof value == 'function') handle = new $ContextMenuItem({ title, handler: value });
-            else {
-                handle = new $ContextMenuParentItem({ id: parentId, showSubMenu: false, title, subMenu: value });
-                listOfParentItems.set(title, handle);
+            let child;
+            if (typeof value == 'function') {
+                const rootHandle = gui.state("rootGuiHandle");
+                child = new $ContextMenuItem({
+                    title,
+                    handler: () => {
+                        rootHandle.set("visible", false);
+                        value();
+                    }
+                });
+            } else {
+                child = new $ContextMenuParentItem({
+                    id: parentId,
+                    showSubMenu: false,
+                    title,
+                    subMenu: value,
+                    rootGuiHandle: gui.state("rootGuiHandle")
+                });
+                listOfParentItems.set(title, child);
             }
 
-            root.append(gui.getNode(handle));
+            root.append(gui.getNode(child));
         }
     }
 }
 
-const cm = new $ContextMenu({ visible: false });
-Canvas.addToHUD(cm);
-
-export function showContextMenu(x, y, itemMap) {
-    cm.set("visible", true);
-    cm.set("x", x + "px");
-    cm.set("y", y + "px");
-    cm.set("itemMap", itemMap);
-}
-
-export function hideContextMenu() {
-    cm.set("visible", false);
+export class $ContextMenu extends GuiHandle {
+    /**
+     * @param {GuiContext} gui 
+     * @param {HTMLElement} root
+     * @param {GuiHandle} handle
+     */
+    static builder(gui, root, handle) {
+        if (gui.state("visible")) {
+            Object.assign(root.style, divStyle);
+            root.style.display = "flex";
+            root.style.left = gui.state("x");
+            root.style.top = gui.state("y");
+            const itemList = new $ContextMenuItemList({
+                x: 0,
+                y: 0,
+                itemMap: gui.state("itemMap"),
+                rootGuiHandle: handle
+            });
+            gui.bake(root, itemList);
+        } else {
+            root.style.display = "none";
+        }
+    }
 }
