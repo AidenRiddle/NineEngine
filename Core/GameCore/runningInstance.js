@@ -110,19 +110,31 @@ export class RunningInstance {
         try {
             const keys = await this.#idb.getKeys("runningInstances");
             const firstProject = keys[0];
-            const jsonFile = await this.#idb.get("runningInstances", firstProject);
-
-            console.groupCollapsed("Found a running instance. Unpacking ...");
-            const jsonString = await jsonFile.text();
-            this.#from(JSON.parse(jsonString));
+            await this.openSavedInstance(firstProject);
         } catch (e) {
-            console.groupCollapsed("No running instance found. Cloning the default one ...");
-            const json = await Resources.fetchAsJson(Stash.default_running_instance, { cacheResult: false, hardFetch: true });
-
-            this.#name = "The one running instance to rule them all";
-            this.#from(json);
-            this.saveAssets();
+            console.log("No running instance found.");
+            const name = "The one running instance to rule them all";
+            await this.createNewDefaultInstance(name);
+            await this.openSavedInstance(name);
         }
+    }
+
+    static async createNewDefaultInstance(name) {
+        console.groupCollapsed(`Creating new running instance (${name}). Cloning the default one ...`);
+        const json = await Resources.fetchAsJson(Stash.default_running_instance, { cacheResult: false, hardFetch: true });
+        json.name = name;
+
+        this.#from(json);
+        this.saveAssets();
+        console.groupEnd();
+    }
+
+    static async openSavedInstance(name) {
+        const jsonFile = await this.#idb.get("runningInstances", name);
+
+        console.groupCollapsed(`Opening Instance (${name}). Unpacking ...`);
+        const jsonString = await jsonFile.text();
+        this.#from(JSON.parse(jsonString));
         await Resources.loadAll(this.#getListOfDependencies(this.#activeScene), { hardFetch: true });
         console.groupEnd();
 
@@ -183,10 +195,6 @@ export class RunningInstance {
 
     static setActiveScene(value) {
         this.#activeScene = value;
-    }
-
-    static openProject(name) {
-
     }
 
     //
