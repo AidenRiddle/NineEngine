@@ -79,7 +79,7 @@ export class NavFS {
             try {
                 wd = await wd.getDirectoryHandle(dirName, { create });
             } catch (e) {
-                throw new Error("Could not find (" + dirName + "). Invalid path (" + path + ").");
+                throw new Error("Could not find (" + dirName + "). Invalid path (" + dirPath + ").");
             }
         }
         return wd;
