@@ -139,10 +139,13 @@ export default class Resources {
     static open(geInstanceDB) {
         return geInstanceDB.getInstance("geInstanceDB")
             .then(() => geInstanceDB.getKeys("resources"))
-            .then(
-                (keys) => { console.groupCollapsed("Found cached Resources ..."); console.log(keys.join("\n")); console.groupEnd(); for (const key of keys) { this.#tracker.add(key); } },
-                (rejectMessage) => { console.log(rejectMessage); }
+            .then((keys) => {
+                console.groupCollapsed("Found cached Resources ...");
+                console.log(keys.join("\n"));
+                console.groupEnd();
+                for (const key of keys) { this.#tracker.add(key); } },
             )
+            .catch((rejectMessage) => { console.log(rejectMessage); })
             .then(() => {
                 this.fetchRaw = this.#fetchRawImpl;
                 this.fetchAsText = this.#fetchAsTextImpl;
