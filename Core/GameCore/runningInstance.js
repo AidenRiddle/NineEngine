@@ -108,9 +108,8 @@ export class RunningInstance {
         this.#idb = idb;
 
         try {
-            const keys = await this.#idb.getKeys("runningInstances");
-            const firstProject = keys[0];
-            await this.openSavedInstance(firstProject);
+            const { value: lastOpenedInstance } = await this.#idb.get("userConfiguration", "lastOpenedInstance");
+            await this.openSavedInstance(lastOpenedInstance);
         } catch (e) {
             console.log("No running instance found.");
             const name = "The one running instance to rule them all";
@@ -136,6 +135,7 @@ export class RunningInstance {
         const jsonString = await jsonFile.text();
         this.#from(JSON.parse(jsonString));
         await Resources.loadAll(this.#getListOfDependencies(this.#activeScene), { hardFetch: true });
+        await this.#idb.store("userConfiguration", { name: "lastOpenedInstance", value: name })
         console.groupEnd();
 
         const defaultVS = ShaderGenerator.vertex().useLightDirectional().generate();
