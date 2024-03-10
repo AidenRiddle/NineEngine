@@ -113,7 +113,9 @@ class WebResources {
      * @param {Address} address 
      */
     loadFileFromWeb(address) {
-        return this.#fetchFileData(address.url);
+        const url = address.url;
+        if (url == null) throw new Error(`Cannot fetch NULL from (${address.raw})`);
+        return this.#fetchFileData(url);
     }
 }
 
