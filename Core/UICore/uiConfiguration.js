@@ -38,6 +38,7 @@ export const UiEvent = {
     menuBar_upload_image: 0,
     menuBar_play: 0,
     menuBar_saveProject: 0,
+    menuBar_newProject: 0,
 }
 objectToEnum(UiEvent);
 

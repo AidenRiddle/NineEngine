@@ -141,6 +141,10 @@ export default class UiManager {
             // location.reload();
         },
         [UiEvent.menuBar_saveProject]: (cargo) => { RunningInstance.saveProject(); alert("Project saved!"); },
+        [UiEvent.menuBar_newProject]: (cargo) => {
+            RunningInstance.createNewDefaultInstance(cargo);
+            alert("Project created!");
+        },
 
     }
 

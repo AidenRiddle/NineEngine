@@ -4,8 +4,12 @@ import { UiEvent } from "../uiConfiguration.js";
 import { UiEventHandler } from "../uiEventHandler.js";
 import { notImplemented } from "../../../methods.js";
 import { $Button } from "./Components/button.js";
+import GEInstanceDB from "../../../FileSystem/geInstanceDB.js";
 
 const handler = {}
+
+const idb = new GEInstanceDB();
+await idb.getInstance("geInstanceDB");
 
 const contextMenu = {
     "Save Project": () => { eventHandler.sendMessageToParent(UiEvent.menuBar_saveProject); },
@@ -14,6 +18,10 @@ const contextMenu = {
         NavFS.bootFromDirectory(dir)
         .then(() => NavFS.getDirectoryAccess())
         .then(() => eventHandler.sendMessageToParent(UiEvent.assetBrowser_refresh));
+    },
+    "New Project...": () => {
+        const instanceName = prompt("New name ?");
+        eventHandler.sendMessageToParent(UiEvent.menuBar_newProject, instanceName);
     },
     "Upload Image": async function () {
         const [fileHandle] = await window.showOpenFilePicker();
@@ -101,6 +109,11 @@ Canvas.addToHUD(new $MenuBar({
     leftButtons: {
         "File": async (e) => {
             const box = e.target.getBoundingClientRect();
+            const allProjects = await idb.getKeys("runningInstances");
+            const projectsAsContextMenu = allProjects.reduce((map, projectName) => {
+                map[projectName] = null;
+                return map;
+            }, {});
             eventHandler.sendMessageToParent(UiEvent.global_context_menu, {
                 target: "MenuBar",
                 screenX: box.left,
@@ -108,6 +121,8 @@ Canvas.addToHUD(new $MenuBar({
                 items: {
                     "Save Project": null,
                     "Set root folder": null,
+                    "New Project...": null,
+                    "Open Project": projectsAsContextMenu,
                     "Upload Image": null,
                 },
             })
