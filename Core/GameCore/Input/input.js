@@ -186,8 +186,8 @@ export class InputState {
 }
 
 export class InputManager {
+    /** @type {Map<string, InputState} */ static #inputStates = new Map();
     static #canvas;
-    static #inputStates = new Map();
     static #activeInputStates = new Set();
 
     static #inputReader = new InputReader(
@@ -246,7 +246,7 @@ export class InputManager {
     }
 
     static getState(id) {
-        if (!this.#inputStates.has(id)) throw new Error("InputState (" + id + ") already exists.");
+        if (!this.#inputStates.has(id)) throw new Error("InputState (" + id + ") does not exist.");
         return this.#inputStates.get(id);
     }
 
