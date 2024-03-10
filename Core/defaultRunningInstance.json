@@ -1,14 +1,14 @@
 {
     "activeScene": "defaultScene",
     "core": {
-        "error_cors.jpg": "Textures/error_cors.jpg",
-        "error_404.jpg": "Textures/error_404.jpg",
-        "error_unknown.jpg": "Textures/error_unknown.jpg",
-        "error_forbidden.jpg": "Textures/error_forbidden.jpg",
         "default_cube.glb": "3DModels/cube.glb",
         "default_plane.glb": "3DModels/plane.glb",
         "default_sphere.glb": "3DModels/sphere.glb",
-        "white.jpg": "Textures/white.jpg",
+        "error_404.jpg": "Textures/error_404.jpg",
+        "error_cors.jpg": "Textures/error_cors.jpg",
+        "error_forbidden.jpg": "Textures/error_forbidden.jpg",
+        "error_unknown.jpg": "Textures/error_unknown.jpg",
+        "fragment.glsl": "Shaders/fragment.glsl",
         "Scripts/Core/input.ts": "Scripts/Core/input.ts",
         "Scripts/Core/Math/matrix4.ts": "Scripts/Core/Math/matrix4.ts",
         "Scripts/Core/Math/quaternion.ts": "Scripts/Core/Math/quaternion.ts",
@@ -20,12 +20,14 @@
         "Scripts/Core/RuntimeManager.ts": "Scripts/Core/RuntimeManager.ts",
         "Scripts/Core/sceneObject.ts": "Scripts/Core/sceneObject.ts",
         "Scripts/Core/transform.ts": "Scripts/Core/transform.ts",
-        "fragment.glsl": "Shaders/fragment.glsl"
+        "white.jpg": "Textures/white.jpg"
     },
     "materials": {
         "default_material.mat": {
             "shaderId": "fragment.glsl",
-            "textures": ["white.jpg"],
+            "textures": [
+                "white.jpg"
+            ],
             "uniformValueMap": {
                 "u_intensity": 0,
                 "u_reverseLightDirection": [
@@ -39,24 +41,32 @@
     },
     "models": {
         "default_cube.model": {
-            "vertexShaderId": "defaultVS",
+            "materials": [
+                "default_material.mat"
+            ],
             "meshId": "default_cube.glb",
-            "materials": ["default_material.mat"]
-        },
-        "default_sphere.model": {
-            "vertexShaderId": "defaultVS",
-            "meshId": "default_sphere.glb",
-            "materials": ["default_material.mat"]
+            "vertexShaderId": "defaultVS"
         },
         "default_plane.model": {
-            "vertexShaderId": "defaultVS",
+            "materials": [
+                "default_material.mat"
+            ],
             "meshId": "default_plane.glb",
-            "materials": ["default_material.mat"]
+            "vertexShaderId": "defaultVS"
+        },
+        "default_sphere.model": {
+            "materials": [
+                "default_material.mat"
+            ],
+            "meshId": "default_sphere.glb",
+            "vertexShaderId": "defaultVS"
         },
         "jet.model": {
-            "vertexShaderId": "defaultVS",
+            "materials": [
+                "default_material.mat"
+            ],
             "meshId": "jet.glb",
-            "materials": ["default_material.mat"]
+            "vertexShaderId": "defaultVS"
         }
     },
     "name": "The one running instance to rule them all",
