@@ -11,18 +11,28 @@ const handler = {}
 const idb = new GEInstanceDB();
 await idb.getInstance("geInstanceDB");
 
+const defaulter = {
+    get: function (target, name) {
+        return () => eventHandler.sendMessageToParent(UiEvent.menuBar_openProject, name);
+    }
+};
+
+const emptyObj = {};
+const proxy = new Proxy(emptyObj, defaulter);
+
 const contextMenu = {
     "Save Project": () => { eventHandler.sendMessageToParent(UiEvent.menuBar_saveProject); },
     "Set root folder": async function () {
         const dir = await window.showDirectoryPicker({ id: "NineProject", mode: "readwrite" });
         NavFS.bootFromDirectory(dir)
-        .then(() => NavFS.getDirectoryAccess())
-        .then(() => eventHandler.sendMessageToParent(UiEvent.assetBrowser_refresh));
+            .then(() => NavFS.getDirectoryAccess())
+            .then(() => eventHandler.sendMessageToParent(UiEvent.assetBrowser_refresh));
     },
     "New Project...": () => {
         const instanceName = prompt("New name ?");
         eventHandler.sendMessageToParent(UiEvent.menuBar_newProject, instanceName);
     },
+    "Open Project": proxy,
     "Upload Image": async function () {
         const [fileHandle] = await window.showOpenFilePicker();
         const file = await fileHandle.getFile();

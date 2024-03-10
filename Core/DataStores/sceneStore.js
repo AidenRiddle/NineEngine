@@ -21,7 +21,6 @@ export class SceneStorage extends DataStorage {
      * @param {EditorScene} scene
      */
     static Add(name, scene) {
-        if (this.Exists(name)) return;
         if (!(scene instanceof EditorScene)) { console.error("Parameter not of type EditorScene", scene); throw new Error(); };
         super.Add(name, scene);
     }

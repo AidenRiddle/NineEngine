@@ -145,6 +145,10 @@ export default class UiManager {
             RunningInstance.createNewDefaultInstance(cargo);
             alert("Project created!");
         },
+        [UiEvent.menuBar_openProject]: async (cargo) => {
+            await RunningInstance.openSavedInstance(cargo);
+            Scene.changeScene(RunningInstance.activeScene);
+        },
 
     }
 
