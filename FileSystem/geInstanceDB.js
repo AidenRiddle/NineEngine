@@ -63,7 +63,7 @@ export default class GEInstanceDB {
             request.onsuccess = (event) => {
                 (event.target.result.length > 0) ?
                     resolve(event.target.result) :
-                    reject(`No cached Resources found.`);
+                    reject(`Store (${objStore}) is empty or does not exist.`);
             };
             request.onerror = (e) => { console.error(e); throw new Error(e.target.result); }
         });

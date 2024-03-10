@@ -1,4 +1,5 @@
 import { Address } from "../../FileSystem/address.js";
+import GEInstanceDB from "../../FileSystem/geInstanceDB.js";
 import Resources from "../../FileSystem/resources.js";
 import { Stash } from "../../settings.js";
 import { MaterialBuilder, MaterialStorage } from "../DataStores/materialStore.js";
@@ -20,8 +21,8 @@ export class RunningInstance {
     static #resources;
     static #scenes;
 
-    static #getLastSavedRI = function () { };
-    static #saveInDB = function () { };
+    /** @type {GEInstanceDB} */
+    static #idb;
 
     static get activeScene() { return this.#activeScene; }
 
@@ -103,65 +104,61 @@ export class RunningInstance {
         return Promise.all(promises);
     }
 
-    static initialize(getFromDB, storeToDB) {
-        this.#getLastSavedRI = getFromDB;
-        this.#saveInDB = storeToDB;
+    static async initialize(idb) {
+        this.#idb = idb;
 
-        return this.#getLastSavedRI()
-            .then(
-                (jsonFile) => {     // If a running instance is found
-                    console.groupCollapsed("Found a running instance. Unpacking ...");
-                    return jsonFile.text().then((jsonString) => this.#from(JSON.parse(jsonString)));
-                },
-                () => {             // else
-                    console.groupCollapsed("No running instance found. Cloning the default one ...");
-                    return Resources.fetchAsJson(Stash.default_running_instance, { cacheResult: false, hardFetch: true })
-                        .then((json) => {
-                            this.#from(json);
+        try {
+            const keys = await this.#idb.getKeys("runningInstances");
+            const firstProject = keys[0];
+            const jsonFile = await this.#idb.get("runningInstances", firstProject);
 
-                            this.#name = "The one running instance to rule them all";
-                            this.saveAssets();
-                        });
-                }
-            )
-            .then(() => Resources.loadAll(this.#getListOfDependencies(this.#activeScene), { hardFetch: true }))
-            .then(() => {
-                console.groupEnd();
+            console.groupCollapsed("Found a running instance. Unpacking ...");
+            const jsonString = await jsonFile.text();
+            this.#from(JSON.parse(jsonString));
+        } catch (e) {
+            console.groupCollapsed("No running instance found. Cloning the default one ...");
+            const json = await Resources.fetchAsJson(Stash.default_running_instance, { cacheResult: false, hardFetch: true });
 
-                const defaultVS = ShaderGenerator.vertex().useLightDirectional().generate();
-                ShaderStorage.Add("defaultVS", false, defaultVS);
+            this.#name = "The one running instance to rule them all";
+            this.#from(json);
+            this.saveAssets();
+        }
+        await Resources.loadAll(this.#getListOfDependencies(this.#activeScene), { hardFetch: true });
+        console.groupEnd();
 
-                const sceneName = this.#activeScene;
-                const requiredPrograms = new Map();
-                const requiredMaterials = new Map();
-                const requiredModels = new Map();
-                const requiredScenes = new Map();
+        const defaultVS = ShaderGenerator.vertex().useLightDirectional().generate();
+        ShaderStorage.Add("defaultVS", false, defaultVS);
 
-                for (const matName of this.#scenes[sceneName].dependencies.materials) {
-                    requiredMaterials.set(matName, this.#materials[matName]);
-                }
+        const sceneName = this.#activeScene;
+        const requiredPrograms = new Map();
+        const requiredMaterials = new Map();
+        const requiredModels = new Map();
+        const requiredScenes = new Map();
 
-                for (const modelName of this.#scenes[sceneName].dependencies.models) {
-                    const model = this.#models[modelName];
-                    requiredModels.set(modelName, model);
-                    if (!requiredPrograms.has(model.vertexShaderId)) { requiredPrograms.set(model.vertexShaderId, new Set()); }
-                    for (const materialId of model.materials) {
-                        const mat = this.#materials[materialId];
-                        requiredPrograms.get(model.vertexShaderId).add(mat.shaderId);
-                    }
-                }
+        for (const matName of this.#scenes[sceneName].dependencies.materials) {
+            requiredMaterials.set(matName, this.#materials[matName]);
+        }
 
-                for (const [sceneName, scene] of Object.entries(this.#scenes)) {
-                    requiredScenes.set(sceneName, scene);
-                }
+        for (const modelName of this.#scenes[sceneName].dependencies.models) {
+            const model = this.#models[modelName];
+            requiredModels.set(modelName, model);
+            if (!requiredPrograms.has(model.vertexShaderId)) { requiredPrograms.set(model.vertexShaderId, new Set()); }
+            for (const materialId of model.materials) {
+                const mat = this.#materials[materialId];
+                requiredPrograms.get(model.vertexShaderId).add(mat.shaderId);
+            }
+        }
 
-                return Promise.all([
-                    MaterialStorage.unpack(Object.fromEntries(requiredMaterials)),
-                    ModelStorage.unpack(Object.fromEntries(requiredModels)),
-                    ProgramStorage.unpack(Object.fromEntries(requiredPrograms)),
-                    SceneStorage.unpack(Object.fromEntries(requiredScenes)),
-                ])
-            })
+        for (const [sceneName, scene] of Object.entries(this.#scenes)) {
+            requiredScenes.set(sceneName, scene);
+        }
+
+        return Promise.all([
+            MaterialStorage.unpack(Object.fromEntries(requiredMaterials)),
+            ModelStorage.unpack(Object.fromEntries(requiredModels)),
+            ProgramStorage.unpack(Object.fromEntries(requiredPrograms)),
+            SceneStorage.unpack(Object.fromEntries(requiredScenes)),
+        ])
     }
 
     static getUrlOf(localPath) {
@@ -186,6 +183,10 @@ export class RunningInstance {
 
     static setActiveScene(value) {
         this.#activeScene = value;
+    }
+
+    static openProject(name) {
+
     }
 
     //
@@ -326,7 +327,7 @@ export class RunningInstance {
     static saveAssets = () => {
         const pack = this.pack();
         const data = new File([JSON.stringify(pack)], this.#name);
-        return this.#saveInDB(data);
+        return this.#idb.store("runningInstances", data);
     }
 
     static updateVersioning() {         // For dev work only.

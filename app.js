@@ -71,15 +71,9 @@ class Main {
     }
 
     #loadFromRunningInstance() {
-        return RunningInstance.initialize(
-            () => this.#geInstanceDB.get("runningInstances", "The one running instance to rule them all"),
-            (data) => this.#geInstanceDB.store("runningInstances", data))
-            .then(() => {
-                Scene.changeScene(RunningInstance.activeScene);
-            })
-            .finally(() => {
-                console.log("Successfully unpacked running instance ...");
-            })
+        return RunningInstance.initialize(this.#geInstanceDB)
+            .then(() => { Scene.changeScene(RunningInstance.activeScene); })
+            .finally(() => { console.log("Successfully unpacked running instance ..."); })
 
     }
 
