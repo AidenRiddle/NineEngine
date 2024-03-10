@@ -201,12 +201,13 @@ export default class UiManager {
         this.#contextMenu.set("visible", false);
     }
 
-    static #assignHandlers(target, items, prefix = '') {
+    static #assignHandlers(target, items, prefix = []) {
         for (const [key, value] of Object.entries(items)) {
-            if (value == null)
-                items[key] = () => this.sendMessage(target, new Payload(UiEvent.global_context_menu, { selection: prefix + key }));
-            else
-                this.#assignHandlers(target, value, prefix + key + '.');
+            if (value == null) {
+                items[key] = () => this.sendMessage(target, new Payload(UiEvent.global_context_menu, { selection: prefix.concat(key) }));
+            } else {
+                this.#assignHandlers(target, value, prefix.concat(key));
+            }
         }
     }
 }

@@ -40,7 +40,7 @@ export class UiEventHandler {
 
     #handleContextMenu(selection) {
         let handler = this.contextMenu;
-        for (const menuItem of selection.split('.')) {
+        for (const menuItem of selection) {
             handler = handler[menuItem];
         }
         if (typeof handler != 'function') throw new Error("Bad context menu selection: " + selection);
