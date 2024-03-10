@@ -51,6 +51,13 @@ export class Canvas {
         this.#dirtyHandles.add(guiHandle);
     }
 
+    static repaintImmediately(guiHandle) {
+        if (this.#dirtyHandles.has(guiHandle)) {
+            GuiNodeBuilder.refreshNode(guiHandle);
+            this.#dirtyHandles.delete(guiHandle);
+        }
+    }
+
     static repaint() {
         for (const guiHandle of this.#dirtyHandles.values()) {
             GuiNodeBuilder.refreshNode(guiHandle);
@@ -104,7 +111,7 @@ export class GuiContext {
         if (guiHandle == null) return;
         if (guiHandle instanceof Node) return guiHandle;
 
-        GuiNodeBuilder.refreshNode(guiHandle);
+        Canvas.repaintImmediately(guiHandle);
         return GuiStorage.Get(guiHandle);
     }
 
