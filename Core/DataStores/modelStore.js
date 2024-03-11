@@ -80,4 +80,15 @@ export class ModelStorage extends DataStorage {
             this.Add(modelName, modelData.meshId, modelData.vertexShaderId, modelData.materials);
         }
     }
+
+    static isValid(json) {
+        const k1 = Object.keys(Model.prototype).sort();
+        const k2 = Object.keys(JSON.parse(json)).sort();
+
+        for (let i = 0; i < k1.length; i++) {
+            if (k1[i] != k2[i]) return false;
+        }
+
+        return true;
+    }
 }

@@ -58,6 +58,17 @@ export class MaterialStorage extends DataStorage {
             this.Add(matName, MaterialBuilder.buildFromParams(payload[matName]));
         }
     }
+
+    static isValid(json) {
+        const k1 = Object.keys(Material.prototype).sort();
+        const k2 = Object.keys(JSON.parse(json)).sort();
+
+        for (let i = 0; i < k1.length; i++) {
+            if (k1[i] != k2[i]) return false;
+        }
+
+        return true;
+    }
 }
 
 export class MaterialBuilder {
@@ -146,6 +157,7 @@ export class MaterialBuilder {
     }
 
     static buildFromParams(params) {
+        console.log(params);
         const mb = this.create();
         const builderParams = {
             "shaderId": (shaderId) => { mb.shader(shaderId); },
