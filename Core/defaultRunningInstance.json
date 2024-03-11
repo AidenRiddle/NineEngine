@@ -45,28 +45,28 @@
                 "default_material.mat"
             ],
             "meshId": "default_cube.glb",
-            "vertexShaderId": "defaultVS"
+            "vertexShaderId": "default_vertex_shader.glsl"
         },
         "default_plane.model": {
             "materials": [
                 "default_material.mat"
             ],
             "meshId": "default_plane.glb",
-            "vertexShaderId": "defaultVS"
+            "vertexShaderId": "default_vertex_shader.glsl"
         },
         "default_sphere.model": {
             "materials": [
                 "default_material.mat"
             ],
             "meshId": "default_sphere.glb",
-            "vertexShaderId": "defaultVS"
+            "vertexShaderId": "default_vertex_shader.glsl"
         },
         "jet.model": {
             "materials": [
                 "default_material.mat"
             ],
             "meshId": "jet.glb",
-            "vertexShaderId": "defaultVS"
+            "vertexShaderId": "default_vertex_shader.glsl"
         }
     },
     "name": "The one running instance to rule them all",
