@@ -103,7 +103,7 @@ export const AssetType = {
             || name.endsWith(".webp");
     },
     isScript: function (name) {
-        return name.endsWith(".ts");
+        return name != null && name.endsWith(".ts");
     },
     material: Object.freeze({
         extension: "mat"
