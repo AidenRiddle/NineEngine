@@ -35,11 +35,9 @@ export class SceneStorage extends DataStorage {
     }
 
     static unpack = (payload) => {
-        const promises = []
         for (const sceneName in payload) {
             const assets = SceneUtils.unpack(payload[sceneName].assets);
             this.Add(sceneName, new EditorScene(this.#instance.#ge, assets));
         }
-        return Promise.all(promises);
     }
 }
