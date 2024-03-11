@@ -13,5 +13,7 @@ export class DataStorage {
 
     static pack() { return Object.fromEntries(this.storage); }
 
+    static clear() { this.storage.clear(); }
+
     static debug() { return Object.fromEntries(this.storage); }
 }
