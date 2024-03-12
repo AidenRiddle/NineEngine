@@ -139,7 +139,7 @@ export class NavFS {
                 if (result == null) return Promise.reject(invalidDirectory + path);
             }
             return Promise.resolve();
-        } catch(e) {
+        } catch (e) {
             console.log(this.#root);
             return Promise.reject(invalidDirectory + path);
         }
@@ -174,7 +174,8 @@ export class NavFS {
 
     static async ls(path) {
         const directory = await this.#resolveDir(path);
-        return promiseIteratorToArray(directory.values());
+        console.log("LS'ed:", path);
+        return Array.fromAsync(directory.values());
     }
 
     static async lsdir(path) {
