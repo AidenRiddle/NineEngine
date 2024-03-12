@@ -58,6 +58,7 @@ export class EventController {
     #activeCycles = [];
 
     #setTimeoutWrapper = (delegate) => {
+        if (System.target_background_frame_rate == 0) return 0;
         const backgroundRefreshRate = 1000 / System.target_background_frame_rate;
         return setTimeout(() => {
             delegate(performance.now());
