@@ -330,6 +330,101 @@
                     "Scripts/ifSpinner.ts"
                 ]
             }
+        },
+        "testScene": {
+            "assets": {
+                "cameras": [
+                    {
+                        "far": 1000,
+                        "fov": 70,
+                        "near": 0.01,
+                        "transform": {
+                            "position": {
+                                "x": 0,
+                                "y": 2.5,
+                                "z": 10
+                            },
+                            "rotation": {
+                                "x": 0,
+                                "y": 180,
+                                "z": 0
+                            },
+                            "scale": {
+                                "x": 1,
+                                "y": 1,
+                                "z": 1
+                            }
+                        }
+                    }
+                ],
+                "components": [],
+                "lights": [
+                    {
+                        "depth": 100,
+                        "height": 50,
+                        "intensity": 1.5,
+                        "width": 50,
+                        "xRot": 45,
+                        "yRot": 145
+                    }
+                ],
+                "sceneObjects": [
+                    {
+                        "id": "sw1m",
+                        "modelId": "default_plane.model",
+                        "name": "Plane",
+                        "transform": {
+                            "position": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            },
+                            "rotation": {
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            },
+                            "scale": {
+                                "x": 7,
+                                "y": 7,
+                                "z": 7
+                            }
+                        }
+                    },
+                    {
+                        "id": "p4nz",
+                        "modelId": "jet.model",
+                        "name": "Jet",
+                        "transform": {
+                            "position": {
+                                "x": -7,
+                                "y": 1,
+                                "z": -10
+                            },
+                            "rotation": {
+                                "x": 0,
+                                "y": 45,
+                                "z": 0
+                            },
+                            "scale": {
+                                "x": 1,
+                                "y": 1,
+                                "z": 1
+                            }
+                        }
+                    }
+                ]
+            },
+            "dependencies": {
+                "materials": [
+                    "default_material.mat"
+                ],
+                "models": [
+                    "default_plane.model",
+                    "jet.model"
+                ],
+                "scripts": []
+            }
         }
     }
 }
