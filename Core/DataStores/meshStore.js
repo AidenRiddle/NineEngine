@@ -183,4 +183,9 @@ export class MeshStorage extends DataStorage {
         for (const key of super.keys()) { keys.push(key); }
         return keys;
     }
+
+    static clear() {
+        this.#dataBufferHead = 0;
+        super.clear();
+    }
 }
