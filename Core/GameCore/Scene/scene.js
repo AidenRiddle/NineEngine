@@ -17,9 +17,15 @@ export class Scene {
     }
 
     static changeScene(sceneName) {
-        this.#activeScene = SceneStorage.Get(sceneName);
-        this.#activeSceneName = sceneName;
-        UiManager.syncSceneObjects(this.objectsInScene);
+        const newScene = SceneStorage.Get(sceneName);
+        if (newScene != null) {
+            this.#activeScene = SceneStorage.Get(sceneName);
+            this.#activeSceneName = sceneName;
+            UiManager.syncSceneObjects(this.objectsInScene);
+            this.Start();
+        } else {
+            console.error(`Scene (${sceneName}) not found.`);
+        }
     }
 
     static createNewScene(sceneName) {
