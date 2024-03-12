@@ -194,7 +194,8 @@ export default class Gpu {
 
     #assignShaderUniforms(shader, uniformValueMap) {
         const uniformMap = shader.uniforms;
-        for (const [uniName, uniValue] of Object.entries(uniformValueMap)) {
+        for (const uniName of Object.keys(uniformValueMap)) {
+            const uniValue = uniformValueMap[uniName];
             if (!uniformMap.get(uniName)) throw new Error("Invalid uniform pointer: " + uniName);
             const handler = glUniform[uniformMap.get(uniName).type];
 
