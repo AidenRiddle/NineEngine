@@ -75,7 +75,7 @@ export class $Block extends GuiHandle {
             handle.rebuild();
             this.broadcastSelectEvent(newPath);
         } catch (error) {
-            alert(newPath + " already exists.");
+            alert(`'${newPath}' already exists.`);
         }
 
         // const cargo = { soid: so.id, newName: name };
