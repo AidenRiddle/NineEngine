@@ -204,7 +204,7 @@ export class NavFS {
         return response === "granted" ? Promise.resolve() : Promise.reject(`User denied '${accessMode}' access.`);
     }
 
-    static async ls(path) {
+    static async list(path) {
         const directory = await this.#resolveDir(path);
         const list = await Array.fromAsync(directory.values());
         if (path.startsWith(this.coreName)) list.reverse();
@@ -212,12 +212,12 @@ export class NavFS {
     }
 
     static async lsdir(path) {
-        const arr = await this.ls(path);
+        const arr = await this.list(path);
         return arr.filter(handle => handle.kind == "directory");
     }
 
     static async lsf(path) {
-        const arr = await this.ls(path);
+        const arr = await this.list(path);
         return arr.filter(handle => handle.kind == "file");
     }
 
@@ -330,7 +330,7 @@ export class NavFS {
     static async debug() {
         const recur = async (path) => {
             const res = {};
-            const a = await this.ls(path);
+            const a = await this.list(path);
             for (const b of a) {
                 if (b.kind == "directory") {
                     res[b.name] = await recur(path + "/" + b.name);
