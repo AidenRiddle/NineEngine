@@ -220,6 +220,14 @@ export class NavFS {
         return arr.filter(handle => handle.kind == "file");
     }
 
+    static async makeDirectory(path) {
+        return this.#resolveDir(path, true);
+    }
+
+    static async makeFile(path) {
+        return this.#resolveFile(path, true);
+    }
+
     static async write(path, byteData) {
         const fileHandle = await this.#resolveFile(path);
         return fileHandle.createWritable()
@@ -227,14 +235,6 @@ export class NavFS {
                 .then(() => writableStream.close())
             )
             .then(() => fileHandle.getFile());
-    }
-
-    static async makeDirectory(path) {
-        return this.#resolveDir(path, true);
-    }
-
-    static async makeFile(path) {
-        return this.#resolveFile(path, true);
     }
 
     static async put(path, byteData) {
