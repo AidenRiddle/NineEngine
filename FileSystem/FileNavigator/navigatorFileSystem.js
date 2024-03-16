@@ -243,15 +243,18 @@ export class NavFS {
             .then(() => this.write(path, byteData));
     }
 
-    static async removeFile(path) {
+    static async #removePath(path, recursive = false) {
         const { fileName, dirPath } = this.getFileNameAndPath(path);
         const handle = await this.#resolveDir(dirPath);
-        return handle.removeEntry(fileName);
+        return handle.removeEntry(fileName, { recursive });
+    }
+
+    static async removeFile(path) {
+        return this.#removePath(path, false)
     }
 
     static async removeDirectory(path) {
-        const { fileName, dirPath } = this.getFileNameAndPath(path);
-        return this.#resolveDir(dirPath).then((dir) => dir.removeEntry(fileName, { recursive: true }));
+        return this.#removePath(path, true)
     }
 
     /**
