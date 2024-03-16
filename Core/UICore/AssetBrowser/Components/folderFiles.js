@@ -68,15 +68,15 @@ export class $Block extends GuiHandle {
 
         try {
             await NavFS.moveFile(filePath, newPath);
+
+            thumbnailCache[newPath] = thumbnailCache[filePath];
+            delete thumbnailCache[filePath];
+
+            handle.rebuild();
+            this.broadcastSelectEvent(newPath);
         } catch (error) {
             alert(newPath + " already exists.");
         }
-
-        thumbnailCache[newPath] = thumbnailCache[filePath];
-        delete thumbnailCache[filePath];
-
-        handle.rebuild();
-        this.broadcastSelectEvent(newPath);
 
         // const cargo = { soid: so.id, newName: name };
         // const payload = new Payload(UiEvent.hierarchy_rename_sceneobject, cargo);
