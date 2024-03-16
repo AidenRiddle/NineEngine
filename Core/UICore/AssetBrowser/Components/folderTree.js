@@ -57,13 +57,9 @@ export class $Tree extends GuiHandle {
             moveFileCallBack: moveFileCallBack
         };
 
-        if (entries) {
-            states.value = path.split("/").splice(-1);
-            for (const dirName of entries) {
-                states.subfolders.push(await this.buildTree(gui, path + "/" + dirName.name));
-            }
-        } else {
-            states.value = '.';
+        states.value = path.split("/").splice(-1);
+        for (const dirName of entries) {
+            states.subfolders.push(await this.buildTree(gui, path + "/" + dirName.name));
         }
         return new $Folder(states);
     }
