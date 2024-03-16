@@ -11,6 +11,7 @@ import Gpu from "./Core/GECore/Gpu/gpu.js";
 import TexturePainter from "./Core/GECore/Util/texturePainter.js";
 import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "./Core/GameCore/runningInstance.js";
+import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
 import Resources from "./FileSystem/resources.js";
 import { AppSettings, Stash } from "./settings.js";
 
@@ -59,7 +60,7 @@ class NineEngineConsole {
             }
             return Promise.all(promises);
         }
-        return recur(".NineEngine", fixtures);
+        recur(".NineEngine", fixtures);
     }
 
     shadowBias(min, max) {
@@ -79,7 +80,7 @@ class NineEngineConsole {
             "Gpu:", gpuLog,
             "\n",
             "\nGuiStates:", GuiStateStorage.debug(),
-            "\nGuiNodes:", GuiStorage.debug(),
+            // "\nGuiNodes:", GuiStorage.debug(),
             "\n",
             "\nMaterials:", MaterialStorage.debug(),
             "\nMeshes:", MeshStorage.debug(),
