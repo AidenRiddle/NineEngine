@@ -1,7 +1,7 @@
 import { Address } from "../../FileSystem/address.js";
 import GEInstanceDB from "../../FileSystem/geInstanceDB.js";
 import Resources from "../../FileSystem/resources.js";
-import { Stash } from "../../settings.js";
+import { AssetType, Stash } from "../../settings.js";
 import { MaterialBuilder, MaterialStorage } from "../DataStores/materialStore.js";
 import { MeshStorage } from "../DataStores/meshStore.js";
 import { ModelStorage } from "../DataStores/modelStore.js";
@@ -9,7 +9,9 @@ import { ProgramStorage } from "../DataStores/programStore.js";
 import { SceneStorage } from "../DataStores/sceneStore.js";
 import { ScriptStorage } from "../DataStores/scriptStore.js";
 import { ShaderStorage } from "../DataStores/shaderStore.js";
+import { TextureStorage } from "../DataStores/textureStore.js";
 import { ShaderGenerator } from "../GECore/shader.js";
+import { Scene } from "./Scene/scene.js";
 import SceneUtils from "./Scene/sceneUtils.js";
 
 export class RunningInstance {
@@ -67,41 +69,35 @@ export class RunningInstance {
         return fileMap;
     }
 
+    static #solveResource(path) {
+        return Resources.load(path)
+            .then(() => this.addResource(path, path));
+    }
+
     static #solveMaterialDependencies(materialPackage) {
-        const promises = [];
-        console.log(materialPackage);
-        promises.push(
-            Resources.load(materialPackage.shaderId)
-                .then(() => this.addResource(materialPackage.shaderId, materialPackage.shaderId))
-        );
-        materialPackage.textures.forEach(element => {
-            promises.push(
-                Resources.load(element)
-                    .then(() => this.addResource(element, element))
-            );
-        });
-        //if (Array.isArray(materialPackage.textures)) promises.push(Resources.loadAll(materialPackage.textures));
-        return Promise.all(promises);
+        return this.#solveResource(materialPackage.shaderId)
+            .then(() => Promise.all(materialPackage.textures.map(e => this.#solveResource(e))));
     }
 
     static #solveModelDependencies(modelPackage) {
-        const promises = [];
-        if (!MeshStorage.Exists(modelPackage.meshId)) {
-            promises.push(
-                Resources.load(modelPackage.meshId)
-                    .then(() => this.addResource(modelPackage.meshId, modelPackage.meshId))
-            );
-        }
-        if (Array.isArray(modelPackage.materials)) {
-            for (const matName of modelPackage.materials) {
-                const matAddress = new Address(matName);
-                if (this.#materials[matAddress.internal]) continue;
-                let promise = Resources.fetchAsJson(matAddress.raw, { hardFetch: true })
-                    .then((json) => this.putMaterial(matAddress, json));
-                promises.push(promise);
+        const promises = modelPackage.materials.map((matName) => {
+            const matAddress = new Address(matName);
+            if (this.#materials[matAddress.internal] == null) {
+                return this.putMaterial(matAddress);
             }
-        }
-        return Promise.all(promises);
+        });
+        return this.#solveResource(modelPackage.meshId)
+            .then(() => Promise.all(promises));
+    }
+
+    static #emptyStorages() {
+        MaterialStorage.clear();
+        MeshStorage.clear();
+        ModelStorage.clear();
+        ProgramStorage.clear();
+        ScriptStorage.clear();
+        ShaderStorage.clear();
+        TextureStorage.clear();
     }
 
     static async initialize(idb) {
@@ -109,7 +105,8 @@ export class RunningInstance {
 
         try {
             const { value: lastOpenedInstance } = await this.#idb.get("userConfiguration", "lastOpenedInstance");
-            await this.openSavedInstance(lastOpenedInstance);
+            await this.openSavedInstance(lastOpenedInstance)
+                .catch((e) => console.error(e));
         } catch (e) {
             console.log("No running instance found.");
             const name = "The one running instance to rule them all";
@@ -132,25 +129,28 @@ export class RunningInstance {
         const jsonFile = await this.#idb.get("runningInstances", name);
 
         console.groupCollapsed(`Opening Instance (${name}). Unpacking ...`);
+
         const jsonString = await jsonFile.text();
         this.#from(JSON.parse(jsonString));
-        await Resources.loadAll(this.#getListOfDependencies(this.#activeScene), { hardFetch: true });
-        await this.#idb.store("userConfiguration", { name: "lastOpenedInstance", value: name })
+        await this.#idb.store("userConfiguration", { name: "lastOpenedInstance", value: name });
+        await this.openScene(this.#activeScene);
+
         console.groupEnd();
+    }
+
+    static async openScene(sceneName) {
+        this.#emptyStorages();
+        const dependencies = this.#getListOfDependencies(sceneName);
+        await Resources.loadAll(dependencies, { hardFetch: true });
 
         const defaultVS = ShaderGenerator.vertex().useLightDirectional().generate();
-        ShaderStorage.Add("defaultVS", false, defaultVS);
+        ShaderStorage.Add("default_vertex_shader.glsl", false, defaultVS);
 
-        const sceneName = this.#activeScene;
+        const requiredMaterials = Array.from(this.#scenes[sceneName].dependencies.materials)
+            .reduce((map, matName) => map.set(matName, this.#materials[matName]), new Map());
+
         const requiredPrograms = new Map();
-        const requiredMaterials = new Map();
         const requiredModels = new Map();
-        const requiredScenes = new Map();
-
-        for (const matName of this.#scenes[sceneName].dependencies.materials) {
-            requiredMaterials.set(matName, this.#materials[matName]);
-        }
-
         for (const modelName of this.#scenes[sceneName].dependencies.models) {
             const model = this.#models[modelName];
             requiredModels.set(modelName, model);
@@ -161,16 +161,13 @@ export class RunningInstance {
             }
         }
 
-        for (const [sceneName, scene] of Object.entries(this.#scenes)) {
-            requiredScenes.set(sceneName, scene);
-        }
+        MaterialStorage.unpack(Object.fromEntries(requiredMaterials));
+        ModelStorage.unpack(Object.fromEntries(requiredModels));
+        ProgramStorage.unpack(Object.fromEntries(requiredPrograms));
 
-        return Promise.all([
-            MaterialStorage.unpack(Object.fromEntries(requiredMaterials)),
-            ModelStorage.unpack(Object.fromEntries(requiredModels)),
-            ProgramStorage.unpack(Object.fromEntries(requiredPrograms)),
-            SceneStorage.unpack(Object.fromEntries(requiredScenes)),
-        ])
+        this.#activeScene = sceneName;
+        SceneStorage.unpack({ [this.#activeScene]: this.#scenes[this.#activeScene] });
+        Scene.changeScene(sceneName);
     }
 
     static getUrlOf(localPath) {
@@ -180,7 +177,7 @@ export class RunningInstance {
     static getScriptDependencies() {
         const fileMap = new Map();
         for (const [fileRelativePath, fetchPath] of this.#core.entries()) {
-            if (!fileRelativePath.endsWith(".ts")) continue;
+            if (!AssetType.isScript(fileRelativePath)) continue;
             fileMap.set(fileRelativePath, fetchPath);
         }
         for (const scriptFileName of this.#scenes[this.#activeScene].dependencies.scripts) {
@@ -200,21 +197,27 @@ export class RunningInstance {
     //
     //  Material functions
     //
-    static putMaterial(materialAddress, materialProperties) {
-        return this.#solveMaterialDependencies(materialProperties)
-            .then(() => {
-                const materialName = materialAddress.internal;
-                const mat = MaterialBuilder.buildFromParams(materialProperties);
-                MaterialStorage.Add(materialName, mat);
+    /** @param {Address} materialAddress */
+    static async putMaterial(materialAddress) {
+        const materialProperties = await Resources.fetchAsJson(materialAddress.raw, { hardFetch: true });
+        await this.#solveMaterialDependencies(materialProperties);
 
-                if (this.#materials[materialName] == null) this.#materials[materialName] = {};
-                this.#materials[materialName].shaderId = mat.shaderId;
-                this.#materials[materialName].uniformValueMap = mat.uniformValueMap;
-                this.#materials[materialName].textures = mat.textures;
+        const materialName = materialAddress.internal;
+        const mat = MaterialBuilder.buildFromParams(materialProperties);
+        MaterialStorage.Add(materialName, mat);
 
-                this.#scenes[this.#activeScene].dependencies.materials.add(materialName);
-                return this.saveAssets().then(() => this.#materials[materialName]);
-            });
+        Object.assign(this.#materials, {
+            [materialName]: {
+                shaderId: mat.shaderId,
+                uniformValueMap: mat.uniformValueMap,
+                textures: mat.textures,
+            }
+        });
+
+        this.#scenes[this.#activeScene].dependencies.materials.add(materialName);
+        await this.saveAssets();
+
+        return this.#materials[materialName];
     }
 
     static deleteMaterial(materialName) {
@@ -224,28 +227,31 @@ export class RunningInstance {
     //
     //  Model functions
     //
-    static putModel(modelAddress, modelProperties) {
-        return this.#solveModelDependencies(modelProperties)
-            .then(() => {
-                const modelName = modelAddress.internal;
-                ModelStorage.Add(modelName, modelProperties.meshId, modelProperties.vertexShaderId, modelProperties.materials);
+    static async putModel(modelAddress) {
+        const modelProperties = await Resources.fetchAsJson(materialAddress.raw, { hardFetch: true });
+        await this.#solveModelDependencies(modelProperties);
 
-                const model = ModelStorage.Get(modelName);
-                const vsId = model.vertexShaderId;
+        const modelName = modelAddress.internal;
+        ModelStorage.Add(modelName, modelProperties.meshId, modelProperties.vertexShaderId, modelProperties.materials);
 
-                for (const materialName of model.materials) {
-                    const material = MaterialStorage.Get(materialName);
-                    ProgramStorage.Add(vsId, material.shaderId);
-                }
+        const model = ModelStorage.Get(modelName);
+        for (const materialName of model.materials) {
+            const material = MaterialStorage.Get(materialName);
+            ProgramStorage.Add(model.vertexShaderId, material.shaderId);
+        }
 
-                if (this.#models[modelName] == null) this.#models[modelName] = {};
-                this.#models[modelName].vertexShaderId = vsId;
-                this.#models[modelName].meshId = model.meshId;
-                this.#models[modelName].materials = model.materials;
+        Object.assign(this.#models, {
+            [modelName]: {
+                vertexShaderId: model.vertexShaderId,
+                meshId: model.meshId,
+                materials: model.materials,
+            }
+        });
 
-                this.#scenes[this.#activeScene].dependencies.models.add(modelName);
-                return this.saveAssets().then(() => this.#models[modelName]);
-            });
+        this.#scenes[this.#activeScene].dependencies.models.add(modelName);
+        await this.saveAssets()
+
+        return this.#models[modelName];
     }
 
     static deleteModel(modelName) {
@@ -289,6 +295,10 @@ export class RunningInstance {
     static updateScene(sceneName, sceneProperties) {
         if (!this.#scenes[sceneName]) throw new Error("Scene (" + sceneName + ") does not exist.");
         this.#scenes[sceneName].assets = sceneProperties;
+    }
+
+    static putScene(sceneName, sceneProperties) {
+        this.#scenes[sceneName] = sceneProperties;
     }
 
     static deleteScene(sceneName) {

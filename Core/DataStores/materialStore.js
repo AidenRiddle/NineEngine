@@ -157,7 +157,6 @@ export class MaterialBuilder {
     }
 
     static buildFromParams(params) {
-        console.log(params);
         const mb = this.create();
         const builderParams = {
             "shaderId": (shaderId) => { mb.shader(shaderId); },
