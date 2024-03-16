@@ -4,8 +4,10 @@ import { SceneStorage } from "../../DataStores/sceneStore.js";
 import UiManager from "../../UICore/uiManager.js";
 import { InputManager } from "../Input/input.js";
 import SceneObject from "../sceneObject.js";
+import EditorScene from "./editorScene.js";
 
 export class Scene {
+    /** @type {EditorScene} */ static #activeEditorScene;
     static #activeScene;
     static #activeSceneName;
 
@@ -19,7 +21,8 @@ export class Scene {
     static changeScene(sceneName) {
         const newScene = SceneStorage.Get(sceneName);
         if (newScene != null) {
-            this.#activeScene = SceneStorage.Get(sceneName);
+            this.#activeEditorScene = newScene;
+            this.#activeScene = this.#activeEditorScene;
             this.#activeSceneName = sceneName;
             UiManager.syncSceneObjects(this.objectsInScene);
             this.Start();
@@ -72,43 +75,40 @@ export class Scene {
 
     static Draw() { this.#activeScene.Draw(); }
 
-    static Play() {
+    static async Play() {
         console.groupCollapsed("Build Log");
         const startTime = ~~performance.now();
 
-        const devScene = this.#activeScene;
-        this.Stop = function () {
-            console.log("Exiting Play Mode.", devScene);
-            this.#activeScene.Stop();
+        this.Stop = this.StopAfterPlay;
+        this.#activeScene = await this.#activeEditorScene.PackAndPlay();
+        console.groupEnd();
+        console.log("Build Finished in " + (~~performance.now() - startTime) + "ms. Entering Play Mode.", this.#activeScene);
 
-            InputManager.enableState(System.input_state_editor);
-            InputManager.disableState(System.input_state_runtime);
-            InputManager.getState(System.input_state_runtime).resetMap();
-            InputManager.freeCursor();
+        InputManager.disableState(System.input_state_editor);
+        InputManager.enableState(System.input_state_runtime);
+        InputManager.getState(System.input_state_runtime).onPress('o', () => { this.Stop(); });
 
-            this.#activeScene = devScene;
+        try {
             this.#activeScene.Start();
-            this.Stop = function () { console.error("Active Scene is not in Play Mode"); }
-        };
-        this.#activeScene.PackAndPlay()
-            .then((playScene) => {
-                console.groupEnd();
-                console.log("Build Finished in " + (~~performance.now() - startTime) + "ms. Entering Play Mode.", playScene);
-
-                InputManager.disableState(System.input_state_editor);
-                InputManager.enableState(System.input_state_runtime);
-                InputManager.getState(System.input_state_runtime).onPress('o', () => { this.Stop(); });
-
-                this.#activeScene = playScene;
-                try {
-                    this.#activeScene.Start();
-                } catch (e) {
-                    console.error(e);
-                    console.error("ABORTING. Exiting Play Mode.")
-                    this.Stop();
-                }
-            })
+        } catch (e) {
+            console.error(e);
+            console.error("ABORTING. Exiting Play Mode.")
+            this.Stop();
+        }
     }
 
     static Stop() { console.error("Active Scene is not in Play Mode"); }
+    static StopAfterPlay() {
+        console.log("Exiting Play Mode.", this.#activeScene);
+        this.#activeScene.Stop();
+
+        InputManager.enableState(System.input_state_editor);
+        InputManager.disableState(System.input_state_runtime);
+        InputManager.getState(System.input_state_runtime).resetMap();
+        InputManager.freeCursor();
+
+        this.#activeScene = this.#activeEditorScene;
+        this.#activeEditorScene.Start();
+        this.Stop = function () { console.error("Active Scene is not in Play Mode"); }
+    }
 }
