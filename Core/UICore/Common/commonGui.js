@@ -4,6 +4,8 @@ let tabIndexCounter = -1;
 const showSubfolderByDefault = true;
 const downArrow = "/Core/UICore/AssetBrowser/Icons/211687_down_arrow_icon.png";
 
+function preventDefault(e) { e.preventDefault(); }
+
 export class $ArrowExpand extends GuiHandle {
     /**
      * @param {GuiContext} gui 
@@ -114,13 +116,11 @@ export class $DragReceiver extends GuiHandle {
         const onFileDrop = gui.state("onFileDrop");
         const onItemDrop = gui.state("onItemDrop");
 
-        root.ondragenter = (e) => e.preventDefault();
-        root.ondragover = (e) => e.preventDefault();
-        root.ondrop = (e) => {
-            e.preventDefault();
-            if (onFileDrop != null) onFileDrop(e.dataTransfer.files);
-            if (onItemDrop != null) onItemDrop(e.dataTransfer);
-        }
+        root.addEventListener("dragenter", preventDefault);
+        root.addEventListener("dragover", preventDefault);
+        root.addEventListener("drop", preventDefault);
+        if (onFileDrop != null) root.addEventListener("drop", (e) => { onFileDrop(e.dataTransfer.files) });
+        if (onItemDrop != null) root.addEventListener("drop", (e) => { onItemDrop(e.dataTransfer) });
     }
 }
 
