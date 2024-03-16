@@ -275,35 +275,29 @@ export class NavFS {
         }
     }
 
+    static async #throwIfFileExists(targetPath) {
+        if (await this.fileExists(targetPath)) {
+            throw new Error("A file already exists at the target destination:", targetPath);
+        }
+    }
+
     /** @param {File} file */
     static async copyFile(file, targetPath) {
-        const targetExists = await this.fileExists(targetPath);
-        if (targetExists) {
-            console.error("A file already exists at the target destination:", targetPath);
-            return;
-        }
+        this.#throwIfFileExists(targetPath);
 
         const srcData = await file.arrayBuffer();
         return this.put(targetPath, srcData);
     }
 
     static async copyFileFromPath(srcPath, targetPath) {
-        const targetExists = await this.fileExists(targetPath);
-        if (targetExists) {
-            console.error("A file already exists at the target destination:\nSource:", srcPath, "\nTarget:", targetPath);
-            return;
-        }
+        this.#throwIfFileExists(targetPath);
 
         const srcData = await this.readFileAsByteArray(srcPath);
         return this.put(targetPath, srcData);
     }
 
     static async moveFile(srcPath, targetPath) {
-        const targetExists = await this.fileExists(targetPath);
-        if (targetExists) {
-            console.error("A file already exists at the target destination:\nSource:", originalPath, "\nTarget:", targetPath);
-            return;
-        }
+        this.#throwIfFileExists(targetPath);
         return this.copyFileFromPath(srcPath, targetPath).then(() => this.removeFile(srcPath));
     }
 
