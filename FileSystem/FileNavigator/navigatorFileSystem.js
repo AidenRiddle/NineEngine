@@ -5,27 +5,6 @@ import GEInstanceDB from "../geInstanceDB.js";
 const idb = new GEInstanceDB();
 await idb.getInstance("geInstanceDB");
 
-async function runFixtures() {
-    const fixtures = await fetch(Stash.fixtures).then((response) => response.json());
-
-    function recur(path, dir) {
-        const promises = [];
-        for (const [key, value] of Object.entries(dir)) {
-            const newPath = path + "/" + key;
-            if (typeof value == 'object') {
-                promises.push(NavFS.makeDirectory(newPath).then(() => recur(newPath, value)));
-            } else {
-                let data;
-                try { data = atob(value); }     // Depending on file format (.jpg, .glb, etc), file data could be Base64 encoded
-                catch (e) { data = value; }     // If not, write the data as is.
-                promises.push(NavFS.put(newPath, data));
-            }
-        }
-        return Promise.all(promises);
-    }
-    return recur(".", fixtures);
-}
-
 export class NavFS {
     /** @type {FileSystemDirectoryHandle} */
     static #root;
@@ -65,6 +44,46 @@ export class NavFS {
         return await dir.getFileHandle(fileName, { create });
     }
 
+    static getFileExtension(file) { return file.name.substring(file.name.lastIndexOf('.')); }
+    static getFileNameFromPath(path) { return path.substring(path.lastIndexOf('/') + 1); }
+    static getFileNameAndPath(path) {
+        path = Address.asFilePath(path);
+        const fileNameStartIndex = path.lastIndexOf("/");
+        return {
+            fileName: path.substring(fileNameStartIndex + 1),
+            dirPath: path.substring(0, fileNameStartIndex)
+        }
+    }
+
+    static async getRoot() {
+        if (this.#root == null) {
+            this.#root = await idb.get("userConfiguration", "projectRoot")
+                .then((obj) => obj.dirHandle)
+                .catch(e => null);
+        }
+        return this.#root;
+    }
+
+    static async hasRoot() {
+        return await this.getRoot() != null;
+    }
+
+    static async verifyFolderAccess(handle) {
+        if (handle.name == '') {
+            console.error("User has not specified a project folder.");
+            return false;
+        }
+
+        const opts = { mode: "readwrite" };
+        const permission = await handle.queryPermission(opts);
+
+        if (permission != "granted") {
+            console.log(`(${handle.name}) permission:`, permission);
+            return false;
+        }
+        return true;
+    }
+
     static async #verifyFolderIsValid(path, stashHref) {
         const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
         const fixtures = await fetch(stashHref).then((response) => response.json());
@@ -84,46 +103,6 @@ export class NavFS {
             console.error(invalidDirectory + path);
             return false;
         }
-    }
-
-    static getFileExtension(file) { return file.name.substring(file.name.lastIndexOf('.')); }
-    static getFileNameFromPath(path) { return path.substring(path.lastIndexOf('/') + 1); }
-    static getFileNameAndPath(path) {
-        path = Address.asFilePath(path);
-        const fileNameStartIndex = path.lastIndexOf("/");
-        return {
-            fileName: path.substring(fileNameStartIndex + 1),
-            dirPath: path.substring(0, fileNameStartIndex)
-        }
-    }
-
-    static async hasRoot() {
-        return await this.getRoot() != null;
-    }
-
-    static async getRoot() {
-        if (this.#root == null) {
-            this.#root = await idb.get("userConfiguration", "projectRoot")
-                .then((obj) => obj.dirHandle)
-                .catch(e => null);
-        }
-        return this.#root;
-    }
-
-    static async verifyFolderAccess(handle) {
-        if (handle.name == '') {
-            console.error("User has not specified a project folder.");
-            return false;
-        }
-
-        const opts = { mode: "readwrite" };
-        const permission = await handle.queryPermission(opts);
-
-        if (permission != "granted") {
-            console.log(`(${handle.name}) permission:`, permission);
-            return false;
-        }
-        return true;
     }
 
     static async verifyRootFolderIsValid() {
@@ -161,6 +140,36 @@ export class NavFS {
             && await this.verifyRootFolderIsValid();
     }
 
+    static async #runFixtures() {
+        const fixtures = await fetch(Stash.fixtures).then((response) => response.json());
+
+        function recur(path, dir) {
+            const promises = [];
+            for (const [key, value] of Object.entries(dir)) {
+                const newPath = path + "/" + key;
+                if (typeof value == 'object') {
+                    promises.push(NavFS.makeDirectory(newPath).then(() => recur(newPath, value)));
+                } else {
+                    let data;
+                    try { data = atob(value); }     // Depending on file format (.jpg, .glb, etc), file data could be Base64 encoded
+                    catch (e) { data = value; }     // If not, write the data as is.
+                    promises.push(NavFS.put(newPath, data));
+                }
+            }
+            return Promise.all(promises);
+        }
+        return recur(".", fixtures);
+    }
+
+    /**
+     * @param {FileSystemDirectoryHandle} dirHandle
+     * @param {"read" | "readwrite"} accessMode
+     */
+    static async requestFolderAccess(dirHandle, accessMode) {
+        const response = await dirHandle.requestPermission({ mode: accessMode });
+        if (response !== "granted") throw new Error(`User denied '${accessMode}' access.`);
+    }
+
     static async getDirectoryAccess() {
         try {
             const { dirHandle } = await idb.get("userConfiguration", "projectRoot").catch(e => { alert("You have not specified a project folder."); throw e; });
@@ -169,7 +178,7 @@ export class NavFS {
             const rootFolderIsValid = await this.verifyRootFolderIsValid();
             if (!rootFolderIsValid) {
                 const useFixtures = confirm("Project folder is invalid. Would you like to repair it?");
-                if (useFixtures) await runFixtures();
+                if (useFixtures) await this.#runFixtures();
                 else throw new Error("Provided root folder is invalid");
             }
         } catch (e) {
@@ -192,15 +201,6 @@ export class NavFS {
                 idb.store("userConfiguration", originalDirectory);
                 throw e;
             });
-    }
-
-    /**
-     * @param {FileSystemDirectoryHandle} dirHandle
-     * @param {"read" | "readwrite"} accessMode
-     */
-    static async requestFolderAccess(dirHandle, accessMode) {
-        const response = await dirHandle.requestPermission({ mode: accessMode });
-        if (response !== "granted") throw new Error(`User denied '${accessMode}' access.`);
     }
 
     static async list(path) {
