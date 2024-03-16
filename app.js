@@ -26,6 +26,9 @@ import { UiWindow } from "./Core/UICore/uiConfiguration.js";
 import UiManager from "./Core/UICore/uiManager.js";
 import { EventController } from "./eventController.js";
 import { AppSettings, System } from "./settings.js";
+import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
+import { WorkerManager } from "./Core/Worker/workerManager.js";
+import { JobBuilder } from "./Core/Worker/job.js";
 
 class Main {
     /** @type {HTMLCanvasElement} */
@@ -72,8 +75,7 @@ class Main {
 
     #loadFromRunningInstance() {
         return RunningInstance.initialize(this.#geInstanceDB)
-            .then(() => { Scene.changeScene(RunningInstance.activeScene); })
-            .finally(() => { console.log("Successfully unpacked running instance ..."); })
+            .then(() => { console.log("Successfully unpacked running instance ..."); })
 
     }
 
@@ -163,11 +165,14 @@ class Main {
         // window.open('debug.html', "tab", "popup");
         Debug.ToggleDebugMode();
 
-        await this.#loadUi()
-            .then(() => this.#loadModules())
-            .then(() => this.#loadFromRunningInstance());
+        await this.#loadUi();
+        await this.#loadModules();
+        defaultInputScheme();
+        runtimeInputScheme();
+        await this.#loadFromRunningInstance();
 
         const asyncInitialize = Promise.all([
+            NavFS.getRoot()
             // ScriptManager.PreCompileOnly(),
         ]);
 
@@ -176,10 +181,7 @@ class Main {
         // model.setMeshId("3DModels/vanguard.glb");
         // model.setMaterials(["Vanguard"]);
 
-        defaultInputScheme();
-        runtimeInputScheme();
 
-        Scene.Start();
         this.#resizeView();
 
         const eventController = new EventController();
