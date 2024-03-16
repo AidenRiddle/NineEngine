@@ -115,7 +115,7 @@ export default class UiManager {
             this.#handler[UiEvent.hierarchy_select](this.#activeSceneObject.id);
         },
         [UiEvent.assetBrowser_select_assetFile]: (cargo) => {
-            const out = { type: "assetFile", target: cargo };
+            const out = { type: "assetFile", target: Address.asFilePath(cargo) };
             const payload = new Payload(
                 UiEvent.inspector_display_properties,
                 out
