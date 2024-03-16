@@ -206,7 +206,9 @@ export class NavFS {
 
     static async ls(path) {
         const directory = await this.#resolveDir(path);
-        return Array.fromAsync(directory.values());
+        const list = await Array.fromAsync(directory.values());
+        if (path.startsWith(this.coreName)) list.reverse();
+        return list;
     }
 
     static async lsdir(path) {
