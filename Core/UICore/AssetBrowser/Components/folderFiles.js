@@ -117,11 +117,19 @@ export class $Block extends GuiHandle {
                 thumbnail = thumbnailCache._default.default_script;
             }
 
+            let dblClick = async () => { this.renameFile(path, handle, fileHandle, thumbnailCache); };
+            if (AssetType.isScene(fileExtension)) {
+                dblClick = () => {
+                    const payload = new Payload(UiEvent.assetBrowser_select_scene, filePath);
+                    parent.postMessage(payload);
+                }
+            }
+
             const block = new $File({
                 value: fileHandle.name,
                 thumbnailUrl: thumbnail,
                 onclick: () => this.broadcastSelectEvent(filePath),
-                ondblclick: async () => { this.renameFile(path, handle, fileHandle, thumbnailCache); },
+                ondblclick: dblClick,
                 onDelete: () => { this.deleteFile(filePath, handle); },
                 dragData: { "assetFilePath": filePath }
             });

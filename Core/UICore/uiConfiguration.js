@@ -31,6 +31,7 @@ export const UiEvent = {
     inspector_add_script: 0,
 
     assetBrowser_select_assetFile: 0,
+    assetBrowser_select_scene: 0,
     assetBrowser_refresh: 0,
 
     menuBar_compile: 0,

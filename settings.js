@@ -106,6 +106,9 @@ export const AssetType = {
     isScript: function (name) {
         return name != null && name.endsWith(".ts");
     },
+    isScene: function (name) {
+        return name != null && name.endsWith(".scene");
+    },
     material: Object.freeze({
         extension: "mat"
     }),

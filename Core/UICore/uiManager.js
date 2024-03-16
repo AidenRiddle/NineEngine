@@ -2,6 +2,7 @@ import { NavFS } from "../../FileSystem/FileNavigator/navigatorFileSystem.js";
 import { Address } from "../../FileSystem/address.js";
 import Resources from "../../FileSystem/resources.js";
 import { AssetType, DebugToggle, System } from "../../settings.js";
+import { MaterialStorage } from "../DataStores/materialStore.js";
 import { ModelStorage } from "../DataStores/modelStore.js";
 import { ScriptStorage } from "../DataStores/scriptStore.js";
 import { Scene } from "../GameCore/Scene/scene.js";
@@ -121,6 +122,12 @@ export default class UiManager {
                 out
             )
             this.sendMessage(UiWindow.Inspector, payload);
+        },
+        [UiEvent.assetBrowser_select_scene]: async (cargo) => {
+            const sceneData = await NavFS.readFileAsText(cargo);
+            const sceneAddress = new Address(cargo);
+            RunningInstance.putScene(sceneAddress.internal, JSON.parse(sceneData));
+            RunningInstance.openScene(sceneAddress.internal);
         },
         [UiEvent.assetBrowser_refresh]: (cargo) => {
             const payload = new Payload(UiEvent.assetBrowser_refresh, null);
