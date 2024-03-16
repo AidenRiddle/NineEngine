@@ -299,6 +299,11 @@ export class NavFS {
     }
 
     static async moveFile(srcPath, targetPath) {
+        const targetExists = await this.fileExists(targetPath);
+        if (targetExists) {
+            console.error("A file already exists at the target destination:\nSource:", originalPath, "\nTarget:", targetPath);
+            return;
+        }
         return this.copyFileFromPath(srcPath, targetPath).then(() => this.removeFile(srcPath));
     }
 
