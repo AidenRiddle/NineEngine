@@ -30,8 +30,9 @@ export class $Tree extends GuiHandle {
             button.innerText = "Give Access";
             button.onclick = (e) => {
                 NavFS.getDirectoryAccess()
-                    .then(() => handle.set("fsReady", true))
-                    .catch((msg) => console.error("User denied Read/Write access.", msg))
+                    .then(() => NavFS.isReady())
+                    .then((isReady) => handle.set("fsReady", isReady))
+                    .catch((msg) => console.error(msg))
             }
         })
         root.append(p, button);

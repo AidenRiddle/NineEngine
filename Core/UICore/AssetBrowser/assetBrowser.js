@@ -17,7 +17,7 @@ const thumbnailCache = {
     }
 };
 
-const rootFolderIsAccessible = await NavFS.isReady();
+let rootFolderIsAccessible = await NavFS.isReady();
 const guiBlock = new $Block({ thumbnailCache });
 const guiTree = new $Tree({ fsReady: rootFolderIsAccessible, block: guiBlock });
 
@@ -25,7 +25,14 @@ Canvas.addToHUD(guiTree);
 Canvas.addToHUD(guiBlock);
 
 const handler = {
-    [UiEvent.assetBrowser_refresh]: guiTree.rebuild,
+    [UiEvent.assetBrowser_refresh]: async () => {
+        if (!rootFolderIsAccessible) {
+            rootFolderIsAccessible = await NavFS.isReady();
+            guiTree.set("fsReady", rootFolderIsAccessible);
+        } else {
+            guiTree.rebuild();
+        }
+    },
     [UiEvent.global_visibility_change]: guiTree.rebuild,
 }
 
