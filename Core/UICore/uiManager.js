@@ -65,26 +65,24 @@ export default class UiManager {
             Scene.DeleteWithChildren(cargo)
             this.syncSceneObjects(Scene.objectsInScene);
         },
-        [UiEvent.inspector_assetFile_update]: (cargo) => {
+        [UiEvent.inspector_assetFile_update]: async (cargo) => {
             const assetAddress = new Address(cargo.assetName);
             const data = JSON.parse(cargo.content);
-            let promiseChain;
-            if (AssetType.isMaterial(assetAddress.internal)) {
-                promiseChain = RunningInstance.putMaterial(assetAddress, data);
+            if (AssetType.isMaterial(assetAddress.internal) && MaterialStorage.isValid(data)) {
+                await NavFS.write(assetAddress.filePath, JSON.stringify(assetContent));
+                await RunningInstance.putMaterial(assetAddress, data);
+            } else if (AssetType.isModel(assetAddress.internal) && ModelStorage.isValid(data)) {
+                await NavFS.write(assetAddress.filePath, JSON.stringify(assetContent));
+                await RunningInstance.putModel(assetAddress, data);
+            } else {
+                console.error(`Unhandled asset type (${cargo.assetName}):`, data);
+                throw new Error("Invalid model data.");
             }
-            if (AssetType.isModel(assetAddress.internal)) {
-                promiseChain = RunningInstance.putModel(assetAddress, data);
-            }
-            promiseChain
-                .then((assetContent) => NavFS.write(assetAddress.filePath, JSON.stringify(assetContent)))
-                .then(() => {
-                    const payload = new Payload(
-                        UiEvent.assetBrowser_select_assetFile,
-                        cargo.assetName
-                    );
-                    this.sendMessage(UiWindow.Inspector, payload);
-                })
-            // .catch((e) => console.error("Failed to update asset (", cargo.assetName, ").", e));
+            const payload = new Payload(
+                UiEvent.assetBrowser_select_assetFile,
+                cargo.assetName
+            );
+            this.sendMessage(UiWindow.Inspector, payload);
         },
         [UiEvent.inspector_transform_change]: (cargo) => {
             const newPos = cargo.pos;
