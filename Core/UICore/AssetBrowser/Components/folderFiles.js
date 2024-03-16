@@ -67,13 +67,10 @@ export class $Block extends GuiHandle {
         const newPath = path + '/' + name;
 
         try {
-            await NavFS.getFile(newPath);
+            await NavFS.moveFile(filePath, newPath);
+        } catch (error) {
             alert(newPath + " already exists.");
-            return;
-        } catch (e) { }
-
-        await NavFS.copyFileFromPath(filePath, newPath);
-        await NavFS.removeFile(filePath);
+        }
 
         thumbnailCache[newPath] = thumbnailCache[filePath];
         delete thumbnailCache[filePath];
