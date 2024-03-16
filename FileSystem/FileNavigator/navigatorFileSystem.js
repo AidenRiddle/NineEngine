@@ -263,29 +263,36 @@ export class NavFS {
         return fileHandle.getFile();
     }
 
-    static async copyFile(file, targetPath) {
+    static async fileExists(path) {
         try {
-            await this.#resolveFile(targetPath);
-            console.error("A file already exists at the target destination:\nSource:", srcPath, "\nTarget:", targetPath);
-            return;
-        } catch (e) {
-            const fileReader = new FileReader();
-            return new Promise((resolve) => {
-                fileReader.onloadend = (e) => { resolve(e.target.result); }
-                fileReader.readAsArrayBuffer(file);
-            }).then((srcData) => this.put(targetPath, srcData));
+            await this.#resolveFile(path);
+            return true;
+        } catch (error) {
+            return false;
         }
     }
 
+    /** @param {File} file */
+    static async copyFile(file, targetPath) {
+        const targetExists = await this.fileExists(targetPath);
+        if (targetExists) {
+            console.error("A file already exists at the target destination:", targetPath);
+            return;
+        }
+
+        const srcData = await file.arrayBuffer();
+        return this.put(targetPath, srcData);
+    }
+
     static async copyFileFromPath(srcPath, targetPath) {
-        try {
-            await this.#resolveFile(targetPath);
+        const targetExists = await this.fileExists(targetPath);
+        if (targetExists) {
             console.error("A file already exists at the target destination:\nSource:", srcPath, "\nTarget:", targetPath);
             return;
-        } catch (e) {
-            const srcData = await this.readFileAsByteArray(srcPath);
-            return this.put(targetPath, srcData);
         }
+
+        const srcData = await this.readFileAsByteArray(srcPath);
+        return this.put(targetPath, srcData);
     }
 
     static async moveFile(srcPath, targetPath) {
@@ -295,8 +302,9 @@ export class NavFS {
     static async #readFileAs(path, method) {
         const fileReader = new FileReader();
         const file = await this.getFile(path);
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             fileReader.onloadend = (e) => { resolve(e.target.result); }
+            fileReader.onerror = reject;
             fileReader[method](file);
         });
     }
