@@ -9,6 +9,7 @@ import { ShaderStorage } from "./Core/DataStores/shaderStore.js";
 import { TextureStorage } from "./Core/DataStores/textureStore.js";
 import Gpu from "./Core/GECore/Gpu/gpu.js";
 import TexturePainter from "./Core/GECore/Util/texturePainter.js";
+import { Scene } from "./Core/GameCore/Scene/scene.js";
 import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 import { RunningInstance } from "./Core/GameCore/runningInstance.js";
 import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
