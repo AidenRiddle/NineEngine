@@ -296,7 +296,8 @@ export class NavFS {
     }
 
     static async moveFile(srcPath, targetPath) {
-        return this.copyFileFromPath(srcPath, targetPath).then(() => this.removeFile(srcPath));
+        await this.copyFileFromPath(srcPath, targetPath);
+        await this.removeFile(srcPath);
     }
 
     static async #readFileAs(path, method) {
