@@ -44,10 +44,11 @@ export const System = Object.freeze({
     camera_zoom_step: 5,
 
     // https://www.w3schools.com/cssref/css_colors.php
-    dev_console_message_prefix: ["%c[Dev]", "color: BlueViolet"],
-    debug_message_prefix: ["%c[Debug]", "color: LimeGreen"],
-    ui_message_prefix: ["%c[UI]", "color: LightSkyBlue"],
-    input_message_prefix: ["%c[INPUT]", "color: LightSeaGreen"],
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
+    dev_console_message_prefix: ["%c[Dev]", "color: azure"],
+    debug_message_prefix: ["%c[Debug]", "color: lime"],
+    ui_message_prefix: ["%c[UI]", "color: aqua"],
+    input_message_prefix: ["%c[INPUT]", "color: lightseagreen"],
 
     input_state_editor: "The One State To Rule Them All",
     input_state_runtime: "Runtime Input State",
