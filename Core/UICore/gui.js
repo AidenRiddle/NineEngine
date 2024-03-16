@@ -14,20 +14,23 @@ class GuiNodeBuilder {
         const gui = new GuiContext(guiHandle, abortController);
         const liveElement = GuiStorage.Get(guiHandle);
 
-        abortController.signal.addEventListener("abort", () => {
-            console.log(`GuiNode (${guiHandle.constructor.name}) Build aborted.`);
-            if (!liveElement.isConnected) {
+        new Promise(async (resolve, reject) => {
+            abortController.signal.addEventListener("abort", reject, { once: true });
+            GuiStorage.Add(guiHandle, liveElement.cloneNode());
+            await guiHandle.constructor.builder(gui, GuiStorage.Get(guiHandle), guiHandle);
+            resolve();
+        })
+            .then(() => {
+                if (abortController.signal.aborted) {
+                    console.error("Gui aborted but promise still resolved:", guiHandle.constructor.name);
+                }
+                liveElement.replaceWith(GuiStorage.Get(guiHandle));
+            })
+            .catch((e) => {
+                console.log(`GuiNode (${guiHandle.constructor.name}) Build aborted.`, liveElement);
                 GuiStorage.Get(guiHandle).replaceWith(liveElement);
-            }
-            GuiStorage.Add(guiHandle, liveElement);
-        }, { once: true });
-
-        GuiStorage.Add(guiHandle, liveElement.cloneNode());
-        guiHandle.constructor.builder(gui, GuiStorage.Get(guiHandle), guiHandle);
-
-        if (!abortController.signal.aborted) {
-            liveElement.replaceWith(GuiStorage.Get(guiHandle));
-        }
+                GuiStorage.Add(guiHandle, liveElement);
+            });
     }
 }
 

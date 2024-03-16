@@ -24,16 +24,17 @@ export class $Block extends GuiHandle {
     }
 
     static makeDropzone(gui, root, handle) {
+        const path = gui.state("path");
         handle.set("onItemDrop", (dt) => {
             const assetFilePath = dt.getData("assetFilePath");
             if (assetFilePath != "") {
                 const { dirPath } = NavFS.getFileNameAndPath(assetFilePath);
-                if (dirPath == gui.state("path")) { return; }
+                if (dirPath == path) { return; }
             }
 
             const promises = [];
             for (const file of dt.files) {
-                const filePath = gui.state("path") + "/" + file.name;
+                const filePath = path + "/" + file.name;
                 promises.push(NavFS.copyFile(file, filePath));
             }
 
