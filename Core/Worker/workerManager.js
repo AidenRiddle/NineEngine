@@ -1,6 +1,7 @@
 import { objectToEnum } from "../../methods.js";
 import { Stash, System } from "../../settings.js";
 import Debug from "../GECore/Util/debug.js";
+import { Job } from "./job.js";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator
 // https://developer.mozilla.org/en-US/docs/Web/API/Worker
@@ -105,6 +106,13 @@ export class Runner {
 
         return commands;
     }
+
+    async jobHire() {
+        const commands = await this.run("init", [this.id, this.mem]);
+        this.changeState(state.IDLE);
+
+        return commands;
+    }
 }
 
 export class WorkerManager {
@@ -114,9 +122,7 @@ export class WorkerManager {
     static #pool = (() => {
         const pool = [];
         const id = Object.values(Greek);
-        const options = {
-            type: "classic"
-        }
+        const options = { type: "classic" }
         console.log("Worker Threads:", this.#workerPoolSize);
         for (let i = 0; i < this.#workerPoolSize; i++) {
             const worker = new Runner(
@@ -175,22 +181,32 @@ export class WorkerManager {
             });
     }
 
+    /** @param {Job} job */
+    static async jobHire(job) {
+        if (this.#workerPoolSize == 0) throw new Error("No Worker Threads have been granted.");
+
+        const jobLink = job.getLink();
+        const runner = new Runner(
+            Greek.pi,
+            null,
+            new Worker(jobLink, { type: "classic" }),
+        );
+        const io = await runner.jobHire();
+        const crewInterface = {};
+        for (const command of io) {
+            crewInterface[command] = (...args) => {
+                if (runner.state != state.RUNNING) {
+                    console.log("Runner", runner.id, "chosen for", command);
+                    return runner.run(command, args);
+                }
+                throw new Error("Runner " + runner.id + " busy. xQcL");
+            }
+        }
+
+        return crewInterface;
+    }
+
     static retire(workerInterface) {
 
     }
 }
-
-// WorkerManager.hire(
-//     "Core/Worker/Scripts/slowCode.js",
-//     "Core/Worker/Scripts/slowCode.js",
-//     "Core/Worker/Scripts/slowCode.js",
-//     "Core/Worker/Scripts/slowCode.js",
-// )
-//     .then((crew) => {
-//         console.log(crew);
-//         crew.mySlowFunction(12).then((value) => console.log(value));
-//         crew.mySlowFunction(12).then((value) => console.log(value));
-//         crew.mySlowFunction(12).then((value) => console.log(value));
-//         crew.mySlowFunction(12).then((value) => console.log(value));
-//     })
-//     .then(() => console.log("finished"));
