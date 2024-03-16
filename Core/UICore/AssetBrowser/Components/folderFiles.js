@@ -147,7 +147,7 @@ export class $Block extends GuiHandle {
     }
 
     static async listBlocks(path, gui, root, handle) {
-        const fileHandles = await NavFS.lsf(path);
+        const fileHandles = await NavFS.listFiles(path);
         const dirHandles = await NavFS.listDirectories(path);
 
         if (fileHandles.length == 0 && dirHandles.length == 0) {

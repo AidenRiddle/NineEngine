@@ -216,7 +216,7 @@ export class NavFS {
         return arr.filter(handle => handle.kind == "directory");
     }
 
-    static async lsf(path) {
+    static async listFiles(path) {
         const arr = await this.list(path);
         return arr.filter(handle => handle.kind == "file");
     }
