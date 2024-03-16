@@ -140,12 +140,17 @@ export default class UiManager {
             Resources.load(cargo.url, { newFileName: "Textures/eh1.jpg", hardFetch: true });
             // location.reload();
         },
-        [UiEvent.menuBar_saveProject]: (cargo) => { RunningInstance.saveProject(); alert("Project saved!"); },
-        [UiEvent.menuBar_newProject]: (cargo) => {
+        [UiEvent.menuBar_set_project_root]: async (cargo) => {
+            await NavFS.bootFromDirectory(cargo);
+            const payload = new Payload(UiEvent.assetBrowser_refresh, null);
+            this.sendMessage(UiWindow.AssetBrowser, payload)
+        },
+        [UiEvent.menuBar_save_project]: (cargo) => { RunningInstance.saveProject(); alert("Project saved!"); },
+        [UiEvent.menuBar_new_project]: (cargo) => {
             RunningInstance.createNewDefaultInstance(cargo);
             alert("Project created!");
         },
-        [UiEvent.menuBar_openProject]: async (cargo) => {
+        [UiEvent.menuBar_open_project]: async (cargo) => {
             await RunningInstance.openSavedInstance(cargo);
             Scene.changeScene(RunningInstance.activeScene);
         },

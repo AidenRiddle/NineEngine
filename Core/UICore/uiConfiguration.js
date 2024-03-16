@@ -37,6 +37,7 @@ export const UiEvent = {
     menuBar_build: 0,
     menuBar_upload_image: 0,
     menuBar_play: 0,
+    menuBar_set_project_root: 0,
     menuBar_save_project: 0,
     menuBar_new_project: 0,
     menuBar_open_project: 0,

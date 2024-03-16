@@ -24,9 +24,7 @@ const contextMenu = {
     "Save Project": () => { eventHandler.sendMessageToParent(UiEvent.menuBar_save_project); },
     "Set root folder": async function () {
         const dir = await window.showDirectoryPicker({ id: "NineProject", mode: "readwrite" });
-        NavFS.bootFromDirectory(dir)
-            .then(() => NavFS.getDirectoryAccess())
-            .then(() => eventHandler.sendMessageToParent(UiEvent.assetBrowser_refresh));
+        eventHandler.sendMessageToParent(UiEvent.menuBar_set_project_root, dir);
     },
     "New Project...": () => {
         const instanceName = prompt("New name ?");
