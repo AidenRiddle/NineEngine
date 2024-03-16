@@ -243,11 +243,10 @@ export class NavFS {
             .then(() => this.write(path, byteData));
     }
 
-    static async rm(path) {
-        const targetName = this.getFileNameFromPath(path);
-        const pathWithoutTarget = path.replace("/" + targetName, '');
-        const handle = await this.#resolveDir(pathWithoutTarget);
-        return handle.removeEntry(targetName);
+    static async removeFile(path) {
+        const { fileName, dirPath } = this.getFileNameAndPath(path);
+        const handle = await this.#resolveDir(dirPath);
+        return handle.removeEntry(fileName);
     }
 
     static async rmdir(path) {
@@ -291,7 +290,7 @@ export class NavFS {
     }
 
     static async moveFile(srcPath, targetPath) {
-        return this.copyFileFromPath(srcPath, targetPath).then(() => this.rm(srcPath));
+        return this.copyFileFromPath(srcPath, targetPath).then(() => this.removeFile(srcPath));
     }
 
     static async #readFileAs(path, method) {

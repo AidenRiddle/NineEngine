@@ -50,7 +50,7 @@ export class $Block extends GuiHandle {
     }
 
     static async deleteFile(path, handle) {
-        await NavFS.rm(path);
+        await NavFS.removeFile(path);
         handle.rebuild();
     }
 
@@ -73,7 +73,7 @@ export class $Block extends GuiHandle {
         } catch (e) { }
 
         await NavFS.copyFileFromPath(filePath, newPath);
-        await NavFS.rm(filePath);
+        await NavFS.removeFile(filePath);
 
         thumbnailCache[newPath] = thumbnailCache[filePath];
         delete thumbnailCache[filePath];
