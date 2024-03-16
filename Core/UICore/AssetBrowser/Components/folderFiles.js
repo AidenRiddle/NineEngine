@@ -148,7 +148,7 @@ export class $Block extends GuiHandle {
 
     static async listBlocks(path, gui, root, handle) {
         const fileHandles = await NavFS.lsf(path);
-        const dirHandles = await NavFS.lsdir(path);
+        const dirHandles = await NavFS.listDirectories(path);
 
         if (fileHandles.length == 0 && dirHandles.length == 0) {
             root.append(gui.node("p", p => { p.innerText = "This directory is empty."; }));

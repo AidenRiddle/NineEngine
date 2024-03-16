@@ -69,7 +69,7 @@ export class NavFS {
         const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
         const fixtures = await fetch(stashHref).then((response) => response.json());
         try {
-            const directories = await this.lsdir(path);
+            const directories = await this.listDirectories(path);
             for (const dirName of Object.keys(fixtures["Assets"])) {
                 const result = directories.find(dir => dir.name == dirName);
                 if (result == null) {
@@ -211,7 +211,7 @@ export class NavFS {
         return list;
     }
 
-    static async lsdir(path) {
+    static async listDirectories(path) {
         const arr = await this.list(path);
         return arr.filter(handle => handle.kind == "directory");
     }

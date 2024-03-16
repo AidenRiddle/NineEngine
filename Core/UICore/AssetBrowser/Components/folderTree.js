@@ -39,7 +39,7 @@ export class $Tree extends GuiHandle {
     }
 
     static async buildTree(gui, path) {
-        const entries = await NavFS.lsdir(path);
+        const entries = await NavFS.listDirectories(path);
         const callback = () => { gui.state("block").set("path", path); };
         const adderCallback = () => {
             const name = prompt("New folder name ?");
