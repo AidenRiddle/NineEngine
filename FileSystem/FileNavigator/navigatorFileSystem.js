@@ -282,21 +282,20 @@ export class NavFS {
 
     /** @param {File} file */
     static async copyFile(file, targetPath) {
-        this.#throwIfFileExists(targetPath);
+        await this.#throwIfFileExists(targetPath);
 
         const srcData = await file.arrayBuffer();
         return this.put(targetPath, srcData);
     }
 
     static async copyFileFromPath(srcPath, targetPath) {
-        this.#throwIfFileExists(targetPath);
+        await this.#throwIfFileExists(targetPath);
 
         const srcData = await this.readFileAsByteArray(srcPath);
         return this.put(targetPath, srcData);
     }
 
     static async moveFile(srcPath, targetPath) {
-        this.#throwIfFileExists(targetPath);
         return this.copyFileFromPath(srcPath, targetPath).then(() => this.removeFile(srcPath));
     }
 
