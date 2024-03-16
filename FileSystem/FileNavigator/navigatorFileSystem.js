@@ -113,17 +113,17 @@ export class NavFS {
     static async verifyFolderAccess(handle) {
         if (handle.name == '') {
             console.error("User has not specified a project folder.");
-            return Promise.resolve(false);
+            return false;
         }
 
         const opts = { mode: "readwrite" };
         const permission = await handle.queryPermission(opts);
 
         if (permission != "granted") {
-            console.log(`(${handle.name}) permission: `, permission);
-            return Promise.resolve(false);
+            console.log(`(${handle.name}) permission:`, permission);
+            return false;
         }
-        return Promise.resolve(true);
+        return true;
     }
 
     static async verifyRootFolderIsValid() {
