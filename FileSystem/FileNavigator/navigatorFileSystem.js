@@ -234,12 +234,12 @@ export class NavFS {
         return this.#resolveDir(path, true);
     }
 
-    static async touch(path) {
+    static async makeFile(path) {
         return this.#resolveFile(path, true);
     }
 
     static async put(path, byteData) {
-        return this.touch(path)
+        return this.makeFile(path)
             .then(() => this.write(path, byteData));
     }
 
