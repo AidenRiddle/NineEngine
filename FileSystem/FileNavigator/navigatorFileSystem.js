@@ -26,36 +26,9 @@ async function runFixtures() {
     return recur(".", fixtures);
 }
 
-const promiseNavStorage = navigator.storage.persisted()
-    .then(async (isPersisted) => {
-        if (!isPersisted && !(await navigator.storage.persist())) {
-            throw new Error("Failed to persist default Navigator Storage.");
-        } else {
-            return navigator.storage.getDirectory();
-        }
-    });
-
-const promiseUserDirectory = idb.get("userConfiguration", "projectRoot")
-    .then((result) => result.dirHandle)
-    .catch((e) => {
-        console.warn(e, "\nPlease specify a project directory.");
-        return null;
-    })
-
-const navDir = await Promise.all([promiseNavStorage, promiseUserDirectory])
-    .then(([navDir, userDir]) => userDir);
-
-function promiseIteratorToArray(asyncIterator) {
-    const listOfFiles = [];
-    function recur(asyncIt) {
-        return asyncIt.next().then((res) => { if (res.done) return listOfFiles; listOfFiles.push(res.value); return recur(asyncIt); });
-    }
-    return recur(asyncIterator);
-}
-
 export class NavFS {
     /** @type {FileSystemDirectoryHandle} */
-    static #root = navDir;
+    static #root;
 
     static get rootName() { return this.#root?.name; }
     static get coreName() { return ".NineEngine"; }
@@ -67,7 +40,7 @@ export class NavFS {
 
     static async #resolveDir(dirPath, create = false) {
         let path = Address.asFilePath(dirPath);
-        let wd = this.#root;
+        let wd = await this.getRoot();
         if (path.startsWith(this.coreName)) {
             path = this.#cutPath(path, this.coreName);
             wd = await navigator.storage.getDirectory();
@@ -92,6 +65,27 @@ export class NavFS {
         return await dir.getFileHandle(fileName, { create });
     }
 
+    static async #verifyFolderIsValid(path, stashHref) {
+        const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
+        const fixtures = await fetch(stashHref).then((response) => response.json());
+        try {
+            const directories = await this.lsdir(path);
+            for (const dirName of Object.keys(fixtures["Assets"])) {
+                const result = directories.find(dir => dir.name == dirName);
+                if (result == null) {
+                    console.error(invalidDirectory + path);
+                    console.error("Could not find " + dirName, "in", fixtures);
+                    return Promise.resolve(false);
+                }
+            }
+            return Promise.resolve(true);
+        } catch (e) {
+            console.error(e);
+            console.error(invalidDirectory + path);
+            return Promise.resolve(false);
+        }
+    }
+
     static getFileExtension(file) { return file.name.substring(file.name.lastIndexOf('.')); }
     static getFileNameFromPath(path) { return path.substring(path.lastIndexOf('/') + 1); }
     static getFileNameAndPath(path) {
@@ -103,78 +97,115 @@ export class NavFS {
         }
     }
 
+    static async hasRoot() {
+        return await this.getRoot() != null;
+    }
+
+    static async getRoot() {
+        if (this.#root == null) {
+            this.#root = await idb.get("userConfiguration", "projectRoot")
+                .then((obj) => obj.dirHandle)
+                .catch(e => null);
+        }
+        return this.#root;
+    }
+
+    static async verifyFolderAccess(handle) {
+        if (handle.name == '') {
+            console.error("User has not specified a project folder.");
+            return Promise.resolve(false);
+        }
+
+        const opts = { mode: "readwrite" };
+        const permission = await handle.queryPermission(opts);
+
+        if (permission != "granted") {
+            console.log(`(${handle.name}) permission: `, permission);
+            return Promise.resolve(false);
+        }
+        return Promise.resolve(true);
+    }
+
+    static async verifyRootFolderIsValid() {
+        const path = "./Assets";
+        return this.#verifyFolderIsValid(path, Stash.fixtures);
+    }
+
+    static async isReady() {
+        // if (!await this.hasRoot()) {
+        //     console.error("hasRoot failed.");
+        //     return false;
+        // }
+        // if (!await navigator.storage.persisted().then(persisted => persisted ? true : navigator.storage.persist())) {
+        //     console.error("navigator.storage failed.");
+        //     return false;
+        // }
+        // if (!await this.#verifyFolderIsValid(this.coreName + "/Assets", Stash.coreFixtures)) {
+        //     console.error("verifyFolderIsValid failed.");
+        //     return false;
+        // }
+        // if (!await this.verifyFolderAccess(this.#root)) {
+        //     console.error("verifyFolderAccess failed.");
+        //     return false;
+        // }
+        // if (!await this.verifyRootFolderIsValid()) {
+        //     console.error("verifyRootFolderIsValid failed.");
+        //     return false;
+        // }
+        // return true;
+
+        return await this.hasRoot()
+            && await navigator.storage.persisted().then(persisted => persisted ? true : navigator.storage.persist())
+            && await this.#verifyFolderIsValid(this.coreName + "/Assets", Stash.coreFixtures)
+            && await this.verifyFolderAccess(this.#root)
+            && await this.verifyRootFolderIsValid();
+    }
+
+    static async getDirectoryAccess() {
+        try {
+            const { dirHandle } = await idb.get("userConfiguration", "projectRoot").catch(e => { alert("You have not specified a project folder."); return Promise.reject(e); });
+            this.#root = dirHandle;
+            await this.requestFolderAccess(this.#root, "readwrite");
+            const rootFolderIsValid = await this.verifyRootFolderIsValid();
+            if (!rootFolderIsValid) {
+                const useFixtures = confirm("Project folder is invalid. Would you like to repair it?");
+                if (useFixtures) await runFixtures();
+                else throw new Error("Provided root folder is invalid");
+            }
+            return Promise.resolve();
+        } catch (e) {
+            console.error(`Unable to get directory access for the provided root folder`);
+            this.#root = null;
+            return Promise.reject(e);
+        }
+    }
+
     static async bootFromDirectory(dirHandle) {
-        const originalDirectory = await idb.get("userConfiguration", "projectRoot").catch(() => null);
+        const originalDirectory = await this.getRoot();
         if (originalDirectory != null && originalDirectory.dirHandle.name != dirHandle.name) {
             const decision = confirm("The directory you have chosen is different from the one previously associated to your project. "
                 + "Changing directories could be fatal to your project. Do you wish to continue ?");
             if (!decision) return;
         }
-        idb.store("userConfiguration", { name: "projectRoot", dirHandle });
-        this.#root = dirHandle;
+        await idb.store("userConfiguration", { name: "projectRoot", dirHandle });
+        return this.getDirectoryAccess()
+            .catch((e) => {
+                idb.store("userConfiguration", originalDirectory);
+                return Promise.reject(e);
+            });
     }
 
-    static async #verifyFolderAccess(handle) {
-        if (handle.name == '') return Promise.reject("User has not specified a project folder.");
-        const opts = { mode: "readwrite" };
-        const permission = await handle.queryPermission(opts);
-
-        if (permission === "granted") { return Promise.resolve(permission); }
-        else {
-            console.log(`(${handle.name}) permissions: `, permission);
-            return Promise.reject("User has not granted write access to the project folder.");
-        }
-    }
-
-    static async validateRootFolder() {
-        const fixtures = await fetch(Stash.fixtures).then((response) => response.json());
-
-        const invalidDirectory = "The provided directory does not contain a project or is invalid: ";
-        const path = "./Assets";
-
-        try {
-            const directories = await this.lsdir(path);
-            for (const dirName of Object.keys(fixtures)) {
-                const result = directories.find(dir => dir.name == dirName);
-                if (result == null) return Promise.reject(invalidDirectory + path);
-            }
-            return Promise.resolve();
-        } catch (e) {
-            console.log(this.#root);
-            return Promise.reject(invalidDirectory + path);
-        }
-    }
-
-    static async getDirectoryAccess() {
-        const { dirHandle } = await idb.get("userConfiguration", "projectRoot").catch(e => { alert("You have not specified a project folder."); return Promise.reject(e); });
-        this.#root = dirHandle;
-        return this.#root.requestPermission({ mode: "readwrite" })
-            .then((response) => {
-                if (response === "granted") {
-                    return this.validateRootFolder()
-                        .catch((e) => {
-                            const useFixtures = confirm("Project folder is invalid. Would you like to repair it?");
-                            if (useFixtures) return runFixtures();
-                            else return Promise.reject(e);
-                        })
-                } else return Promise.reject(response)
-            })
-    }
-
-    static async isReady() {
-        return this.#verifyFolderAccess(this.#root)
-            .then(() => true)
-            .catch((msg) => { console.error(msg); return false; })
-    }
-
-    static async makeRoot(dirHandle) {
-        const decision = confirm("You are about to change the root directory of your project.\nDo you wish to continue?");
-        if (decision) this.#root = dirHandle;
+    /**
+     * @param {FileSystemDirectoryHandle} dirHandle
+     * @param {"read" | "readwrite"} accessMode
+     */
+    static async requestFolderAccess(dirHandle, accessMode) {
+        const response = await dirHandle.requestPermission({ mode: accessMode });
+        return response === "granted" ? Promise.resolve() : Promise.reject(`User denied '${accessMode}' access.`);
     }
 
     static async ls(path) {
         const directory = await this.#resolveDir(path);
-        console.log("LS'ed:", path);
         return Array.fromAsync(directory.values());
     }
 
@@ -225,8 +256,7 @@ export class NavFS {
 
     /**
      * 
-     * @param {string} path 
-     * @returns {File}
+     * @param {string} path
      */
     static async getFile(path) {
         const fileHandle = await this.#resolveFile(path);
@@ -308,7 +338,7 @@ export class NavFS {
             }
             return res;
         }
-        console.log(this.#root.name, ":", await recur(this.#root.name));
+        console.log(this.rootName, ":", await recur(this.rootName));
         console.log(this.coreName + ":", await recur(this.coreName));
     }
 }
