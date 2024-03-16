@@ -249,10 +249,9 @@ export class NavFS {
         return handle.removeEntry(fileName);
     }
 
-    static async rmdir(path) {
-        const targetName = this.getFileNameFromPath(path);
-        const pathWithoutTarget = path.replace("/" + targetName, '');
-        return this.#resolveDir(pathWithoutTarget).then((dir) => dir.removeEntry(targetName, { recursive: true }));
+    static async removeDirectory(path) {
+        const { fileName, dirPath } = this.getFileNameAndPath(path);
+        return this.#resolveDir(dirPath).then((dir) => dir.removeEntry(fileName, { recursive: true }));
     }
 
     /**
