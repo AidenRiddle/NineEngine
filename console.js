@@ -48,7 +48,7 @@ class NineEngineConsole {
             for (const [key, value] of Object.entries(dir)) {
                 const newPath = path + "/" + key;
                 if (typeof value == 'object') {
-                    promises.push(NavFS.mkdir(newPath).then(() => recur(newPath, value)));
+                    promises.push(NavFS.makeDirectory(newPath).then(() => recur(newPath, value)));
                 } else {
                     let data;
 

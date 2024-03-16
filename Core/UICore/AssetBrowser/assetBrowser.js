@@ -40,7 +40,7 @@ const contextMenu = {
     "New Folder": () => {
         const name = prompt("Folder name?");
         if (name != '') {
-            NavFS.mkdir(wdPath + '/' + name);
+            NavFS.makeDirectory(wdPath + '/' + name);
             guiTree.rebuild();
             guiBlock.set("path", wdPath);
         }

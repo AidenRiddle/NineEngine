@@ -44,7 +44,7 @@ export class $Tree extends GuiHandle {
         const adderCallback = () => {
             const name = prompt("New folder name ?");
             if (name == null || name.length == 0) return;
-            NavFS.mkdir(path + "/" + name);
+            NavFS.makeDirectory(path + "/" + name);
             guiTree.rebuild();
         };
         const moveFileCallBack = (str) => {     // From Drag'n'Drop
