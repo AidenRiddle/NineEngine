@@ -75,14 +75,14 @@ export class NavFS {
                 if (result == null) {
                     console.error(invalidDirectory + path);
                     console.error("Could not find " + dirName, "in", fixtures);
-                    return Promise.resolve(false);
+                    return false;
                 }
             }
-            return Promise.resolve(true);
+            return true;
         } catch (e) {
             console.error(e);
             console.error(invalidDirectory + path);
-            return Promise.resolve(false);
+            return false;
         }
     }
 
@@ -163,7 +163,7 @@ export class NavFS {
 
     static async getDirectoryAccess() {
         try {
-            const { dirHandle } = await idb.get("userConfiguration", "projectRoot").catch(e => { alert("You have not specified a project folder."); return Promise.reject(e); });
+            const { dirHandle } = await idb.get("userConfiguration", "projectRoot").catch(e => { alert("You have not specified a project folder."); throw e; });
             this.#root = dirHandle;
             await this.requestFolderAccess(this.#root, "readwrite");
             const rootFolderIsValid = await this.verifyRootFolderIsValid();
@@ -172,11 +172,10 @@ export class NavFS {
                 if (useFixtures) await runFixtures();
                 else throw new Error("Provided root folder is invalid");
             }
-            return Promise.resolve();
         } catch (e) {
             console.error(`Unable to get directory access for the provided root folder`);
             this.#root = null;
-            return Promise.reject(e);
+            throw e;
         }
     }
 
@@ -191,7 +190,7 @@ export class NavFS {
         return this.getDirectoryAccess()
             .catch((e) => {
                 idb.store("userConfiguration", originalDirectory);
-                return Promise.reject(e);
+                throw e;
             });
     }
 
@@ -201,7 +200,7 @@ export class NavFS {
      */
     static async requestFolderAccess(dirHandle, accessMode) {
         const response = await dirHandle.requestPermission({ mode: accessMode });
-        return response === "granted" ? Promise.resolve() : Promise.reject(`User denied '${accessMode}' access.`);
+        if (response !== "granted") throw new Error(`User denied '${accessMode}' access.`);
     }
 
     static async list(path) {
