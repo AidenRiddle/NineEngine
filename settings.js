@@ -144,6 +144,8 @@ export const Webgl = {
         objectMatrix: "u_objectMatrix",
         depthTexture: "u_depthTexture",
         lightDirectional: "u_projectedLightDirectionalTextureMatrix",
+        lightDirectionalIntensity: "u_intensity",
+        lightDirectionalReverse: "u_reverseLightDirection",
         timeSinceStart: "u_timeSinceStart",
         shadowHalfSamples: "u_halfSamples",
         shadowBiasMin: "u_biasMin",

@@ -1,5 +1,4 @@
 import { AppSettings, Webgl } from "../../../settings.js";
-import { ScriptGlobals } from "../../GameCore/WebAssembly/scriptGlobals.js";
 import { TextureStorage } from "../../DataStores/textureStore.js";
 import { WebGLConstants } from "./webGLConstants.js";
 
@@ -172,40 +171,35 @@ export default class Gpu {
         this.gl.uniformMatrix4fv(this.gl.getUniformLocation(depthProgram, Webgl.uniform.objectMatrix), false, objectMatrix);
     }
 
-    useShader(shader, bufferMap, uniformValueMap, viewMatrix, objectMatrix, lightObject) {
-
+    useShader(shader, bufferMap, uniformPackage) {
         const program = shader.program;
         this.gl.useProgram(program);
         this.#enableShaderDefaultAttributes(shader, bufferMap);
-        this.#assignShaderUniforms(shader, uniformValueMap);
-
-        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(program, Webgl.uniform.viewMatrix), false, viewMatrix);
-        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(program, Webgl.uniform.objectMatrix), false, objectMatrix);
-        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(program, Webgl.uniform.lightDirectional), false, lightObject.textureProjection);
-
-        this.gl.uniform1i(this.gl.getUniformLocation(program, Webgl.uniform.depthTexture), Webgl.engineTexture.depthTexture);
-        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.timeSinceStart), ScriptGlobals.timeSinceStartup.value);
-        this.gl.uniform1i(this.gl.getUniformLocation(program, Webgl.uniform.shadowHalfSamples), AppSettings.shadow_halfSamples);
-        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.shadowBiasMin), AppSettings.shadow_biasMin);
-        this.gl.uniform1f(this.gl.getUniformLocation(program, Webgl.uniform.shadowBiasMax), AppSettings.shadow_biasMax);
-        this.gl.uniform1f(shader.uniforms.get("u_intensity")?.location, lightObject.intensity);
-        this.gl.uniform3fv(shader.uniforms.get("u_reverseLightDirection")?.location, lightObject.transform.back.values());
+        this.#assignShaderUniforms(shader, uniformPackage);
     }
 
     #assignShaderUniforms(shader, uniformValueMap) {
         const uniformMap = shader.uniforms;
-        for (const uniName of Object.keys(uniformValueMap)) {
-            const uniValue = uniformValueMap[uniName];
-            if (!uniformMap.get(uniName)) throw new Error("Invalid uniform pointer: " + uniName);
-            const handler = glUniform[uniformMap.get(uniName).type];
+        const reservedUniformMap = shader.reservedUniforms;
 
-            if (!handler) throw new Error("Uniform type not implemented: " + uniformMap.get(uniName).type);
-            if (handler.includes("Matrix")) {
-                this.gl[handler](uniformMap.get(uniName).location, false, uniValue);
+        for (const uniName of uniformValueMap.keys()) {
+            let target;
+            if (reservedUniformMap.has(uniName)) {
+                target = reservedUniformMap;
+            } else if (uniformMap.has(uniName)) {
+                target = uniformMap;
+            } else {
                 continue;
             }
 
-            this.gl[handler](uniformMap.get(uniName).location, uniValue);
+            const handler = glUniform[target.get(uniName).type];
+            if (!handler) throw new Error("Uniform type not implemented: " + target.get(uniName).type);
+            if (handler.includes("Matrix")) {
+                this.gl[handler](target.get(uniName).location, false, uniformValueMap.get(uniName));
+                continue;
+            }
+
+            this.gl[handler](target.get(uniName).location, uniformValueMap.get(uniName));
         }
     }
 

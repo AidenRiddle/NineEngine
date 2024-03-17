@@ -12,6 +12,7 @@ import { depthFS, depthVS, vertexShader } from "./geShaders.js";
 import Gpu from "./Gpu/gpu.js";
 import { PostProcessor } from "./postProcessor.js";
 import { TextureBuilder } from "./Gpu/Builders/textureBuilder.js";
+import { ScriptGlobals } from "../GameCore/WebAssembly/scriptGlobals.js";
 
 export default class GraphicsEngine {
     /** @type {Gpu} */
@@ -34,6 +35,8 @@ export default class GraphicsEngine {
     #depthFrameBuffer;
 
     #renderFrameBuffer;
+
+    #uniformPackage = new Map();
 
     get reservedUniformNames() { return Object.values(Webgl.uniform); }
 
@@ -112,11 +115,23 @@ export default class GraphicsEngine {
         this.#gpu.setViewPort(this.#gpu.canvas.width, this.#gpu.canvas.height);
         this.#gpu.clearAllBuffers();
 
+        this.#uniformPackage.set(Webgl.uniform.viewMatrix, cameraMatrix)
+            .set(Webgl.uniform.lightDirectional, LightDirectional.activeLight.textureProjection)
+            .set(Webgl.uniform.lightDirectionalIntensity, LightDirectional.activeLight.intensity)
+            .set(Webgl.uniform.lightDirectionalReverse, LightDirectional.activeLight.transform.back.values())
+            .set(Webgl.uniform.depthTexture, Webgl.engineTexture.depthTexture)
+            .set(Webgl.uniform.timeSinceStart, ScriptGlobals.timeSinceStartup.value)
+            .set(Webgl.uniform.shadowHalfSamples, AppSettings.shadow_halfSamples)
+            .set(Webgl.uniform.shadowBiasMin, AppSettings.shadow_biasMin)
+            .set(Webgl.uniform.shadowBiasMax, AppSettings.shadow_biasMax);
+
         for (const sceneObj of sceneObjectArray) {
             const model = ModelStorage.Get(sceneObj.modelId);
             const vsId = model.vertexShaderId;
             const mesh = MeshStorage.Get(model.meshId);
             const armature = sceneObj.armature;
+
+            this.#uniformPackage.set(Webgl.uniform.objectMatrix, sceneObj.transform.worldMatrix);
 
             this.#writeMeshData(mesh);
             if (armature != null) {
@@ -129,13 +144,13 @@ export default class GraphicsEngine {
                 const fsId = mat.shaderId;
                 const program = ProgramStorage.Get(vsId, fsId);
 
+                Object.keys(mat.uniformValueMap)
+                    .reduce((uniPkg, key) => uniPkg.set(key, mat.uniformValueMap[key]), this.#uniformPackage);
+
                 this.#gpu.useShader(
                     program,
                     this.#buffers,
-                    mat.uniformValueMap,
-                    cameraMatrix,
-                    sceneObj.transform.worldMatrix,
-                    LightDirectional.activeLight);
+                    this.#uniformPackage);
 
                 const jointTexture = program.uniforms.get("u_jointTexture");
                 if (jointTexture != null) {

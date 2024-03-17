@@ -15,10 +15,11 @@ const attribSize = {
 const attribType = {}
 
 class Program {
-    constructor(glProgram, attributes, uniforms) {
+    constructor(glProgram, attributes, uniforms, reservedUniforms) {
         this.program = glProgram;
         this.attributes = attributes;
         this.uniforms = uniforms;
+        this.reservedUniforms = reservedUniforms;
     }
 
     getAttributeInformation(attributeName) {
@@ -73,19 +74,23 @@ export class ProgramStorage extends DataStorage {
     }
 
     static #mapUniforms(program) {
-        const ruk = this.#reservedUniformNames;
         const numUni = this.#gpu.getTotalUniforms(program);
+        const ruk = new Map();
         const uni = new Map();
         for (let i = 0; i < numUni; i++) {
-            const u = this.#gpu.getActiveUniformInfo(program, i);
-            if (ruk.includes(u.name)) continue;
-            uni.set(u.name, {
-                location: this.#gpu.getUniformLocation(program, u.name),
-                size: u.size,
-                type: u.type
-            });
+            const uniformMeta = this.#gpu.getActiveUniformInfo(program, i);
+            const uniform = {
+                location: this.#gpu.getUniformLocation(program, uniformMeta.name),
+                size: uniformMeta.size,
+                type: uniformMeta.type
+            };
+            if (this.#reservedUniformNames.includes(uniformMeta.name)) {
+                ruk.set(uniformMeta.name, uniform);
+            } else {
+                uni.set(uniformMeta.name, uniform);
+            }
         }
-        return uni;
+        return { reservedUniforms: ruk, uniforms: uni };
     }
 
     static Add(vsName, fsName) {
@@ -96,13 +101,15 @@ export class ProgramStorage extends DataStorage {
             if (fsMap.has(fsName)) return;
 
             const program = this.#createProgram(vsName, fsName);
-            fsMap.set(fsName, new Program(program, this.#mapAttributes(program), this.#mapUniforms(program)));
+            const { uniforms, reservedUniforms } = this.#mapUniforms(program);
+            fsMap.set(fsName, new Program(program, this.#mapAttributes(program), uniforms, reservedUniforms));
         } else {
             const fsMap = new Map();
 
             const program = this.#createProgram(vsName, fsName);
             super.Add(vsName, fsMap);
-            fsMap.set(fsName, new Program(program, this.#mapAttributes(program), this.#mapUniforms(program)));
+            const { uniforms, reservedUniforms } = this.#mapUniforms(program);
+            fsMap.set(fsName, new Program(program, this.#mapAttributes(program), uniforms, reservedUniforms));
         }
     }
 
