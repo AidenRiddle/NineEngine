@@ -80,7 +80,7 @@ class NineEngineConsole {
         console.log(
             "Gpu:", gpuLog,
             "\n",
-            "\nGuiStates:", GuiStateStorage.debug(),
+            // "\nGuiStates:", GuiStateStorage.debug(),
             // "\nGuiNodes:", GuiStorage.debug(),
             "\n",
             "\nMaterials:", MaterialStorage.debug(),

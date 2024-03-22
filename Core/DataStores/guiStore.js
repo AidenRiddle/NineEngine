@@ -1,8 +1,8 @@
 import { DataStorage } from "./Base/baseStore.js";
 
 export class GuiStorage extends DataStorage {
-    /** @type {Map<GuiHandle, HTMLElement>} */
-    static storage = new Map();
+    /** @type {WeakMap<GuiHandle, HTMLElement>} */
+    static storage = new WeakMap();
 
     static Add(guiHandle, htmlNode) {
         this.storage.set(guiHandle, htmlNode);
@@ -10,8 +10,8 @@ export class GuiStorage extends DataStorage {
 }
 
 export class GuiStateStorage extends DataStorage {
-    /** @type {Map<GuiHandle, Map<string, any>>} */
-    static storage = new Map();
+    /** @type {WeakMap<GuiHandle, Map<string, any>>} */
+    static storage = new WeakMap();
 
     static Add(guiHandle, stateMap) {
         this.storage.set(guiHandle, stateMap);
