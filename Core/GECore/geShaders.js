@@ -24,28 +24,47 @@ void main() {
 }`;
 
 export const depthVS = `#version 300 es
-in vec4 a_position;
+in vec3 a_position;
 
 uniform mat4 u_viewMatrix;
 uniform mat4 u_objectMatrix;
 
-void main() { gl_Position = u_viewMatrix * u_objectMatrix * a_position; }
+void main() { gl_Position = u_viewMatrix * u_objectMatrix * vec4(a_position, 1); }
 `;
 
 export const depthFS = `#version 300 es
-void main (void) {}
+void main () {}
+`;
+
+export const pickFS = `#version 300 es
+precision mediump float;
+uniform vec4 u_id;
+out vec4 fragColor;
+void main () {
+  fragColor = u_id;
+  // fragColor = vec4(u_id.xyz, 0.5);
+  // fragColor = vec4(1, 1, 1, 0);
+}
+`;
+
+export const staticFS = `#version 300 es
+precision mediump float;
+out vec4 fragColor;
+void main () {
+  fragColor = vec4(1, 0, 1, 1);
+}
 `;
 
 export const blurVS = `#version 300 es
 
-in vec2 a_position;
-in vec2 a_texCoord;
+in vec4 a_position;
+in vec2 a_texcoord;
 
 out vec2 v_texCoord;
 
 void main() {
-  gl_Position = vec4(a_position, 0, 1);
-  v_texCoord = a_texCoord;
+  gl_Position = a_position;
+  v_texCoord = a_texcoord;
 }
 `;
 
@@ -79,6 +98,7 @@ in vec2 v_texCoord;
 out vec4 fragColor;
 
 void main() {
-  fragColor = texture(u_texture, v_texCoord);
+  // fragColor = texture(u_texture, v_texCoord);
+  fragColor = vec4(1, 1, 0, 1);
 }
 `;
