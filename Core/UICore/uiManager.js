@@ -180,6 +180,11 @@ export default class UiManager {
         this.#windows.get(recipient)?.contentWindow.postMessage(payload, "*");
     }
 
+    static selfMessage(payload) {
+        if (!(payload instanceof Payload)) throw new Error("Argument is not of type Payload.");
+        postMessage(payload, "*");
+    }
+
     static addWindow(uiWindow, groupName) {
         const iframe = UiWindow.getFrameFor(uiWindow);
         iframe.id = uiWindow;
