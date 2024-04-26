@@ -69,7 +69,10 @@ export default class Gpu {
 
     #initializeGLSettings(col = [0.15, 0.15, 0.15, 1]) {
         this.gl.clearColor(col[0], col[1], col[2], col[3]);
-        this.gl.enable(this.gl.BLEND);
+
+        // Disable blend for Picking
+        // this.gl.enable(this.gl.BLEND);
+
         this.gl.enable(this.gl.CULL_FACE);
         this.gl.enable(this.gl.DEPTH_TEST);
 
