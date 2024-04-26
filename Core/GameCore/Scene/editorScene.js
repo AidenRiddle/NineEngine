@@ -1,4 +1,8 @@
 import { AppSettings, Key, System } from "../../../settings.js";
+import GraphicsEngine from "../../GECore/ge.js";
+import Payload from "../../UICore/payload.js";
+import { UiEvent } from "../../UICore/uiConfiguration.js";
+import UiManager from "../../UICore/uiManager.js";
 import Camera from "../Components/camera.js";
 import { LightDirectional } from "../Components/lightDirectional.js";
 import { InputManager } from "../Input/input.js";
@@ -11,7 +15,7 @@ import { Scene } from "./scene.js";
 import SceneUtils from "./sceneUtils.js";
 
 export default class EditorScene {
-    #ge;
+    /** @type {GraphicsEngine} */ #ge;
 
     #objectsInScene = [];
     #dirtySceneObjects = [];
@@ -99,6 +103,16 @@ export default class EditorScene {
 
     #SceneEventAfterRender() {
 
+    }
+
+    clickScreen(x, y) {
+        const pixelData = this.#ge.readPixel(x, y, this.#objectsInScene, Camera.activeCamera.getViewProjection());
+        const cleansed = pixelData[0] + (pixelData[1] << 8) + (pixelData[2] << 16) + (pixelData[3] << 24);
+        const soid = cleansed.toString(36);
+        if (this.getObject(soid) == null) return;
+
+        const payload = new Payload(UiEvent.hierarchy_select, soid);
+        UiManager.selfMessage(payload);
     }
 
     Start = () => {

@@ -14,6 +14,10 @@ export class Scene {
     static get activeSceneName() { return this.#activeSceneName; }
     static get objectsInScene() { return this.#activeScene.objs; }
 
+    static clickScreen(x, y) {
+        this.#activeScene.clickScreen(x, y);
+    }
+
     static getObject(id) {
         return this.#activeScene.getObject(id);
     }

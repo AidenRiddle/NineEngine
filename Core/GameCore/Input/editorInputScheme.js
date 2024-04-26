@@ -17,6 +17,8 @@ export function defaultInputScheme() {
     inputState.onPress('c', () => { Debug.ToggleDebugMode(); });
     inputState.onHeld('b', () => { LightDirectional.activeLight.transform.rotateBy(80 * ScriptGlobals.deltaTime.value, 0, 0); });
 
+    inputState.onPress(Key.lmb, (md) => { Scene.clickScreen(md.screenX, md.screenY); });
+
     inputState.onPress('0', () => { Camera.activeCamera.isPerspective = !Camera.activeCamera.isPerspective; });
     inputState.onPress('1', () => {
         const oldCamera = Camera.activeCamera;
