@@ -172,14 +172,13 @@ export default class Gpu {
         this.gl.uniformMatrix4fv(this.gl.getUniformLocation(depthProgram, Webgl.uniform.objectMatrix), false, objectMatrix);
     }
 
-    useShader(shader, bufferMap, uniformPackage) {
-        const program = shader.program;
-        this.gl.useProgram(program);
-        this.#enableShaderDefaultAttributes(shader, bufferMap);
-        this.#assignShaderUniforms(shader, uniformPackage);
+    useProgram(program, bufferMap, uniformPackage) {
+        this.gl.useProgram(program.glProgram);
+        this.#enableProgramDefaultAttributes(program, bufferMap);
+        this.#assignProgramUniforms(program, uniformPackage);
     }
 
-    #assignShaderUniforms(shader, uniformValueMap) {
+    #assignProgramUniforms(shader, uniformValueMap) {
         const uniformMap = shader.uniforms;
         const reservedUniformMap = shader.reservedUniforms;
 
@@ -194,17 +193,16 @@ export default class Gpu {
             }
 
             const handler = glUniform[target.get(uniName).type];
-            if (!handler) throw new Error("Uniform type not implemented: " + target.get(uniName).type);
+            if (handler == null) throw new Error("Uniform type not implemented: " + target.get(uniName).type);
             if (handler.includes("Matrix")) {
                 this.gl[handler](target.get(uniName).location, false, uniformValueMap.get(uniName));
-                continue;
+            } else {
+                this.gl[handler](target.get(uniName).location, uniformValueMap.get(uniName));
             }
-
-            this.gl[handler](target.get(uniName).location, uniformValueMap.get(uniName));
         }
     }
 
-    #enableShaderDefaultAttributes(shader, bufferMap) {
+    #enableProgramDefaultAttributes(shader, bufferMap) {
         for (const key of shader.attributes.keys()) {
             if (bufferMap[key] == null) console.log(key, bufferMap[key]);
             this.#bindAttributeToBuffer(shader.getAttributeInformation(key), bufferMap[key]);
