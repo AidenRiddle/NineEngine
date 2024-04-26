@@ -7,12 +7,13 @@ import { SceneStorage } from "../DataStores/sceneStore.js";
 import { ShaderStorage } from "../DataStores/shaderStore.js";
 import { TextureStorage } from "../DataStores/textureStore.js";
 import { LightDirectional } from "../GameCore/Components/lightDirectional.js";
-import Debug from "./Util/debug.js";
-import { depthFS, depthVS, vertexShader } from "./geShaders.js";
-import Gpu from "./Gpu/gpu.js";
-import { PostProcessor } from "./postProcessor.js";
-import { TextureBuilder } from "./Gpu/Builders/textureBuilder.js";
 import { ScriptGlobals } from "../GameCore/WebAssembly/scriptGlobals.js";
+import SceneObject from "../GameCore/sceneObject.js";
+import { TextureBuilder } from "./Gpu/Builders/textureBuilder.js";
+import Gpu from "./Gpu/gpu.js";
+import Debug from "./Util/debug.js";
+import { depthFS, depthVS, pickFS } from "./geShaders.js";
+import { PostProcessor } from "./postProcessor.js";
 
 export default class GraphicsEngine {
     /** @type {Gpu} */
@@ -34,11 +35,15 @@ export default class GraphicsEngine {
     #depthProgram;
     #depthFrameBuffer;
 
+    #pickProgram;
+
     #renderFrameBuffer;
 
     #uniformPackage = new Map();
 
-    get reservedUniformNames() { return Object.values(Webgl.uniform); }
+    #pixelData = new Uint8Array(4);
+
+    get gpu() { return this.#gpu; }
 
     constructor(gpu) {
         this.#gpu = gpu;
@@ -46,6 +51,7 @@ export default class GraphicsEngine {
         this.#InitializeGLBuffers();
         this.#InitializeStoragePointers(this.#gpu);
         this.#InitializeDepthSystem();
+        this.#InitializePickSystem();
     }
 
     #InitializeGLBuffers() {
@@ -83,6 +89,15 @@ export default class GraphicsEngine {
         this.#depthFrameBuffer = this.#gpu.createDepthFrameBuffer(this.#depthTexture);
     }
 
+    #InitializePickSystem() {
+        const vs = "depthVS";
+        const fs = "pickFS";
+        ShaderStorage.Add(vs, false, depthVS);
+        ShaderStorage.Add(fs, true, pickFS);
+        ProgramStorage.Add(vs, fs);
+        this.#pickProgram = ProgramStorage.Get(vs, fs);
+    }
+
     #writeMeshData(mesh) {
         this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_position"], mesh.geometryVertexData);
         this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_normal"], mesh.normalVertexData);
@@ -107,6 +122,34 @@ export default class GraphicsEngine {
             this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_position"], mesh.geometryVertexData);
             this.#gpu.rewriteBuffer(Gpu.ELEMENT_ARRAY_BUFFER, this.#indexBuffer, mesh.indexVertexData);
             this.#gpu.useDepthProgram(this.#depthProgram.glProgram, this.#buffers["a_position"], this.#uniformPackage);
+            this.#gpu.drawFill(mesh.indexVertexData.length, 0);
+        }
+    }
+
+    #pickDraw(sceneObjectArray, viewMatrix) {
+        this.#gpu.useFrameBuffer(null);
+        this.#gpu.setViewPort(this.#gpu.canvas.width, this.#gpu.canvas.height);
+        this.#gpu.clearColorBuffer();
+
+        this.#uniformPackage.set(Webgl.uniform.viewMatrix, viewMatrix);
+
+        for (const sceneObj of sceneObjectArray) {
+            const model = ModelStorage.Get(sceneObj.modelId);
+            const mesh = MeshStorage.Get(model.meshId);
+            const id = parseInt(sceneObj.id, 36);
+            const idAsVec4 = [
+                ((id >> 0) & 0xFF) / 0xFF,
+                ((id >> 8) & 0xFF) / 0xFF,
+                ((id >> 16) & 0xFF) / 0xFF,
+                ((id >> 24) & 0xFF) / 0xFF,
+            ];
+
+            this.#uniformPackage.set(Webgl.uniform.objectMatrix, sceneObj.transform.worldMatrix);
+            this.#uniformPackage.set("u_id", idAsVec4);
+
+            this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_position"], mesh.geometryVertexData);
+            this.#gpu.rewriteBuffer(Gpu.ELEMENT_ARRAY_BUFFER, this.#indexBuffer, mesh.indexVertexData);
+            this.#gpu.useProgram(this.#pickProgram, this.#buffers, this.#uniformPackage);
             this.#gpu.drawFill(mesh.indexVertexData.length, 0);
         }
     }
@@ -185,10 +228,15 @@ export default class GraphicsEngine {
         this.#drawScene(meshArray, cameraMatrix);
     }
 
-    #batchRender = (meshArray, cameraMatrix) => {
-        this.#depthDraw(meshArray, cameraMatrix);
-        //this.#BlurDepthBuffer();
-        this.#drawScene(meshArray, cameraMatrix);
+    readPixel = (x, y, sceneObjs, viewMatrix) => {
+        this.#pickDraw(sceneObjs, viewMatrix);
+
+        const gl = this.#gpu.gl;
+        const pixelX = x * gl.canvas.width / gl.canvas.clientWidth;
+        const pixelY = gl.canvas.height - y * gl.canvas.height / gl.canvas.clientHeight - 1;
+        gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.#pixelData);
+
+        return this.#pixelData;
     }
 
     resizeViewport(newWidth, newHeight) {
