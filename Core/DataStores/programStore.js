@@ -96,18 +96,15 @@ export class ProgramStorage extends DataStorage {
     static Add(vsName, fsName) {
         vsName = Address.asInternal(vsName);
         fsName = Address.asInternal(fsName);
-        if (super.Exists(vsName)) {
-            const fsMap = super.Get(vsName);
-            if (fsMap.has(fsName)) return;
+        let fsMap = super.Get(vsName);
 
-            const program = this.#createProgram(vsName, fsName);
-            const { uniforms, reservedUniforms } = this.#mapUniforms(program);
-            fsMap.set(fsName, new Program(program, this.#mapAttributes(program), uniforms, reservedUniforms));
-        } else {
-            const fsMap = new Map();
-
-            const program = this.#createProgram(vsName, fsName);
+        if (fsMap == null) {
+            fsMap = new Map();
             super.Add(vsName, fsMap);
+        }
+
+        if (!fsMap.has(fsName)) {
+            const program = this.#createProgram(vsName, fsName);
             const { uniforms, reservedUniforms } = this.#mapUniforms(program);
             fsMap.set(fsName, new Program(program, this.#mapAttributes(program), uniforms, reservedUniforms));
         }
