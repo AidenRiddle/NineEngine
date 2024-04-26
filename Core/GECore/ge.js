@@ -28,7 +28,7 @@ export default class GraphicsEngine {
         a_weights: null,
         a_joints: null,
     }
-    #glIndexBuffer;
+    #indexBuffer;
 
     #depthTextureSize;
     #depthTexture;
@@ -42,8 +42,6 @@ export default class GraphicsEngine {
     #uniformPackage = new Map();
 
     #pixelData = new Uint8Array(4);
-
-    get gpu() { return this.#gpu; }
 
     constructor(gpu) {
         this.#gpu = gpu;
@@ -60,7 +58,7 @@ export default class GraphicsEngine {
         this.#buffers["a_texcoord"] = this.#gpu.createVertexBuffer(Gpu.ARRAY_BUFFER, AppSettings.maximum_vertex_buffer_allocation_per_draw_call);
         this.#buffers["a_weights"] = this.#gpu.createVertexBuffer(Gpu.ARRAY_BUFFER, AppSettings.maximum_vertex_buffer_allocation_per_draw_call);
         this.#buffers["a_joints"] = this.#gpu.createVertexBuffer(Gpu.ARRAY_BUFFER, AppSettings.maximum_vertex_buffer_allocation_per_draw_call);
-        this.#glIndexBuffer = this.#gpu.createVertexBuffer(Gpu.ELEMENT_ARRAY_BUFFER, AppSettings.maximum_index_buffer_allocation_per_draw_call);
+        this.#indexBuffer = this.#gpu.createVertexBuffer(Gpu.ELEMENT_ARRAY_BUFFER, AppSettings.maximum_index_buffer_allocation_per_draw_call);
     }
 
     /** @param {Gpu} gpu */
@@ -103,7 +101,7 @@ export default class GraphicsEngine {
         this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_normal"], mesh.normalVertexData);
         this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_texcoord"], mesh.textureVertexData);
         this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_weights"], mesh.weightVertexData);
-        this.#gpu.rewriteBuffer(Gpu.ELEMENT_ARRAY_BUFFER, this.#glIndexBuffer, mesh.indexVertexData);
+        this.#gpu.rewriteBuffer(Gpu.ELEMENT_ARRAY_BUFFER, this.#indexBuffer, mesh.indexVertexData);
     }
 
     #depthDraw(sceneObjectArray, viewMatrix) {
