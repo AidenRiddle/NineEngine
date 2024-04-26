@@ -256,10 +256,6 @@ export class NavFS {
         return this.#removePath(path, true)
     }
 
-    /**
-     * 
-     * @param {string} path
-     */
     static async getFile(path) {
         const fileHandle = await this.#resolveFile(path);
         return fileHandle.getFile();
