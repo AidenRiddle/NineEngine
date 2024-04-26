@@ -30,10 +30,10 @@ export const InputModifier = Object.freeze({
 
     debug(flag) {
         let msg = ": ";
-        if(BitMask.match(flag, this.ml)) msg += "MouseLock : ";
-        if(BitMask.match(flag, this.shift)) msg += "Shift : ";
-        if(BitMask.match(flag, this.ctrl)) msg += "Ctrl : ";
-        if(BitMask.match(flag, this.alt)) msg += "Alt : ";
+        if (BitMask.match(flag, this.ml)) msg += "MouseLock : ";
+        if (BitMask.match(flag, this.shift)) msg += "Shift : ";
+        if (BitMask.match(flag, this.ctrl)) msg += "Ctrl : ";
+        if (BitMask.match(flag, this.alt)) msg += "Alt : ";
         return msg;
     }
 });
@@ -53,8 +53,8 @@ class InputReader {
 
     #updateMouseInputDescriptor(mouseEvent) {
         this.#mouseInputDescriptor.timestamp = ScriptGlobals.timeSinceStartup.value;
-        this.#mouseInputDescriptor.screenX = mouseEvent.screenX;
-        this.#mouseInputDescriptor.screenY = mouseEvent.screenY;
+        this.#mouseInputDescriptor.screenX = mouseEvent.clientX;
+        this.#mouseInputDescriptor.screenY = mouseEvent.clientY;
         this.#mouseInputDescriptor.deltaX = mouseEvent.movementX;
         this.#mouseInputDescriptor.deltaY = mouseEvent.movementY;
         return this.#mouseInputDescriptor;
