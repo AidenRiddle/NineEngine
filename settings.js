@@ -20,7 +20,7 @@ export const AppSettings = {
     field_of_view: 70,
 
     vertex_size: 3,
-    maximum_vertex_buffer_allocation_per_draw_call: 215 * KB,
+    maximum_vertex_buffer_allocation_per_draw_call: 512 * KB,
     maximum_index_buffer_allocation_per_draw_call: 160 * KB,
     vertex_buffer_size: 2 * MB,
 
