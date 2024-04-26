@@ -7,6 +7,7 @@ const glUniform = {
     [WebGLConstants.INT]: "uniform1i",
     [WebGLConstants.FLOAT]: "uniform1f",
     [WebGLConstants.FLOAT_VEC3]: "uniform3fv",
+    [WebGLConstants.FLOAT_VEC4]: "uniform4fv",
     [WebGLConstants.FLOAT_MAT4]: "uniformMatrix4fv"
 }
 
