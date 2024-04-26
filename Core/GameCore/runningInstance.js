@@ -94,9 +94,9 @@ export class RunningInstance {
         MaterialStorage.clear();
         MeshStorage.clear();
         ModelStorage.clear();
-        ProgramStorage.clear();
+        // ProgramStorage.clear();
         ScriptStorage.clear();
-        ShaderStorage.clear();
+        // ShaderStorage.clear();
         TextureStorage.clear();
     }
 
@@ -144,6 +144,7 @@ export class RunningInstance {
         await Resources.loadAll(dependencies, { hardFetch: true });
 
         const defaultVS = ShaderGenerator.vertex().useLightDirectional().generate();
+        console.log(defaultVS);
         ShaderStorage.Add("default_vertex_shader.glsl", false, defaultVS);
 
         const requiredMaterials = Array.from(this.#scenes[sceneName].dependencies.materials)
