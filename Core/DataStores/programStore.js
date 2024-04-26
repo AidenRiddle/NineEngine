@@ -16,7 +16,7 @@ const attribType = {}
 
 class Program {
     constructor(glProgram, attributes, uniforms, reservedUniforms) {
-        this.program = glProgram;
+        this.glProgram = glProgram;
         this.attributes = attributes;
         this.uniforms = uniforms;
         this.reservedUniforms = reservedUniforms;
