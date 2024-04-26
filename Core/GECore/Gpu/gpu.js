@@ -139,6 +139,11 @@ export default class Gpu {
         this.gl.bufferSubData(bufferType, 0, data);
     }
 
+    useTexture(glTexture, index) {
+        this.gl.activeTexture(this.gl.TEXTURE0 + index);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, glTexture);
+    }
+
     useTextures(textureArray) {
         //const tex = TextureStorage.Get("Textures/tk3.jpg");
         for (let j = 0; j < textureArray.length; j++) {
