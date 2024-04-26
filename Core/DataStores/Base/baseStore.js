@@ -15,5 +15,7 @@ export class DataStorage {
 
     static clear() { this.storage.clear(); }
 
-    static debug() { return Object.fromEntries(this.storage); }
+    static logSnapshot() { return Object.fromEntries(this.storage); }
+
+    static debug() { console.log(this.storage); }
 }

@@ -83,14 +83,14 @@ class NineEngineConsole {
             // "\nGuiStates:", GuiStateStorage.debug(),
             // "\nGuiNodes:", GuiStorage.debug(),
             "\n",
-            "\nMaterials:", MaterialStorage.debug(),
-            "\nMeshes:", MeshStorage.debug(),
-            "\nModels:", ModelStorage.debug(),
-            "\nPrograms:", ProgramStorage.debug(),
-            "\nScenes:", SceneStorage.debug(),
-            "\nScripts:", ScriptStorage.debug(),
-            "\nShaders:", ShaderStorage.debug(),
-            "\nTextures:", TextureStorage.debug()
+            "\nMaterials:", MaterialStorage.logSnapshot(),
+            "\nMeshes:", MeshStorage.logSnapshot(),
+            "\nModels:", ModelStorage.logSnapshot(),
+            "\nPrograms:", ProgramStorage.logSnapshot(),
+            "\nScenes:", SceneStorage.logSnapshot(),
+            "\nScripts:", ScriptStorage.logSnapshot(),
+            "\nShaders:", ShaderStorage.logSnapshot(),
+            "\nTextures:", TextureStorage.logSnapshot()
         );
     }
 
