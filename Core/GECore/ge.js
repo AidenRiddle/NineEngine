@@ -69,9 +69,12 @@ export default class GraphicsEngine {
     }
 
     #InitializeDepthSystem() {
-        const vs = this.#gpu.compileShader(Gpu.VERTEX_SHADER, depthVS);
-        const fs = this.#gpu.compileShader(Gpu.FRAGMENT_SHADER, depthFS);
-        this.#depthProgram = this.#gpu.createProgram(vs, fs);
+        const vs = "depthVS";
+        const fs = "depthFS";
+        ShaderStorage.Add(vs, false, depthVS);
+        ShaderStorage.Add(fs, true, depthFS);
+        ProgramStorage.Add(vs, fs);
+        this.#depthProgram = ProgramStorage.Get(vs, fs);
         this.#depthTextureSize = AppSettings.shadow_map_resolution;
 
         this.#depthTexture = TextureBuilder.with(this.#gpu)
@@ -88,17 +91,22 @@ export default class GraphicsEngine {
         this.#gpu.rewriteBuffer(Gpu.ELEMENT_ARRAY_BUFFER, this.#glIndexBuffer, mesh.indexVertexData);
     }
 
-    #depthDraw(sceneObjectArray) {
+    #depthDraw(sceneObjectArray, viewMatrix) {
         this.#gpu.useFrameBuffer(this.#depthFrameBuffer);
         this.#gpu.setViewPort(this.#depthTextureSize, this.#depthTextureSize);
         this.#gpu.clearDepthBuffer();
+
+        this.#uniformPackage.set(Webgl.uniform.viewMatrix, viewMatrix);
 
         for (const sceneObj of sceneObjectArray) {
             const model = ModelStorage.Get(sceneObj.modelId);
             const mesh = MeshStorage.Get(model.meshId);
 
-            this.#writeMeshData(mesh);
-            this.#gpu.useDepthShader(this.#depthProgram, this.#buffers["a_position"], LightDirectional.activeLight.getViewProjection(), sceneObj.transform.worldMatrix);
+            this.#uniformPackage.set(Webgl.uniform.objectMatrix, sceneObj.transform.worldMatrix);
+
+            this.#gpu.rewriteBuffer(Gpu.ARRAY_BUFFER, this.#buffers["a_position"], mesh.geometryVertexData);
+            this.#gpu.rewriteBuffer(Gpu.ELEMENT_ARRAY_BUFFER, this.#indexBuffer, mesh.indexVertexData);
+            this.#gpu.useDepthProgram(this.#depthProgram.glProgram, this.#buffers["a_position"], this.#uniformPackage);
             this.#gpu.drawFill(mesh.indexVertexData.length, 0);
         }
     }
@@ -172,7 +180,7 @@ export default class GraphicsEngine {
     }
 
     #naiveRender = (meshArray, cameraMatrix) => {
-        this.#depthDraw(meshArray);
+        this.#depthDraw(meshArray, LightDirectional.activeLight.getViewProjection());
         // this.#post.blur(this.#depthTextureSize, this.#depthTextureSize, Webgl.engineTexture.depthTexture);
         this.#drawScene(meshArray, cameraMatrix);
     }
