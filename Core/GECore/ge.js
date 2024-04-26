@@ -156,9 +156,9 @@ export default class GraphicsEngine {
 
     /**
      * @param {SceneObject[]} sceneObjectArray
-     * @param {Float32Array} cameraMatrix
+     * @param {Float32Array} viewMatrix
      */
-    #drawScene(sceneObjectArray, cameraMatrix) {
+    #drawScene(sceneObjectArray, viewMatrix) {
         Debug.StartCounter("Draw Calls Last Frame: ");
         Debug.Log("Viewport: ", this.#gpu.canvas.width, this.#gpu.canvas.height);
 
@@ -166,10 +166,11 @@ export default class GraphicsEngine {
         this.#gpu.setViewPort(this.#gpu.canvas.width, this.#gpu.canvas.height);
         this.#gpu.clearAllBuffers();
 
-        this.#uniformPackage.set(Webgl.uniform.viewMatrix, cameraMatrix)
-            .set(Webgl.uniform.lightDirectional, LightDirectional.activeLight.textureProjection)
-            .set(Webgl.uniform.lightDirectionalIntensity, LightDirectional.activeLight.intensity)
-            .set(Webgl.uniform.lightDirectionalReverse, LightDirectional.activeLight.transform.back.values())
+        const activeLight = LightDirectional.activeLight;
+        this.#uniformPackage.set(Webgl.uniform.viewMatrix, viewMatrix)
+            .set(Webgl.uniform.lightDirectional, activeLight.textureProjection)
+            .set(Webgl.uniform.lightDirectionalIntensity, activeLight.intensity)
+            .set(Webgl.uniform.lightDirectionalReverse, activeLight.transform.back.values())
             .set(Webgl.uniform.depthTexture, Webgl.engineTexture.depthTexture)
             .set(Webgl.uniform.timeSinceStart, ScriptGlobals.timeSinceStartup.value)
             .set(Webgl.uniform.shadowHalfSamples, AppSettings.shadow_halfSamples)
@@ -198,7 +199,7 @@ export default class GraphicsEngine {
                 Object.keys(mat.uniformValueMap)
                     .reduce((uniPkg, key) => uniPkg.set(key, mat.uniformValueMap[key]), this.#uniformPackage);
 
-                this.#gpu.useShader(
+                this.#gpu.useProgram(
                     program,
                     this.#buffers,
                     this.#uniformPackage);
