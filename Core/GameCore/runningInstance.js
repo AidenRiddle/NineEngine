@@ -262,12 +262,9 @@ export class RunningInstance {
     //
     //  Script functions
     //
-    static putScript(scriptName) {
-        return Promise.resolve()
-            .then(() => {
-                this.#scenes[this.#activeScene].dependencies.scripts.add(scriptName);
-                this.addResource(scriptName, scriptName);
-            });
+    static async putScript(scriptName) {
+        this.#scenes[this.#activeScene].dependencies.scripts.add(scriptName);
+        this.addResource(scriptName, scriptName);
     }
 
     static deleteScript(scriptName) {
