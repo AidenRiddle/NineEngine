@@ -160,7 +160,7 @@ export default class Gpu {
         this.gl.viewport(0, 0, width, height);
     }
 
-    useDepthShader(depthProgram, vertexBuffer, viewMatrix, objectMatrix) {
+    useDepthProgram(depthProgram, vertexBuffer, uniformValueMap) {
         const attrLoc = this.gl.getAttribLocation(depthProgram, "a_position");
 
         this.gl.useProgram(depthProgram);
@@ -168,8 +168,8 @@ export default class Gpu {
         this.gl.enableVertexAttribArray(attrLoc);
         this.gl.vertexAttribPointer(attrLoc, 3, this.gl.FLOAT, false, 0, 0);
 
-        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(depthProgram, Webgl.uniform.viewMatrix), false, viewMatrix);
-        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(depthProgram, Webgl.uniform.objectMatrix), false, objectMatrix);
+        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(depthProgram, Webgl.uniform.viewMatrix), false, uniformValueMap.get(Webgl.uniform.viewMatrix));
+        this.gl.uniformMatrix4fv(this.gl.getUniformLocation(depthProgram, Webgl.uniform.objectMatrix), false, uniformValueMap.get(Webgl.uniform.objectMatrix));
     }
 
     useProgram(program, bufferMap, uniformPackage) {
