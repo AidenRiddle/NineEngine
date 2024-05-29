@@ -29,6 +29,7 @@ import { AppSettings, System } from "./settings.js";
 import { NavFS } from "./FileSystem/FileNavigator/navigatorFileSystem.js";
 import { WorkerManager } from "./Core/Worker/workerManager.js";
 import { JobBuilder } from "./Core/Worker/job.js";
+import { ScriptManager } from "./Core/GameCore/WebAssembly/scriptManager.js";
 
 class Main {
     /** @type {HTMLCanvasElement} */
@@ -172,15 +173,14 @@ class Main {
         await this.#loadFromRunningInstance();
 
         const asyncInitialize = Promise.all([
-            NavFS.getRoot()
-            // ScriptManager.PreCompileOnly(),
+            NavFS.getRoot(),
+            ScriptManager.PreCompileOnly(),
         ]);
 
         // Resources.fetchRaw("3DModels/vanguard@samba.glb", { cacheResult: false, hardFetch: true })
         // const model = ModelStorage.Get("default_Vanguard");
         // model.setMeshId("3DModels/vanguard.glb");
         // model.setMaterials(["Vanguard"]);
-
 
         this.#resizeView();
 

@@ -184,6 +184,8 @@ export const Regex = Object.freeze({
 
 export const AssemblyScript = Object.freeze({
     compiler_args: `
+        --baseDir Scripts/
+        --path Scripts
         --outFile --stats --debug
         --importMemory --sharedMemory --zeroFilledMemory --maximumMemory ${System.runtime_maximum_memory}
         --enable threads

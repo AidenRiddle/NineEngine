@@ -104,8 +104,16 @@ export default class UiManager {
             Object.assign(com.imports, cargo.imports);
             console.log(this.#activeSceneObject);
         },
-        [UiEvent.inspector_add_script]: (cargo) => {
-            const script = ScriptStorage.Get(cargo) ?? ScriptStorage.Get(cargo.substring(2));
+        [UiEvent.inspector_add_script]: async (cargo) => {
+            const internalAddress = Address.asInternal(cargo);
+            let script = ScriptStorage.Get(internalAddress);
+
+            if (script == null) {
+                console.log(`Script definitions not found (${cargo}). Fetching...`);
+                await ScriptManager.addScriptToBuild(cargo);
+                script = ScriptStorage.Get(internalAddress);
+            }
+
             const imports = {};
             for (const [field, value] of Object.entries(script.declarations)) {
                 imports[field] = value.initialValue;

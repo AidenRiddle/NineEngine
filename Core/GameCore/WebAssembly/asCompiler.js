@@ -15,7 +15,10 @@ export function preCompile(buildPackage) {
     return asc.main(
         compilerArgs,
         {
-            readFile(name, baseDir) { return buildPackage.get(baseDir + "/" + name) ?? buildPackage.get(name); },
+            readFile(name, baseDir) {
+                console.log(baseDir, name);
+                return buildPackage.get(name) ?? buildPackage.get(baseDir + name);
+            },
             writeFile(name, data, baseDir) { buildPackage.set(name, data); },
             listFiles(dirname, baseDir) { console.log("Compiler ListFiles:", dirname); },
             transforms: [new PreCompileTransform()],

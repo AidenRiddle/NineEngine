@@ -130,6 +130,11 @@ export class ScriptManager {
         return ptr;
     }
 
+    static async addScriptToBuild(address) {
+        RunningInstance.putScript(address);
+        await this.PreCompileOnly();
+    }
+
     static PreCompileOnly() {
         const startTime = ~~performance.now();
         console.groupCollapsed("Pre-compilation Log");
@@ -157,41 +162,41 @@ export class ScriptManager {
             })
     }
 
-    static Build(componentImports) {
+    static async Build(componentImports) {
         console.log("Script Imports:", componentImports);
-        return WebAssembly.instantiate(this.#waModule, this.#importMap)
-            .then((instance) => {
-                console.log("Runtime:", instance.exports);
-                this.#runtime = instance.exports;
-                this.#runtime._start();
-                for (const comPackage of componentImports) {
-                    const soid = comPackage.soid;
-                    for (const com of comPackage.soComponents) {
-                        if (this.#componentMaps[soid] == null) this.#componentMaps[soid] = {};
-                        const sceneObjectPtr = this.#runtime[soid];
-                        const className = (ScriptStorage.Get(com.module) ?? ScriptStorage.Get(com.module.substring(2))).className;
-                        this.#componentMaps[soid][com.module] = this.#runtime["add_component_" + className](sceneObjectPtr);
-                    }
-                    for (const com of comPackage.soComponents) {
-                        const script = ScriptStorage.Get(com.module) ?? ScriptStorage.Get(com.module.substring(2));
-                        const className = script.className;
+        const instance = await WebAssembly.instantiate(this.#waModule, this.#importMap);
+        console.log("Runtime:", instance.exports);
 
-                        for (const [field, rawValue] of Object.entries(com.imports)) {
-                            const requiredType = script.declarations[field].type;
+        this.#runtime = instance.exports;
+        this.#runtime._start();
 
-                            let interpretedValue;
-                            if (requiredType == 'bool') interpretedValue = (rawValue) ? 1 : 0;
-                            else if (waPrimitives.has(requiredType)) interpretedValue = rawValue;
-                            else if (requiredType == "string") interpretedValue = this.#writeStringToRuntime(rawValue);
-                            else if (requiredType == "SceneObject") interpretedValue = this.#runtime[rawValue];
-                            else interpretedValue = this.#componentMaps[rawValue][requiredType];
+        for (const comPackage of componentImports) {
+            const soid = comPackage.soid;
+            for (const com of comPackage.soComponents) {
+                if (this.#componentMaps[soid] == null) this.#componentMaps[soid] = {};
+                const sceneObjectPtr = this.#runtime[soid];
+                const className = (ScriptStorage.Get(com.module) ?? ScriptStorage.Get(com.module.substring(2))).className;
+                this.#componentMaps[soid][com.module] = this.#runtime["add_component_" + className](sceneObjectPtr);
+            }
+            for (const com of comPackage.soComponents) {
+                const script = ScriptStorage.Get(com.module) ?? ScriptStorage.Get(com.module.substring(2));
+                const className = script.className;
 
-                            this.publishValue(soid, com.module, className, field, requiredType, interpretedValue);
-                        }
-                    }
+                for (const [field, rawValue] of Object.entries(com.imports)) {
+                    const requiredType = script.declarations[field].type;
+
+                    let interpretedValue;
+                    if (requiredType == 'bool') interpretedValue = (rawValue) ? 1 : 0;
+                    else if (waPrimitives.has(requiredType)) interpretedValue = rawValue;
+                    else if (requiredType == "string") interpretedValue = this.#writeStringToRuntime(rawValue);
+                    else if (requiredType == "SceneObject") interpretedValue = this.#runtime[rawValue];
+                    else interpretedValue = this.#componentMaps[rawValue][requiredType];
+
+                    this.publishValue(soid, com.module, className, field, requiredType, interpretedValue);
                 }
-                console.log("Component Addresses:", this.#componentMaps);
-            })
+            }
+        }
+        console.log("Component Addresses:", this.#componentMaps);
     }
 
     static bindSceneObject(so) {
