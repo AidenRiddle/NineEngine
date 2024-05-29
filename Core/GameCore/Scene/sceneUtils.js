@@ -162,7 +162,7 @@ export default class SceneUtils {
 
         const sceneObjects = new Map();
 
-        if (DebugToggle.light_ShadowRealm) {
+        if (DebugToggle.light_shadow_realm) {
             const [sr, or] = light.getVisualDebug();
             sceneObjects.set(sr.id, sr);
             sceneObjects.set(or.id, or);

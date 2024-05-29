@@ -58,8 +58,8 @@ export const System = Object.freeze({
 })
 
 export const DebugToggle = Object.freeze({
-    light_ShadowRealm: false,
-    enumFullName: true,
+    light_shadow_realm: false,
+    enum_full_name: true,
     ui_logs: true,
 })
 
@@ -68,7 +68,7 @@ export const Stash = Object.freeze({
     worker_script_root: location.origin,
     default_running_instance: location.origin + "/Core/defaultRunningInstance.json",
     fixtures: location.origin + "/FileSystem/FileNavigator/fixtures.json",
-    coreFixtures: location.origin + "/FileSystem/FileNavigator/coreFixtures.json",
+    core_fixtures: location.origin + "/FileSystem/FileNavigator/coreFixtures.json",
 })
 
 export const DataBaseSchema = Object.freeze({
