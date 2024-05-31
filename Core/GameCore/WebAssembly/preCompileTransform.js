@@ -12,25 +12,17 @@ export class PreCompileTransform {
             const internalName = file.source.simplePath;
             const declarations = {};
             for (const exp of file.exports.values()) {
-                const className = exp.name;
-
-                let base = exp.basePrototype;
-                while (base != null) {
-                    if (base.name == "Component") break;
-                    base = base.basePrototype;
-                }
-                if (base == null) continue;
+                if (!this.#isChildOfComponent(exp)) continue;
 
                 for (const member of exp.instanceMembers.values()) {
-                    const decorators = this.#getMemberDecorators(member);
-                    if (decorators.includes("Serialize")) {
+                    if (this.#isMemberSerialized(member)) {
                         declarations[member.name] = {
                             type: member.typeNode.name.identifier.text,
                             initialValue: this.#getMemberInitialValue(member)
                         };
                     }
                 }
-                ScriptStorage.Add(normalizedPath, className, internalName, declarations);
+                ScriptStorage.Add(normalizedPath, exp.name, internalName, declarations);
                 break;
             }
         }
@@ -39,7 +31,21 @@ export class PreCompileTransform {
 
     afterCompile(module) {
         // console.log("What is a module?", module);
+    }
 
+    #isChildOfComponent(exp) {
+        let parentClass = exp.basePrototype;
+        while (parentClass != null) {
+            if (parentClass.name == "Component") return true;
+            parentClass = parentClass.basePrototype;
+        }
+        return false;
+    }
+
+    #isMemberSerialized(member) {
+        const serializeToken = "Serialize";
+        const decorators = this.#getMemberDecorators(member);
+        return decorators.includes(serializeToken);
     }
 
     #getMemberDecorators(member) {
