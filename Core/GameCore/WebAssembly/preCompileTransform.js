@@ -2,17 +2,10 @@ import { ScriptStorage } from "../../DataStores/scriptStore.js";
 
 // https://www.assemblyscript.org/compiler.html#transforms
 export class PreCompileTransform {
-    prg;
 
     afterInitialize(program) {
-        console.log("What is a program?", program);
-        this.prg = program;
-        // console.log("Joe:", program.managedClasses);
-    }
-    afterCompile(module) {
-        // console.log("What is a module?", module);
-
-        for (const file of this.prg.filesByName.values()) {
+        console.log("What is a program?", structuredClone(program));
+        for (const file of program.filesByName.values()) {
             const normalizedPath = file.source.normalizedPath;
             if (normalizedPath.startsWith("~lib")) continue;
 
@@ -23,11 +16,8 @@ export class PreCompileTransform {
 
                 let base = exp.basePrototype;
                 while (base != null) {
-                    if (base.name != "Component") {
-                        base = base.basePrototype;
-                    } else {
-                        break;
-                    }
+                    if (base.name == "Component") break;
+                    base = base.basePrototype;
                 }
                 if (base == null) continue;
 
@@ -44,6 +34,12 @@ export class PreCompileTransform {
                 break;
             }
         }
+        // console.log("Joe:", program.managedClasses);
+    }
+
+    afterCompile(module) {
+        // console.log("What is a module?", module);
+
     }
 
     #getMemberDecorators(member) {
